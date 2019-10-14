@@ -1,0 +1,616 @@
+// //EDM tracker plots
+// // Gleb 11 October 2019
+// // Based of Geane plots module by Nick
+
+// // Include needed ART headers
+// #include "art/Framework/Core/EDAnalyzer.h"
+// #include "art/Framework/Core/ModuleMacros.h"
+// #include "art/Framework/Principal/Event.h"
+// #include "art/Framework/Services/Optional/TFileService.h"
+// #include "art/Framework/Services/Registry/ServiceHandle.h"
+// #include "canvas/Persistency/Common/FindManyP.h"
+
+// //art records
+// #include "gm2dataproducts/strawtracker/TrackArtRecord.hh"
+// #include "gm2dataproducts/strawtracker/TrackDetailArtRecord.hh"
+// #include "gm2dataproducts/mc/ghostdetectors/GhostDetectorArtRecord.hh"
+
+// //Utils
+// #include "gm2geom/common/Gm2Constants_service.hh"
+// #include "gm2util/common/dataModuleDefs.hh"
+// #include "gm2util/common/RootManager.hh"
+// #include "gm2util/coordSystems/CoordSystemUtils.hh"
+// #include "gm2tracker/quality/TrackQuality_service.hh"
+// #include "gm2geom/strawtracker/StrawTrackerGeometry_service.hh"
+// #include "gm2tracker/utils/GeaneTrackUtils.hh"
+
+// //C++ includes
+// #include <iostream>
+// #include <string>
+// #include <vector>
+// #include <map>
+// #include <set>
+// #include <math.h>
+
+// #include <Eigen/Dense>
+// #include "gm2tracker/utils/GeaneEigenStorageUtils.hh"
+// #include "gm2tracker/utils/TrackDetailArtRecordUtils.hh"
+
+// namespace gm2analyses {
+
+// //
+// // Class declaration
+// //
+// class EDMPlots : public art::EDAnalyzer {
+
+// public:
+
+//   explicit EDMPlots(fhicl::ParameterSet const& pset);
+
+//   //Override desired art::EDAnalyzer functions
+//   void analyze(const art::Event& event ) override;
+//   void beginJob() override;
+//   void beginRun(art::Run const & r) override;
+//   void endRun(art::Run const & r) override;
+//   void endJob() override;
+
+// private:
+
+//   std::string name_;
+
+//   //Producer labels
+//   std::string TrackModuleLabel_;
+//   std::string TrackInstanceName_;
+
+//   std::string dcaDigitModuleLabel_;
+//   std::string dcaDigitInstanceLabel_;
+
+//   std::string DummyModuleLabel_;
+//   std::string DummyInstanceName_;
+
+//   std::string trajectoryModuleLabel_;
+//   std::string trajectoryInstanceName_;
+
+//   //ROOT plotting members
+//   std::unique_ptr<RootManager> rootManager_;
+//   std::string dirName_;
+
+//   //Helper tools
+//   gm2geom::CoordSystemsStoreData cs_;
+//   gm2strawtracker::GeaneTrackUtils geaneTrackUtils_;
+//   art::ServiceHandle<gm2strawtracker::TrackQuality> trackQuality_;
+
+//   //Variables that we cut on
+//   bool applyTrackQuality_;
+//   double pValueCut_;
+//   int numPlanesHitCut_;
+//   double energyLossCut_;
+//   vector<double> timeWindow_;
+//   vector<double> momWindow_;
+//   vector<int> stations_;
+
+//   // Keep track of number of tracks and number of events to work out tracks per event for this run
+//   int tracksInRun_;
+//   int eventsInRun_;
+
+//   // Flag for whether we want to make truth plots (we don't know whether it's data or MC at the beginRun stage).
+//   bool makeTruthPlots_;
+
+//   // Flag for grabbing the detail track art record
+//   bool useTrackDetailArtRecord_;
+
+//   gm2util::CoordSystemUtils csUtils_;
+//   std::map< std::string, gm2geom::CoordSystemsStoreData > detCoordMap_;
+
+//   // Data and MC plots
+//   void BookHistograms(TDirectory* dir);
+//   void FillHistograms(const art::Event& event);
+//   void FillPlaneHistos(int numPlanesHit, int stationNum, const gm2strawtracker::TrackDetailArtRecord& track, double& t0);
+
+//   // MC-only plots
+//   void BookTruthHistograms(TDirectory* dir);
+//   void FillTruthHistograms(const art::Event& event);
+//   void FillPlaneTruthHistos(int numPlanesHit, int stationNum, const gm2strawtracker::TrackDetailArtRecord& track, art::Ptr<gm2truth::GhostDetectorArtRecord>& dummyHit);
+//   void FillGlobalPullHistos(int stationNum, const gm2strawtracker::TrackDetailArtRecord& track, art::Ptr<gm2truth::GhostDetectorArtRecord>& dummyHit);
+
+// }; //End of class EDMPlots
+
+// //
+// // Class implementation
+// //
+// EDMPlots::EDMPlots(fhicl::ParameterSet const& pset)
+//   : art::EDAnalyzer(pset)
+//   , name_( "EDMPlots" )
+//   , TrackModuleLabel_( pset.get<std::string>("TrackModuleLabel", dataModuleDefs::trackModuleLabel()) )
+//   , TrackInstanceName_( pset.get<std::string>("TrackInstanceName", dataModuleDefs::recoInstanceLabel()) )
+//   , dcaDigitModuleLabel_( pset.get<std::string>("dcaDigitModuleLabel", dataModuleDefs::dcaDigitModuleLabel()) )
+//   , dcaDigitInstanceLabel_( pset.get<std::string>("dcaDigitInstanceLabel", dataModuleDefs::digitInstanceLabel()) )
+//   , DummyModuleLabel_( pset.get<std::string>("DummyModuleLabel", dataModuleDefs::strawBuilderModuleLabel()) )
+//   , DummyInstanceName_( pset.get<std::string>("DummyInstanceName", "trackerdummyplane") )
+//   , trajectoryModuleLabel_( pset.get<std::string>("trajectoryModuleLabel", dataModuleDefs::trajBuilderModuleLabel()) )
+//   , trajectoryInstanceName_( pset.get<std::string>("trajectoryInstanceName", dataModuleDefs::trajBuilderInstanceLabel()) )
+//   , rootManager_()
+//   , dirName_( pset.get<std::string>("dirName", name_) )
+//   , cs_()
+//   , geaneTrackUtils_()
+//   , applyTrackQuality_( pset.get<bool>("applyTrackQuality", true) )
+//   , pValueCut_( pset.get<double>("pValueCut", 0.0) )
+//   , numPlanesHitCut_( pset.get<int>("numPlanesHitCut", 0))
+//   , energyLossCut_( pset.get<double>("energyLossCut", 1e6)) // default energy loss cut large
+//   , timeWindow_(pset.get<vector<double> >("timeWindow", {}))
+// , momWindow_(pset.get<vector<double> >("momWindow", {}))
+// , stations_(pset.get<vector<int> >("stations", {}))
+// , tracksInRun_(0)
+// , eventsInRun_(0)
+// , makeTruthPlots_(pset.get<bool>("makeTruthPlots", true))
+// , useTrackDetailArtRecord_(pset.get<bool>("useTrackDetailArtRecord", false))
+// , csUtils_()
+// , detCoordMap_()
+// {}
+
+// void EDMPlots::beginJob() {
+//   //Create a ROOT file and manager
+//   art::ServiceHandle<art::TFileService> tfs;
+//   auto& outputRootFile = tfs->file();
+//   rootManager_.reset( new RootManager(name_, &outputRootFile) );
+
+//   //Create directory structure (do it here so that they're in reasonable order)
+//   auto topDir = rootManager_->GetDir(&outputRootFile, dirName_, true); //true -> create if doesn't exist
+//   rootManager_->GetDir(topDir, "RunInfo", true);
+//   rootManager_->GetDir(topDir, "Fit", true);
+//   if (makeTruthPlots_){
+//      rootManager_->GetDir(topDir, "Truth", true);
+//      rootManager_->GetDir(topDir, "dFitTruth", true);
+//   }
+//   // Book histograms
+//   BookHistograms(topDir);
+// }//beginJob
+
+
+// void EDMPlots::beginRun(art::Run const & r) {
+//   //Get coord systems
+//   cs_ = artg4::dataFromRunOrService<gm2geom::CoordSystemsStoreData, gm2geom::CoordSystemsStore>
+//         ( r, dataModuleDefs::coordSysModuleLabel(), dataModuleDefs::coordSysInstanceLabel() );
+//   if ( cs_.size() == 0 ) mf::LogWarning(name_) << "This run does not contain any data associated with the coordinate system\n";
+
+//   // Add extra coordinate system maps to speed up transforms
+//   art::ServiceHandle<StrawTrackerGeometryService> sgeom_;
+//   std::vector<std::string> detNames;
+//   detNames.push_back("TrackerStation");
+//   detNames.push_back("TrackerModule");
+//   for (auto s : sgeom_->geom().whichScallopLocations) {
+//     for (unsigned int m = 0; m < sgeom_->geom().getNumModulesPerStation(); ++m) {
+//       detNames.push_back(Form("Module%d:%d", s, m));
+//     }
+//   }
+//   csUtils_.setDetectorNames(detNames);
+//   csUtils_.detNameToCoordMap(cs_, detCoordMap_);
+
+//   // Reset tracks and events
+//   eventsInRun_ = 0;
+//   tracksInRun_ = 0;
+
+// }//beginRun
+
+// void EDMPlots::analyze(const art::Event& event) {
+
+//   // Set flag for whether to fill truth plots
+//   if (event.isRealData()) makeTruthPlots_ = false;
+
+//   //Fill plots
+//   FillHistograms(event);
+
+//   // Increment event counter
+//   eventsInRun_++;
+
+// }//analyze
+
+
+// void EDMPlots::endRun(art::Run const & r) {
+//   auto runInfoDirectory = rootManager_->GetDir(rootManager_->GetDir(dirName_), "RunInfo");
+//   auto tgTracks = rootManager_->Get<TGraph*>(runInfoDirectory, "TracksPerEvent" );
+//   if (eventsInRun_ > 0) tgTracks->SetPoint(tgTracks->GetN(), r.run(), double(tracksInRun_) / eventsInRun_);
+// }
+
+// void EDMPlots::endJob() {
+
+//   const char* boolYN[2] = {"No", "Yes"}; // True/False -> Yes/No mapping
+
+//   // apt_->AdjustHistograms(dirName_); // rescale some histos (see AlignmentPlotsTool for example)
+
+//   //Dump some per job results
+//   mf::LogInfo info("summary");
+//   info << "\n--------- EDM Plots Report ---------\n";
+//   info << "Total number of events = " << eventsInRun_ << "\n";
+//   info << "Total number of track = " << tracksInRun_ << "\n";
+//   info << "Track Quality Cuts applied: " << boolYN[applyTrackQuality_] << "\n";
+//   info << "p-value cut used: " << pValueCut_ << "\n";
+//   if (numPlanesHitCut_ > 0) info << "numPlanesHitCut_: " << numPlanesHitCut_ << "\n";
+//   if ( energyLossCut_ < 1e6) info << "energyLossCut_: " << energyLossCut_ << "\n";
+//   if ( timeWindow_.size() >= 2) info  <<  "timeWindow_: " << timeWindow_[0] << " " << timeWindow_[1] << "\n";
+//   if ( momWindow_.size() >= 2)  info << "momWindow_: " << momWindow_[0] << " " << momWindow_[1] << "\n";
+//   info << "------------------------------------------------\n";
+
+//   //Clear out empty histos recursively from the top-level directory
+//   rootManager_->ClearEmpty(rootManager_->GetDir(dirName_));
+
+// } //endJob
+
+// void EDMPlots::BookHistograms(TDirectory* dir) {
+
+//   // Run Info (run number and number of tracks per run)
+//   auto runInfoDirectory = rootManager_->GetDir(dir, "RunInfo");
+//   rootManager_->Add( runInfoDirectory, new TH1F( "Run", ";Run Number; Tracks", 25000, 14999.5, 39999.5) );
+//   TGraph* tgTracks = new TGraph();
+//   tgTracks->SetName( "TracksPerEvent" );
+//   tgTracks->SetTitle(";Run Number;No. Tracks per Fill");
+//   tgTracks->SetMarkerStyle(20);
+//   tgTracks->SetLineWidth(0);
+//   rootManager_->Add( runInfoDirectory, tgTracks);
+
+//   // Track fit results (at plane 0)
+  
+//   // form a vector to loop over 
+//   std::vector<auto> dirs;   
+//   auto fitResultsDir = rootManager_->GetDir(dir, "Fit");
+//   dirs.push_back(fitResultsDir)
+//   if (makeTruthPlots_) {
+//     auto truthDirectory = rootManager_->GetDir(dir, "Truth");
+//     dirs.push_back(truthDirectory)
+//     auto dFitTruthDirectory = rootManager_->GetDir(dir, "dFitTruth");
+
+//       // TODO create the Delta(Truth-Data) histos here
+
+//   }
+
+//   // Book same plots for fit and sim-truth (if used)
+//   for(auto&& dirNameVec:  dirs){
+//   rootManager_->Add( dirNameVec, new TH1F( "P", "; P [MeV]; Tracks", 360, 0, 3600) );
+//   rootManager_->Add( dirNameVec, new TH1F( "Px", "; P_{x} [MeV]; Tracks", 500, -1000, 1000) );
+//   rootManager_->Add( dirNameVec, new TH1F( "Py", "; P_{y} [MeV]; Tracks", 500, -250, 250) );
+//   rootManager_->Add( dirNameVec, new TH1F( "Pz", "; P_{z} [MeV]; Tracks", 360, 0, 3600) );
+//   rootManager_->Add( dirNameVec, new TH1F( "Pr", "; P_{r} [MeV]; Tracks", 500, -1000, 1000) );
+//   rootManager_->Add( dirNameVec, new TH1F( "R", "; R [mm]; Tracks", 600, 6600, 7200) );
+//   rootManager_->Add( dirNameVec, new TH2F( "EntrancePoint", "; Module X [mm]; Module Y", 500, -75, 175, 400, -100, 100) );
+//   rootManager_->Add( dirNameVec, new TH1F( "Chi2", ";#chi^{2}; Events", 200, 0, 100) );
+//   rootManager_->Add( dirNameVec, new TH1F( "pValues", "; pValue; Events", 200, 0, 1) );
+//   rootManager_->Add( dirNameVec, new TH1F( "Times", ";Track t_{0} (us); Events", 6000, 0, 6000 * 0.148936) );
+//   rootManager_->Add( dirNameVec, new TH1F( "Times_gt_1800MeV", ";Track t_{0} (us); Events", 6000, 0, 6000 * 0.148936) );
+//   rootManager_->Add( dirNameVec, new TH1F( "Times_fastRotation", ";Track t_{0} (us); Events", 36000, 0, 6000 * 0.148936) );
+//   rootManager_->Add( dirNameVec, new TH2F( "Time_vs_Pr", ";Track t_{0} (us) Events; P_{r} [MeV]", 6000, 0, 6000 * 0.148936, 300, -800, 400) );
+//   rootManager_->Add( dirNameVec, new TH2F( "Time_vs_P" , ";Track t_{0} (us) Events; P [MeV]",     6000, 0, 6000 * 0.148936, 360, 0, 3600) );
+//   rootManager_->Add( dirNameVec, new TH1F( "cosAngle", "; cosAngle; Events", 1010, 0, 1.01));
+//   rootManager_->Add( dirNameVec, new TH2F( "cosAngleMomDiff", "; cosAngle; Mom", 1010, 0, 1.01, 101, -.1, 10));
+//   rootManager_->Add( dirNameVec, new TH2F( "cosAngleEdep", "; cosAngle; Edep", 1010, 0, 1.01, 101, -.1, 10));
+//   rootManager_->Add( dirNameVec, new TH1F( "maxCosAngle", "; maxCosAngle; Events", 1010, 0, 1.01));
+//   }
+
+// } // BookHistograms
+
+
+// void EDMPlots::FillHistograms(const art::Event& event) {
+
+//   mf::LogInfo info(name_);
+//   mf::LogTrace(name_) << "Begin filling histograms. \n";
+
+//   // Get histogram directories
+//   auto dir = rootManager_->GetDir(dirName_);
+//   auto runInfoDirectory = rootManager_->GetDir(dir, "RunInfo");
+//   auto fitResultsDirectory = rootManager_->GetDir(dir, "FitResults");
+
+//   //Get Track Fitting Results
+//   art::Handle<gm2strawtracker::TrackArtRecordCollection> tracksHandle;
+//   bool foundTrackCollection = event.getByLabel(TrackModuleLabel_, TrackInstanceName_, tracksHandle);
+//   if ( ! foundTrackCollection ) {
+//     throw cet::exception(name_) << "No Trackcollection in this event (\"" << TrackModuleLabel_ << "\":\"" << TrackInstanceName_ << "\")\n";
+//     return;
+//   }
+//   art::Handle<gm2strawtracker::TrackDetailArtRecordCollection> tracksDetailHandle;
+//   if ( useTrackDetailArtRecord_ ) {
+//     foundTrackCollection = event.getByLabel(TrackModuleLabel_, TrackInstanceName_, tracksDetailHandle);
+//     if ( ! foundTrackCollection ) {
+//       throw cet::exception(name_) << "No Trackcollection in this event (\"" << TrackModuleLabel_ << "\":\"" << TrackInstanceName_ << "\")\n";
+//       return;
+//     }
+//   }
+
+//   //Don't fill anything if we've not got any tracks in this event
+//   if ( !useTrackDetailArtRecord_ && (*tracksHandle).size() == 0 )       return;
+//   if ( useTrackDetailArtRecord_  && (*tracksDetailHandle).size() == 0 ) return;
+
+//   //Get true Dummy Plane Records
+//   art::Handle<gm2truth::GhostDetectorArtRecordCollection> dummyHandle;
+//   bool foundDummyCollection = event.getByLabel(DummyModuleLabel_, DummyInstanceName_, dummyHandle);
+//   if ( ! foundDummyCollection ) {
+//     mf::LogWarning(name_) << "No Dummy collection in this event (\"" << DummyModuleLabel_ << "\":\"" << DummyInstanceName_ << "\")\n";
+//   }
+
+//   //Get true trajectory Records
+//   art::Handle<gm2truth::TrajectoryArtRecordCollection> trajHandle;
+//   bool foundTrajCollection = event.getByLabel(trajectoryModuleLabel_, trajectoryInstanceName_, trajHandle);
+//   if ( ! foundTrajCollection ) {
+//     mf::LogWarning(name_) << "No trajectories in this event (\"" << trajectoryModuleLabel_ << "\":\"" << trajectoryInstanceName_ << "\")\n";
+//   }
+
+//   const gm2strawtracker::TrackArtRecordCollection & trackArtRecordData = tracksHandle->size() == 0  ? gm2strawtracker::TrackArtRecordCollection() : *tracksHandle;
+//   auto tracksData = useTrackDetailArtRecord_  ? *tracksDetailHandle : gm2strawtracker::TrackDetailArtRecordUtils::FillTrackDetailArtRecord(trackArtRecordData);
+
+//   if ( tracksData.size() == 0 ) {
+//     throw cet::exception(name_) << "Something went wrong when using the TrackDetailArtRecordUtis!\n";
+//     return;
+//   }
+
+//   // Loop over each track and decide whether to cut
+//   for ( auto & trackData : tracksData ) {
+
+//     // Resolve handle to get collection - now with eigen object conversion
+//     auto track            = gm2strawtracker::GeaneEigenStorageUtils::ReadEigenFromStorage(trackData);
+//     auto geaneHitsOnTrack = track.geaneHits;
+
+//     // Apply cuts
+//     if (applyTrackQuality_ && !trackQuality_->goodTrack(track)) continue;
+//     if (track.failureMode != 0 ) continue;
+//     if (track.pValue < pValueCut_) continue;
+//     if (track.trackNumPlanesHit < numPlanesHitCut_) continue;
+//     if (timeWindow_.size() == 2 && (track.candidate->t0 < timeWindow_[0] or track.candidate->t0 > timeWindow_[1])) continue;
+
+//     auto startingTrackPx = track.geaneHits.startingGeaneParameters.at(3);
+//     auto startingTrackPy = track.geaneHits.startingGeaneParameters.at(4);
+//     auto startingTrackPz = track.geaneHits.startingGeaneParameters.at(5);
+
+//     double startingTrackMomentum = sqrt(startingTrackPx * startingTrackPx + startingTrackPy * startingTrackPy + startingTrackPz * startingTrackPz );
+//     if (momWindow_.size() == 2 && (startingTrackMomentum < momWindow_[0] or startingTrackMomentum > momWindow_[1])) continue;
+
+//     int thisStation = track.candidate->strawDigits.at(0)->wireID.getStation();
+//     if (stations_.size() > 0 && (std::find(stations_.begin(), stations_.end(), thisStation) == stations_.end())) continue;
+
+//     double energyDiff = 0;
+
+//     if (foundDummyCollection) {
+//       energyDiff = track.dummyPlaneHits.at(0)->momentum.mag() - track.dummyPlaneHits.back()->momentum.mag();
+//       if (energyDiff > energyLossCut_) {
+//         info << "LOSSCATCH: event " << event.event() << " with greater energy loss than momentum tolerance: " << energyDiff << "\n";
+//         continue;
+//       }
+//     }
+
+//     rootManager_->Get<TH1F*>( runInfoDirectory, "Run" )->Fill(event.run());
+//     rootManager_->Get<TH1F*>( fitResultsDirectory, "Chi2" )->Fill(track.chi2);
+//     rootManager_->Get<TH1F*>( fitResultsDirectory, "pValues" )->Fill(track.pValue);
+//     rootManager_->Get<TH1F*>( fitResultsDirectory, "Times" )->Fill( (track.candidate->t0) * 1.e-3 ); // ns to us
+//     if (startingTrackMomentum > 1800) rootManager_->Get<TH1F*>( fitResultsDirectory, "Times_gt_1800MeV" )->Fill( (track.candidate->t0) * 1.e-3 ); // ns to us
+//     rootManager_->Get<TH1F*>( fitResultsDirectory, "Times_fastRotation" )->Fill( (track.candidate->t0) * 1.e-3 ); // ns to us
+
+//     auto trackCandidateT0 = track.candidate->t0;
+//     // Fill overall (plane 0) plots
+//     FillPlaneHistos(0, thisStation, track, trackCandidateT0);
+//     if (foundDummyCollection and makeTruthPlots_) {
+//       auto dummyHit = track.dummyPlaneHits.at(0);
+//       FillPlaneTruthHistos(0, thisStation, track, dummyHit);
+//       FillGlobalPullHistos(thisStation, track, dummyHit);
+//     }
+
+
+//     /////////////////////////////////////////////////////////////////////////////////////
+//     // Trajectory Plots
+//     /*
+//           if (foundTrajCollection and makeTruthPlots_){
+
+//       auto trajPlotsDir = rootManager_->GetDir(dir,"TrajPlots");
+
+//       gm2truth::TrajectoryArtRecordCollection const& trajectories = *trajHandle;
+
+//       for( auto traj : trajectories) {
+//         if (traj.trackID != 4 || traj.pdgID != -11) continue;
+
+//         double maxCosAngle = 1.0;
+
+//         for (int i = 0; i < int(traj.points.size()); ++i){
+//           auto point = traj.points.at(i);
+
+//           int stationNumber = track.candidate->strawDigits.at(0)->wireID.getStation();
+
+//           stringstream stationStream;
+//           stationStream << "TrackerStation[" << stationNumber << "]";
+//           string stationStr = stationStream.str();
+
+//           gm2geom::CoordSystem3Vector pointPos(point.position, "world");
+
+//           auto css = detCoordMap_.find("TrackerStation")->second;
+//           gm2geom::CoordSystem3Vector pointPosGeane = pointPos.transform(css, stationStr);
+
+//           if (pointPosGeane.x() > track.startingGeaneParameters.at(0) && pointPosGeane.x() < track.planeXPositions.at(track.trackPlanesHitList.back())){
+//             // G4cout << "Step momentum: " << point.momentum << G4endl;
+
+//             if (i != 0){
+//         G4ThreeVector prevMomentum = traj.points.at(i-1).momentum;
+//         G4ThreeVector currMomentum = point.momentum;
+
+//         double cosAngle = (prevMomentum.x()*currMomentum.x() + prevMomentum.y()*currMomentum.y() + prevMomentum.z()*currMomentum.z()) / (prevMomentum.mag() * currMomentum.mag());
+
+//         std::cout.precision(17);
+//         if (cosAngle >= 1.00001) {
+//           std::cout << "prevMomentum x: " << prevMomentum.x() << " " << "currMomentum x: " << currMomentum.x() << std::endl;
+//           std::cout << "prevMomentum y: " << prevMomentum.y() << " " << "currMomentum y: " << currMomentum.y() << std::endl;
+//           std::cout << "prevMomentum z: " << prevMomentum.z() << " " << "currMomentum z: " << currMomentum.z() << std::endl;
+//           std::cout << "prevMomentum mag: " << prevMomentum.mag() << " " << "currMomentum mag: " << currMomentum.mag() << std::endl;
+//           std::cout << "Cos(angle) = " << cosAngle << std::endl;
+//           std::cout << "Event: " << event.event() << " subRun: " << event.subRun() << std::endl;
+//           info << "cosAngle > 1.00001 " << " Event: " << event.event() << " subRun: " << event.subRun() << std::endl;
+//         }
+
+
+//         if (cosAngle < maxCosAngle) maxCosAngle = cosAngle; // larger angle for smaller cosAngle
+
+//         rootManager_->Get<TH1F*>( trajPlotsDir, "cosAngle")->Fill(cosAngle);
+//         rootManager_->Get<TH2F*>( trajPlotsDir, "cosAngleMomDiff")->Fill(cosAngle, prevMomentum.mag()-currMomentum.mag());
+//         rootManager_->Get<TH2F*>( trajPlotsDir, "cosAngleEdep")->Fill(cosAngle, point.edep);
+
+//             }
+//           }
+//         }
+//         rootManager_->Get<TH1F*>( trajPlotsDir, "maxCosAngle")->Fill(maxCosAngle);
+
+//       }
+//           } // end traj plots
+//     */
+//     // Trajectory Plots
+//     /////////////////////////////////////////////////////////////////////////////////////
+
+//     tracksInRun_++;
+
+//   } // end auto loop over tracks
+
+//   mf::LogTrace(name_) << "End filling histograms. \n";
+
+// } // end FillHistograms main method
+
+// void EDMPlots::FillPlaneHistos(int planeNum, int stationNum, const gm2strawtracker::TrackDetailArtRecord & track, double & trackCandidateT0) {
+
+//   mf::LogTrace(name_) << "Begin filling plane histograms. \n";
+
+//   auto & geaneHitsOnTrack = track.geaneHits;
+
+//   stringstream stationStream;
+//   stationStream << "TrackerStation[" << stationNum << "]";
+//   string stationStr = stationStream.str();
+
+//   // Upstream module coordsystem
+//   int firstModule = track.candidate->upstreamDigit->wireID.getModule();
+
+//   /////////////////////////////////////////////////////////////////////////////////////
+//   // predicted parameters
+
+//   double predictedMomentum = geaneTrackUtils_.getPredMom(geaneHitsOnTrack, planeNum);
+//   double predictedXMomentum = geaneTrackUtils_.getPredXMom(geaneHitsOnTrack, planeNum);
+//   double predictedYMomentum = geaneTrackUtils_.getPredYMom(geaneHitsOnTrack, planeNum);
+//   double predictedZMomentum = geaneTrackUtils_.getPredZMom(geaneHitsOnTrack, planeNum);
+//   double predictedUMomentum = geaneTrackUtils_.getPredUMom(geaneHitsOnTrack, planeNum);
+//   double predictedVMomentum = geaneTrackUtils_.getPredVMom(geaneHitsOnTrack, planeNum);
+//   double predictedXPosition = geaneTrackUtils_.getPredXPos(geaneHitsOnTrack, planeNum);
+//   double predictedYPosition = geaneTrackUtils_.getPredYPos(geaneHitsOnTrack, planeNum);
+//   double predictedZPosition = geaneTrackUtils_.getPredZPos(geaneHitsOnTrack, planeNum);
+//   double predictedUPosition = geaneTrackUtils_.getPredUPos(geaneHitsOnTrack, planeNum);
+//   double predictedVPosition = geaneTrackUtils_.getPredVPos(geaneHitsOnTrack, planeNum);
+
+//   // Calculate radial fit results
+//   gm2geom::CoordSystem3Vector predPosStation(predictedXPosition, predictedYPosition, predictedZPosition, stationStr);
+//   gm2geom::CoordSystem3Vector predMomStation(predictedXMomentum, predictedYMomentum, predictedZMomentum, stationStr);
+
+//   auto css = detCoordMap_.find("TrackerStation")->second;
+//   gm2geom::CoordSystem3Vector predPosWorld = predPosStation.transform(css, "world");
+//   gm2geom::CoordSystem3Vector predMomWorld = predMomStation.transform(css, "world", true); //true -> momentum type transform
+
+//   css = detCoordMap_.find("TrackerModule")->second;
+//   gm2geom::CoordSystem3Vector predPosModule = predPosWorld.transform(css, Form("TrackerModule[%d][%d]", stationNum, firstModule));
+
+//   // Get radial position and momentum
+//   predPosWorld.setY(0); // In world coordinates, XZ is radial plane so we get rid of Y component
+//   double radialPosition = predPosWorld.mag();
+//   double radialMomentum = predMomWorld.dot(predPosWorld.unit());
+
+
+//   auto fitResultsDir = rootManager_->GetDir(rootManager_->GetDir(dirName_), "FitResults");
+//   rootManager_->Get<TH1F*>( fitResultsDir, "P")->Fill( predictedMomentum );
+//   rootManager_->Get<TH1F*>( fitResultsDir, "Pu")->Fill( predictedUMomentum );
+//   rootManager_->Get<TH1F*>( fitResultsDir, "Pv")->Fill( predictedVMomentum );
+//   rootManager_->Get<TH1F*>( fitResultsDir, "U")->Fill(predictedUPosition );
+//   rootManager_->Get<TH1F*>( fitResultsDir, "V")->Fill(predictedVPosition );
+//   rootManager_->Get<TH1F*>( fitResultsDir, "Px")->Fill( predictedXMomentum );
+//   rootManager_->Get<TH1F*>( fitResultsDir, "Py")->Fill( predictedYMomentum );
+//   rootManager_->Get<TH1F*>( fitResultsDir, "Pz")->Fill( predictedZMomentum );
+//   rootManager_->Get<TH1F*>( fitResultsDir, "Pr")->Fill( radialMomentum );
+//   rootManager_->Get<TH1F*>( fitResultsDir, "X")->Fill( predictedXPosition );
+//   rootManager_->Get<TH1F*>( fitResultsDir, "Y")->Fill( predictedYPosition );
+//   rootManager_->Get<TH1F*>( fitResultsDir, "Z")->Fill( predictedZPosition );
+//   rootManager_->Get<TH1F*>( fitResultsDir, "R")->Fill( radialPosition );
+//   rootManager_->Get<TH2F*>( fitResultsDir, "Time_vs_Pr")->Fill( trackCandidateT0 * 1.e-3, radialMomentum );// ns to us
+//   rootManager_->Get<TH2F*>( fitResultsDir, "Time_vs_P")->Fill( trackCandidateT0 * 1.e-3, predictedMomentum );// ns to us
+//   rootManager_->Get<TH2F*>( fitResultsDir, "EntrancePoint")->Fill( predPosModule.getX(), predPosModule.getY() );
+
+
+//   /////////////////////////////////////////////////////////////////////////////////////
+//   // this code copied below, if making changes change both
+//   Eigen::MatrixXd true0Covariance = geaneHitsOnTrack.covarianceTotalInverse.inverse();
+//   Eigen::MatrixXd planeCovarianceProp;
+
+//   mf::LogTrace(name_) << "End of filling plane histograms. \n";
+
+// } // fill data
+
+// void EDMPlots::FillPlaneTruthHistos(int planeNum, int stationNum, const gm2strawtracker::TrackDetailArtRecord & track, art::Ptr<gm2truth::GhostDetectorArtRecord> & dummyHit) {
+
+//   mf::LogTrace(name_) << "Begin filling plane truth histograms. \n";
+
+//   auto geaneHitsOnTrack = track.geaneHits;
+
+//   stringstream stationStream;
+//   stationStream << "TrackerStation[" << stationNum << "]";
+//   string stationStr = stationStream.str();
+
+//   // Upstream module coordsystem
+//   int firstModule = track.candidate->upstreamDigit->wireID.getModule();
+
+//   gm2geom::CoordSystem3Vector pHitPos(dummyHit->position.x(), dummyHit->position.y(), dummyHit->position.z() , "world");
+//   auto css = detCoordMap_.find("TrackerStation")->second;
+//   gm2geom::CoordSystem3Vector planeIntersection = pHitPos.transform(css, stationStr);
+
+//   double planeUposition = geaneTrackUtils_.XYtoUVcoordinateTransformationMatrix(0, 0) * planeIntersection.x() + geaneTrackUtils_.XYtoUVcoordinateTransformationMatrix(0, 1) * planeIntersection.y();
+//   double planeVposition = geaneTrackUtils_.XYtoUVcoordinateTransformationMatrix(1, 0) * planeIntersection.x() + geaneTrackUtils_.XYtoUVcoordinateTransformationMatrix(1, 1) * planeIntersection.y();
+
+//   double planeXposition = planeIntersection.x();
+//   double planeYposition = planeIntersection.y();
+//   double planeZposition = planeIntersection.z();
+
+
+//   gm2geom::CoordSystem3Vector pHitMom(dummyHit->momentum.x(), dummyHit->momentum.y(), dummyHit->momentum.z() , "world");
+//   gm2geom::CoordSystem3Vector momGlob = pHitMom.transform(css, stationStr, true);
+
+//   double planeUmomentum = geaneTrackUtils_.XYtoUVcoordinateTransformationMatrix(0, 0) * momGlob.x() + geaneTrackUtils_.XYtoUVcoordinateTransformationMatrix(0, 1) * momGlob.y();
+//   double planeVmomentum = geaneTrackUtils_.XYtoUVcoordinateTransformationMatrix(1, 0) * momGlob.x() + geaneTrackUtils_.XYtoUVcoordinateTransformationMatrix(1, 1) * momGlob.y();
+
+//   double planeXmomentum = momGlob.x();
+//   double planeYmomentum = momGlob.y();
+//   double planeZmomentum = momGlob.z();
+
+//   double planeTotalmomentum = momGlob.mag();
+
+//   // Calculate radial truth data
+//   gm2geom::CoordSystem3Vector truePosStation(planeXposition, planeYposition, planeZposition, stationStr);
+//   gm2geom::CoordSystem3Vector trueMomStation(planeXmomentum, planeYmomentum, planeZmomentum, stationStr);
+
+//   gm2geom::CoordSystem3Vector truePosWorld = truePosStation.transform(css, "world");
+//   gm2geom::CoordSystem3Vector trueMomWorld = trueMomStation.transform(css, "world", true); //true -> momentum type transform
+
+//   css = detCoordMap_.find("TrackerModule")->second;
+//   gm2geom::CoordSystem3Vector truePosModule = truePosWorld.transform(css, Form("TrackerModule[%d][%d]", stationNum, firstModule));
+
+//   // Get radial position and momentum
+//   truePosWorld.setY(0); // In world coordinates, XZ is radial plane so we get rid of Y component
+//   double radialPosition = truePosWorld.mag();
+//   double radialMomentum = trueMomWorld.dot(truePosWorld.unit());
+
+
+//   auto truthDir = rootManager_->GetDir(rootManager_->GetDir(dirName_), "Truth");
+//   rootManager_->Get<TH1F*>( truthDir, "P" )->Fill( planeTotalmomentum );
+//   rootManager_->Get<TH1F*>( truthDir, "Pu" )->Fill( planeUmomentum );
+//   rootManager_->Get<TH1F*>( truthDir, "Pv" )->Fill( planeVmomentum );
+//   rootManager_->Get<TH1F*>( truthDir, "U" )->Fill(planeUposition );
+//   rootManager_->Get<TH1F*>( truthDir, "V" )->Fill(planeVposition );
+//   rootManager_->Get<TH1F*>( truthDir, "Px" )->Fill( planeXmomentum );
+//   rootManager_->Get<TH1F*>( truthDir, "Py" )->Fill( planeYmomentum );
+//   rootManager_->Get<TH1F*>( truthDir, "Pz" )->Fill( planeZmomentum );
+//   rootManager_->Get<TH1F*>( truthDir, "Pr" )->Fill( radialMomentum );
+//   rootManager_->Get<TH1F*>( truthDir, "X" )->Fill( planeXposition );
+//   rootManager_->Get<TH1F*>( truthDir, "Y" )->Fill( planeYposition );
+//   rootManager_->Get<TH1F*>( truthDir, "Z" )->Fill( planeZposition );
+//   rootManager_->Get<TH1F*>( truthDir, "R" )->Fill( radialPosition );
+//   rootManager_->Get<TH2F*>( truthDir, "EntrancePoint")->Fill( truePosModule.getX(), truePosModule.getY() );
+
+
+// } // fill truth
+
+
+// } // namespace gm2analyses
+
+// DEFINE_ART_MODULE(gm2analyses::EDMPlots)

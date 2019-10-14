@@ -1,0 +1,118 @@
+Thu Oct 10 20:45:07 UTC 2019 13090.0@jobsub03.fnal.gov BEGIN EXECUTION submission_test_singularity.sh
+Start Thu Oct 10 20:45:07 UTC 2019
+Site:UKI-NORTHGRID-LIV-HEP
+the worker node is  r25-n19.ph.liv.ac.uk OS:  Linux r25-n19.ph.liv.ac.uk 3.10.0-957.21.3.el7.x86_64 #1 SMP Tue Jun 18 16:35:19 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
+You are running as user gmt05
+UPS_OVERRIDE did not get set!!!
+subject   : /DC=org/DC=cilogon/C=US/O=Fermi National Accelerator Laboratory/OU=People/CN=Kenneth Herner/CN=UID:kherner/CN=2808403425/CN=100441016/CN=2042220554/CN=864713469
+issuer    : /DC=org/DC=cilogon/C=US/O=Fermi National Accelerator Laboratory/OU=People/CN=Kenneth Herner/CN=UID:kherner/CN=2808403425/CN=100441016/CN=2042220554
+identity  : /DC=org/DC=cilogon/C=US/O=Fermi National Accelerator Laboratory/OU=People/CN=Kenneth Herner/CN=UID:kherner/CN=2808403425/CN=100441016/CN=2042220554
+type      : RFC compliant proxy
+strength  : 1024 bits
+path      : /srv/x509cc_gm2pro_Production
+timeleft  : 23:41:24
+key usage : Digital Signature, Key Encipherment, Data Encipherment
+=== VO fermilab extension information ===
+VO        : fermilab
+subject   : /DC=org/DC=cilogon/C=US/O=Fermi National Accelerator Laboratory/OU=People/CN=Kenneth Herner/CN=UID:kherner
+issuer    : /DC=org/DC=incommon/C=US/ST=IL/L=Batavia/O=Fermi Research Alliance/OU=Fermilab/CN=voms1.fnal.gov
+attribute : /fermilab/gm2/Role=Production/Capability=NULL
+attribute : /fermilab/accel/Role=NULL/Capability=NULL
+attribute : /fermilab/admx/Role=NULL/Capability=NULL
+attribute : /fermilab/annie/Role=NULL/Capability=NULL
+attribute : /fermilab/argoneut/Role=NULL/Capability=NULL
+attribute : /fermilab/cdms/Role=NULL/Capability=NULL
+attribute : /fermilab/chips/Role=NULL/Capability=NULL
+attribute : /fermilab/coupp/Role=NULL/Capability=NULL
+attribute : /fermilab/darkside/Role=NULL/Capability=NULL
+attribute : /fermilab/ebd/Role=NULL/Capability=NULL
+attribute : /fermilab/egp/Role=NULL/Capability=NULL
+attribute : /fermilab/genie/Role=NULL/Capability=NULL
+attribute : /fermilab/gm2/Role=NULL/Capability=NULL
+attribute : /fermilab/Role=NULL/Capability=NULL
+attribute : /fermilab/icarus/Role=NULL/Capability=NULL
+attribute : /fermilab/lariat/Role=NULL/Capability=NULL
+attribute : /fermilab/mars/Role=NULL/Capability=NULL
+attribute : /fermilab/minerva/Role=NULL/Capability=NULL
+attribute : /fermilab/minos/Role=NULL/Capability=NULL
+attribute : /fermilab/mu2e/Role=NULL/Capability=NULL
+attribute : /fermilab/noble/Role=NULL/Capability=NULL
+attribute : /fermilab/nova/Role=NULL/Capability=NULL
+attribute : /fermilab/numix/Role=NULL/Capability=NULL
+attribute : /fermilab/pip2/Role=NULL/Capability=NULL
+attribute : /fermilab/sbnd/Role=NULL/Capability=NULL
+attribute : /fermilab/seaquest/Role=NULL/Capability=NULL
+attribute : /fermilab/spinquest/Role=NULL/Capability=NULL
+attribute : /fermilab/uboone/Role=NULL/Capability=NULL
+timeleft  : 23:41:25
+uri       : voms1.fnal.gov:15001
+LSB Version:	:base-4.0-amd64:base-4.0-noarch:core-4.0-amd64:core-4.0-noarch
+Distributor ID:	Scientific
+Description:	Scientific Linux release 6.10 (Carbon)
+Release:	6.10
+Codename:	Carbon
+Scientific Linux release 6.10 (Carbon)
+UID        PID  PPID  C STIME TTY          TIME CMD
+gmt05        1     0  0 20:44 ?        00:00:00 shim-init                                /srv/.gwms-user-job-wrapper.sh /srv/condor_exec.exe
+gmt05        2     1  0 20:44 ?        00:00:00 /bin/sh /srv/condor_exec.exe
+gmt05      342     2  0 20:45 ?        00:00:00 /bin/bash ./submission_test_singularity.sh
+gmt05      379   342  0 20:45 ?        00:00:00 ps -ef
+group = gm2
+GRID_USER = gm2pro
+GLIDEIN_ToDie = 
+	linux-vdso.so.1 =>  (0x00007ffc2e5b0000)
+	libz.so.1 => /lib64/libz.so.1 (0x00002b72ecbc2000)
+	libuuid.so.1 => /lib64/libuuid.so.1 (0x00002b72ecdd8000)
+	libstdc++.so.6 => /usr/lib64/libstdc++.so.6 (0x00002b72ecfdc000)
+	libm.so.6 => /lib64/libm.so.6 (0x00002b72ed2e2000)
+	libgcc_s.so.1 => /lib64/libgcc_s.so.1 (0x00002b72ed566000)
+	libc.so.6 => /lib64/libc.so.6 (0x00002b72ed77c000)
+	/lib64/ld-linux-x86-64.so.2 (0x00002b72ec99f000)
+/pnfs/GM2/scratch/users/gm2pro/
+/pnfs/GM2/scratch/users/gm2pro/2019-04-11-07-42-53/
+/pnfs/GM2/scratch/users/gm2pro/2019-04-11-07-54-14/
+/pnfs/GM2/scratch/users/gm2pro/2019-04-18-15-58-07/
+/pnfs/GM2/scratch/users/gm2pro/2019-04-18-16-00-35/
+/pnfs/GM2/scratch/users/gm2pro/2019-04-18-17-19-47/
+/pnfs/GM2/scratch/users/gm2pro/2019-04-19-09-44-38/
+/pnfs/GM2/scratch/users/gm2pro/2019-04-19-09-57-06/
+/pnfs/GM2/scratch/users/gm2pro/DQCAna/
+/pnfs/GM2/scratch/users/gm2pro/daq/
+/pnfs/GM2/scratch/users/gm2pro/file_store/
+/pnfs/GM2/scratch/users/gm2pro/fts_logs/
+/pnfs/GM2/scratch/users/gm2pro/gm2_v7_06_00_gm2Prod_v7_06_00_tmp_local_area/
+/pnfs/GM2/scratch/users/gm2pro/gm2_v7_06_04_gm2Prod_v7_06_04_tmp_local_area/
+/pnfs/GM2/scratch/users/gm2pro/gm2_v7_06_06_gm2Prod_v7_06_05_tmp_local_area/
+/pnfs/GM2/scratch/users/gm2pro/gm2_v7_06_08_gm2Prod_v7_06_08_tmp_local_area/
+/pnfs/GM2/scratch/users/gm2pro/gm2_v8_02_00_gm2Prod_v8_02_00_tmp_local_area/
+/pnfs/GM2/scratch/users/gm2pro/gm2_v8_03_01_Production_v8_03_01_tmp_local_area/
+/pnfs/GM2/scratch/users/gm2pro/gm2_v8_03_01_gm2Prod_v8_03_01_tmp_local_area/
+/pnfs/GM2/scratch/users/gm2pro/gm2_v8_04_00_gm2Prod_v8_04_00_tmp_local_area/
+/pnfs/GM2/scratch/users/gm2pro/gm2_v9_11_00_gm2Prod_v9_11_00_tmp_local_area/
+/pnfs/GM2/scratch/users/gm2pro/gm2_v9_12_00_gm2Prod_v9_12_00_tmp_local_area/
+/pnfs/GM2/scratch/users/gm2pro/gm2_v9_15_00_v9_15_00_tmp_local_area/
+/pnfs/GM2/scratch/users/gm2pro/gm2_v9_17_01_v9_17_01_tmp_local_area/
+/pnfs/GM2/scratch/users/gm2pro/gm2_v9_17_01_v9_17_01b_tmp_local_area/
+/pnfs/GM2/scratch/users/gm2pro/gm2_v9_19_01_v9_19_01_tmp_local_area/
+/pnfs/GM2/scratch/users/gm2pro/job_output_11018.0.log
+/pnfs/GM2/scratch/users/gm2pro/job_output_11018.1.log
+/pnfs/GM2/scratch/users/gm2pro/job_output_11018.2.log
+/pnfs/GM2/scratch/users/gm2pro/job_output_11018.3.log
+/pnfs/GM2/scratch/users/gm2pro/job_output_11018.4.log
+/pnfs/GM2/scratch/users/gm2pro/job_output_11018.5.log
+/pnfs/GM2/scratch/users/gm2pro/job_output_11018.6.log
+/pnfs/GM2/scratch/users/gm2pro/job_output_11018.7.log
+/pnfs/GM2/scratch/users/gm2pro/job_output_24581158.0.log
+/pnfs/GM2/scratch/users/gm2pro/localArea/
+/pnfs/GM2/scratch/users/gm2pro/run1/
+/pnfs/GM2/scratch/users/gm2pro/run1_gasgun/
+/pnfs/GM2/scratch/users/gm2pro/run2/
+/pnfs/GM2/scratch/users/gm2pro/skims/
+/pnfs/GM2/scratch/users/gm2pro/test/
+/pnfs/GM2/scratch/users/gm2pro/testAnalyzer/
+/pnfs/GM2/scratch/users/gm2pro/testPreProduction/
+/pnfs/GM2/scratch/users/gm2pro/testProxy/
+/pnfs/GM2/scratch/users/gm2pro/testSkimMultistep/
+/pnfs/GM2/scratch/users/gm2pro/testlist/
+End Thu Oct 10 20:48:17 UTC 2019
+Thu Oct 10 20:48:17 UTC 2019 submission_test_singularity.sh COMPLETED with exit status 0

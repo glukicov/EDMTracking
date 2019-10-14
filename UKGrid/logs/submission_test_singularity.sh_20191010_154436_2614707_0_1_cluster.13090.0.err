@@ -1,0 +1,628 @@
+WARNING  glidein_config not definied () in singularity_lib.sh. Some functions like advertise and error_gen will be limited.
+Thu Oct 10 20:45:07 UTC 2019 13090.0@jobsub03.fnal.gov BEGIN EXECUTION submission_test_singularity.sh
+++ date
++ echo Start Thu Oct 10 20:45:07 UTC 2019
++ echo Site:UKI-NORTHGRID-LIV-HEP
+++ hostname
+++ uname -a
++ echo 'the worker node is ' r25-n19.ph.liv.ac.uk 'OS: ' Linux r25-n19.ph.liv.ac.uk 3.10.0-957.21.3.el7.x86_64 '#1' SMP Tue Jun 18 16:35:19 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
+++ whoami
++ echo 'You are running as user gmt05'
++ cd /srv/no_xfer
++ IFDH_OPTION=
++ GROUP=gm2
++ '[' -z gm2 ']'
++ case $GROUP in
++ SCRATCH_DIR=/pnfs/GM2/scratch/users
++ case `hostname` in
+++ hostname
++ '[' -z '' ']'
++ echo 'UPS_OVERRIDE did not get set!!!'
++ '[' -z ']'
++ '[' '!' -d /etc/grid-security/certificates ']'
+++ which globus-url-copy
++ '[' -z /usr/bin/globus-url-copy ']'
+++ which uberftp
++ '[' -z /usr/bin/uberftp ']'
++ voms-proxy-info --all
++ lsb_release -a
++ cat /etc/redhat-release
++ ps -ef
++ /cvmfs/grid.cern.ch/util/cvmfs-uptodate /cvmfs/fermilab.opensciencegrid.org
++ source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup
+++ echo /cvmfs/fermilab.opensciencegrid.org
+++ : /cvmfs/fermilab.opensciencegrid.org
+++ test 0shell = 1
+++ echo 1argv
+++ grep argv
+++ eval 's_setenv() { eval $1=\"$2\"; export $1; }; s_setenv UPS_SHELL sh; s_unsetenv() { unset $1; }; s_source() { . $1; }; s_bail="return"'
++++ s_setenv UPS_SHELL sh
++++ eval 'UPS_SHELL="sh"'
+++++ UPS_SHELL=sh
++++ export UPS_SHELL
++++ s_bail=return
+++ sh -c 'set : `df -P ${TMPDIR:-/tmp} | tail -1`;[ "$6" = "100%" ];'
+++ :
+++ test 0ZSH_NAME '!=' 0
+++ eval 'test ${ZSH_NAME:-""} != "" && setopt SH_WORD_SPLIT && _underscore=`echo $_underscore | sed -e "s/^1//" -e "s/^source //"`'
++++ test '' '!=' ''
+++ test 1BASH '!=' 0
+++ eval 'test ${BASH:-""} != "" && _underscore=$BASH_SOURCE'
++++ test /bin/bash '!=' ''
++++ _underscore=/cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup
+++ test sh = csh
+++ : /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup
+++ s_setenv SETUPS_SAVE /grid/fermiapp/products/common/etc/setups
+++ eval 'SETUPS_SAVE="/grid/fermiapp/products/common/etc/setups"'
++++ SETUPS_SAVE=/grid/fermiapp/products/common/etc/setups
+++ export SETUPS_SAVE
+++ s_setenv SETUPS_CVMFS_SAVE /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups
+++ eval 'SETUPS_CVMFS_SAVE="/cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups"'
++++ SETUPS_CVMFS_SAVE=/cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups
+++ export SETUPS_CVMFS_SAVE
+++ s_setenv SETUPS_FILE /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup
+++ eval 'SETUPS_FILE="/cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup"'
++++ SETUPS_FILE=/cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup
+++ export SETUPS_FILE
+++ s_setenv SETUPS_GREP /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup
+++ eval 'SETUPS_GREP="/cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup"'
++++ SETUPS_GREP=/cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup
+++ export SETUPS_GREP
+++ test x/cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup = x
+++ grep SETUPS_FILE /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup
+++ grep SETUPS_SAVE /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup
+++ test x/cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup = x
++++ /bin/ls -l /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup
+++ expr 'lrwxrwxrwx 1 988 983 6 May 13  2015 /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup -> setups' : '.* -> /'
++++ /bin/ls -l /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup
+++ expr 'lrwxrwxrwx 1 988 983 6 May 13  2015 /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup -> setups' : '.* -> [^/]'
++++ dirname /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup
++++ ls -l /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup
++++ sed -e 's/.* -> //'
+++ s_setenv SETUPS_FILE /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups
+++ eval 'SETUPS_FILE="/cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups"'
++++ SETUPS_FILE=/cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups
+++ export SETUPS_FILE
+++ expr /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups : '[^/]'
+++ grep SETUPS_FILE /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup
+++ test -w /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups -a /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups '!=' /grid/fermiapp/products/common/etc/setups
++++ dirname /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups
+++ s_setenv SETUPS_DIR /cvmfs/fermilab.opensciencegrid.org/products/common/etc
+++ eval 'SETUPS_DIR="/cvmfs/fermilab.opensciencegrid.org/products/common/etc"'
++++ SETUPS_DIR=/cvmfs/fermilab.opensciencegrid.org/products/common/etc
+++ export SETUPS_DIR
+++ s_source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups_layout
+++ . /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setups_layout
++++ s_setenv UPS_THIS_DB /cvmfs/fermilab.opensciencegrid.org/products/common/etc/../db
++++ eval 'UPS_THIS_DB="/cvmfs/fermilab.opensciencegrid.org/products/common/etc/../db"'
+++++ UPS_THIS_DB=/cvmfs/fermilab.opensciencegrid.org/products/common/etc/../db
++++ export UPS_THIS_DB
++++ s_setenv PROD_DIR_PREFIX /cvmfs/fermilab.opensciencegrid.org/products/common/etc/../prd
++++ eval 'PROD_DIR_PREFIX="/cvmfs/fermilab.opensciencegrid.org/products/common/etc/../prd"'
+++++ PROD_DIR_PREFIX=/cvmfs/fermilab.opensciencegrid.org/products/common/etc/../prd
++++ export PROD_DIR_PREFIX
++++ echo /cvmfs/fermilab.opensciencegrid.org/products/common/etc/../db
++++ sed -e 's;/[a-z]*/\.\./;/;g'
+++ s_setenv UPS_THIS_DB /cvmfs/fermilab.opensciencegrid.org/products/common/db
+++ eval 'UPS_THIS_DB="/cvmfs/fermilab.opensciencegrid.org/products/common/db"'
++++ UPS_THIS_DB=/cvmfs/fermilab.opensciencegrid.org/products/common/db
+++ export UPS_THIS_DB
++++ echo /cvmfs/fermilab.opensciencegrid.org/products/common/etc/../prd
++++ sed -e 's;/[a-z]*/\.\./;/;g'
+++ s_setenv PROD_DIR_PREFIX /cvmfs/fermilab.opensciencegrid.org/products/common/prd
+++ eval 'PROD_DIR_PREFIX="/cvmfs/fermilab.opensciencegrid.org/products/common/prd"'
++++ PROD_DIR_PREFIX=/cvmfs/fermilab.opensciencegrid.org/products/common/prd
+++ export PROD_DIR_PREFIX
+++ test sh = csh
+++ test sh = sh
+++ eval 'test ${PRODUCTS:-0} = 0  && s_setenv PRODUCTS "" || s_setenv PRODUCTS "$PRODUCTS"'
++++ test 0 = 0
++++ s_setenv PRODUCTS ''
++++ eval 'PRODUCTS=""'
+++++ PRODUCTS=
++++ export PRODUCTS
+++ test x = x
+++ s_setenv PRODUCTS /cvmfs/fermilab.opensciencegrid.org/products/common/db
+++ eval 'PRODUCTS="/cvmfs/fermilab.opensciencegrid.org/products/common/db"'
++++ PRODUCTS=/cvmfs/fermilab.opensciencegrid.org/products/common/db
+++ export PRODUCTS
+++ expr /cvmfs/fermilab.opensciencegrid.org/products/common/db : /cvmfs/fermilab.opensciencegrid.org/products/common/db
+++ : ------
+++ : /cvmfs/fermilab.opensciencegrid.org/products/common/db
+++ : ------
+++ s_setenv UPS_OVERRIDE_FILE /dev/null
+++ eval 'UPS_OVERRIDE_FILE="/dev/null"'
++++ UPS_OVERRIDE_FILE=/dev/null
+++ export UPS_OVERRIDE_FILE
++++ hostname
+++ test -r /cvmfs/fermilab.opensciencegrid.org/products/common/db/.upsfiles/ups_OVERRIDE.r25-n19.ph.liv.ac.uk
++++ uname -r
++++ cut -d. -f 1-2
+++ test -r /cvmfs/fermilab.opensciencegrid.org/products/common/db/.upsfiles/ups_OVERRIDE.3.10
+++ test /dev/null '!=' /dev/null
+++ s_unsetenv UPS_OVERRIDE_FILE
+++ unset UPS_OVERRIDE_FILE
+++ test sh = csh
+++ test sh = sh
+++ eval 'test ${UPS_DIR:-0} = 0  && s_setenv UPS_DIR ""'
++++ test 0 = 0
++++ s_setenv UPS_DIR ''
++++ eval 'UPS_DIR=""'
+++++ UPS_DIR=
++++ export UPS_DIR
+++ test x '!=' x
+++ test x '!=' x
+++ test x '!=' x
+++ test x '!=' x
+++ test x '!=' x
+++ test x '!=' x
+++ test x '!=' x
++++ grep -v '\*'
++++ tr '\n' ' '
++++ /bin/ls -t /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_7_2/Linux-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_7_4a/Linux-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_9_7/Linux-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_9_7/Linux64bit-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_0_2/Linux-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_0_2/Linux64bit-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux64bit-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Darwin64bit-13/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux64bit-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux64bit-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-10-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-10-2-17/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-18-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-4-2-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-14/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-15/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-16/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux64bit-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux64bit-3-10-2-17/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_5/Linux-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_5/Linux64bit-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Darwin64bit-15/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Darwin64bit-16/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Linux64bit-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Linux64bit-3-10-2-17/bin/ups
+++ s_setenv UPS_OR_LIST '/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Darwin64bit-16/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Linux64bit-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Linux64bit-3-10-2-17/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Darwin64bit-15/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_5/Linux64bit-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_5/Linux-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Darwin64bit-13/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux64bit-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux64bit-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-16/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux64bit-3-10-2-17/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-15/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux64bit-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-14/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-10-2-17/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-10-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-18-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-4-2-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux64bit-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_0_2/Linux64bit-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_0_2/Linux-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_9_7/Linux-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_9_7/Linux64bit-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_7_4a/Linux-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_7_2/Linux-2/bin/ups '
+++ eval 'UPS_OR_LIST="/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Darwin64bit-16/bin/ups' /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Linux64bit-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Linux64bit-3-10-2-17/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Darwin64bit-15/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_5/Linux64bit-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_5/Linux-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Darwin64bit-13/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux64bit-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux64bit-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-16/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux64bit-3-10-2-17/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-15/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux64bit-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-14/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-10-2-17/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-10-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-18-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-4-2-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux64bit-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_0_2/Linux64bit-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_0_2/Linux-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_9_7/Linux-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_9_7/Linux64bit-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_7_4a/Linux-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_7_2/Linux-2/bin/ups '"'
++++ UPS_OR_LIST='/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Darwin64bit-16/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Linux64bit-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Linux64bit-3-10-2-17/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Darwin64bit-15/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_5/Linux64bit-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_5/Linux-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Darwin64bit-13/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux64bit-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux64bit-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-16/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux64bit-3-10-2-17/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-15/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux64bit-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-14/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-10-2-17/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-10-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-18-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-4-2-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux64bit-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_0_2/Linux64bit-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_0_2/Linux-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_9_7/Linux-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_9_7/Linux64bit-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_7_4a/Linux-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_7_2/Linux-2/bin/ups '
+++ export UPS_OR_LIST
++++ sed -e 's/ / setup ups ||/g'
++++ echo /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Darwin64bit-16/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Linux64bit-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Linux64bit-3-10-2-17/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Darwin64bit-15/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_5/Linux64bit-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_5/Linux-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Darwin64bit-13/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux64bit-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux64bit-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-16/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux64bit-3-10-2-17/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-15/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux64bit-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-14/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-10-2-17/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-10-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-18-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-4-2-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux-2-6-2-12/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux64bit-2-6-2-5/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_0_2/Linux64bit-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_0_2/Linux-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_9_7/Linux-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_9_7/Linux64bit-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_7_4a/Linux-2/bin/ups /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_7_2/Linux-2/bin/ups :
+++ s_setenv UPS_OR_LIST '/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Darwin64bit-16/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Linux64bit-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Linux64bit-3-10-2-17/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Darwin64bit-15/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_5/Linux64bit-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_5/Linux-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Darwin64bit-13/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux-2-6-2-5/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux64bit-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux64bit-2-6-2-5/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-16/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux64bit-3-10-2-17/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-15/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux64bit-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-14/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-10-2-17/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-10-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-18-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-4-2-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux-2-6-2-5/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-2-6-2-5/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux-2-6-2-5/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux64bit-2-6-2-5/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_0_2/Linux64bit-2/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_0_2/Linux-2/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_9_7/Linux-2/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_9_7/Linux64bit-2/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_7_4a/Linux-2/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_7_2/Linux-2/bin/ups setup ups ||:'
+++ eval 'UPS_OR_LIST="/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Darwin64bit-16/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Linux64bit-2-6-2-12/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Linux64bit-3-10-2-17/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Darwin64bit-15/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_5/Linux64bit-2-6-2-12/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_5/Linux-2-6-2-12/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Darwin64bit-13/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux-2-6-2-12/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux-2-6-2-5/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux64bit-2-6-2-12/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux64bit-2-6-2-5/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-16/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux64bit-3-10-2-17/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-15/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux64bit-2-6-2-12/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-14/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux-2-6-2-12/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-10-2-17/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux-2-6-2-12/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-2-6-2-12/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-10-2-12/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-18-2-12/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-4-2-2-12/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux-2-6-2-5/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-2-6-2-5/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux-2-6-2-12/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux-2-6-2-5/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux64bit-2-6-2-5/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_0_2/Linux64bit-2/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_0_2/Linux-2/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_9_7/Linux-2/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_9_7/Linux64bit-2/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_7_4a/Linux-2/bin/ups' setup ups '||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_7_2/Linux-2/bin/ups' setup ups '||:"'
++++ UPS_OR_LIST='/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Darwin64bit-16/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Linux64bit-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Linux64bit-3-10-2-17/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Darwin64bit-15/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_5/Linux64bit-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_5/Linux-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Darwin64bit-13/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux-2-6-2-5/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux64bit-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux64bit-2-6-2-5/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-16/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux64bit-3-10-2-17/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-15/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux64bit-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-14/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-10-2-17/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-10-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-18-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-4-2-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux-2-6-2-5/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-2-6-2-5/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux-2-6-2-5/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux64bit-2-6-2-5/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_0_2/Linux64bit-2/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_0_2/Linux-2/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_9_7/Linux-2/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_9_7/Linux64bit-2/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_7_4a/Linux-2/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_7_2/Linux-2/bin/ups setup ups ||:'
+++ export UPS_OR_LIST
++++ /bin/sh -c '( /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Darwin64bit-16/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Linux64bit-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Linux64bit-3-10-2-17/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_7/Darwin64bit-15/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_5/Linux64bit-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_5/Linux-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Darwin64bit-13/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux-2-6-2-5/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux64bit-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_4/Linux64bit-2-6-2-5/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-16/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux64bit-3-10-2-17/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-15/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux64bit-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Darwin64bit-14/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v6_0_3/Linux-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-10-2-17/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-10-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-3-18-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-4-2-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux-2-6-2-5/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_7/Linux64bit-2-6-2-5/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux-2-6-2-12/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux-2-6-2-5/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_1_3/Linux64bit-2-6-2-5/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_0_2/Linux64bit-2/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v5_0_2/Linux-2/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_9_7/Linux-2/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_9_7/Linux64bit-2/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_7_4a/Linux-2/bin/ups setup ups ||/cvmfs/fermilab.opensciencegrid.org/products/common/prd/ups/v4_7_2/Linux-2/bin/ups setup ups ||: ) 2>/dev/null'
+++ s_setenv UPS_SETUP_FILE /srv/no_xfer/upsDvr4Mb
+++ eval 'UPS_SETUP_FILE="/srv/no_xfer/upsDvr4Mb"'
++++ UPS_SETUP_FILE=/srv/no_xfer/upsDvr4Mb
+++ export UPS_SETUP_FILE
+++ s_source /srv/no_xfer/upsDvr4Mb
+++ . /srv/no_xfer/upsDvr4Mb
++++ SETUP_UPS='ups v6_0_7 -f Linux64bit+2.6-2.12 -z /cvmfs/fermilab.opensciencegrid.org/products/common/db'
++++ export SETUP_UPS
++++ UPS_DIR=/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ups/v6_0_7/Linux64bit-2-6-2-12
++++ export UPS_DIR
++++ UPS_DIR=/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ups/v6_0_7/Linux64bit-2-6-2-12
++++ export UPS_DIR
++++ '[' /cvmfs/oasis.opensciencegrid.org/osg/modules/lua/bin:/usr/games:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:. = '' ']'
++++ PATH=/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ups/v6_0_7/Linux64bit-2-6-2-12/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/lua/bin:/usr/games:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
++++ export PATH
++++ rc=0
++++ /bin/rm -f /srv/no_xfer/upsDvr4Mb
++++ test 0 = 0
+++ s_unsetenv UPS_OR_LIST
+++ unset UPS_OR_LIST
+++ s_unsetenv UPS_SETUP_FILE
+++ unset UPS_SETUP_FILE
+++ '[' x/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ups/v6_0_7/Linux64bit-2-6-2-12 = x ']'
+++ test -r /cvmfs/fermilab.opensciencegrid.org/products/common/etc/upsdb_list
+++ s_unsetenv UPS_THIS_DB
+++ unset UPS_THIS_DB
+++ s_unsetenv PROD_DIR_PREFIX
+++ unset PROD_DIR_PREFIX
+++ s_unsetenv SETUPS_FILE
+++ unset SETUPS_FILE
+++ s_unsetenv SETUPS_GREP
+++ unset SETUPS_GREP
+++ s_unsetenv SETUPS_SAVE
+++ unset SETUPS_SAVE
+++ test -r /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setproducts.table
++++ dropit -DEe -p/cvmfs/fermilab.opensciencegrid.org/products/common/db .
+++ s_setenv PRODUCTS /cvmfs/fermilab.opensciencegrid.org/products/common/db
+++ eval 'PRODUCTS="/cvmfs/fermilab.opensciencegrid.org/products/common/db"'
++++ PRODUCTS=/cvmfs/fermilab.opensciencegrid.org/products/common/db
+++ export PRODUCTS
++++ ups setup ups
+++ s_source /srv/no_xfer/upsIsbQUg
+++ . /srv/no_xfer/upsIsbQUg
++++ unset unsetup_all
++++ unset unsetup
++++ unset setup
++++ '[' /cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ups/v6_0_7/Linux64bit-2-6-2-12/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/lua/bin:/usr/games:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:. '!=' '' ']'
++++ upstmp=/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ups/v6_0_7/Linux64bit-2-6-2-12/bin
+++++ /cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ups/v6_0_7/Linux64bit-2-6-2-12/bin/dropit -e -n '' -p /cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ups/v6_0_7/Linux64bit-2-6-2-12/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/lua/bin:/usr/games:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:. -i: -d: /cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ups/v6_0_7/Linux64bit-2-6-2-12/bin
++++ PATH=/cvmfs/oasis.opensciencegrid.org/osg/modules/lua/bin:/usr/games:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
++++ '[' /cvmfs/oasis.opensciencegrid.org/osg/modules/lua/bin:/usr/games:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:. = '' ']'
++++ unset upstmp
++++ unset UPS_DIR
++++ unset UPS_DIR
++++ unset SETUP_UPS
++++ SETUP_UPS='ups v6_0_7 -f Linux64bit+2.6-2.12 -z /cvmfs/fermilab.opensciencegrid.org/products/common/db'
++++ export SETUP_UPS
++++ UPS_DIR=/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ups/v6_0_7/Linux64bit-2-6-2-12
++++ export UPS_DIR
++++ UPS_DIR=/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ups/v6_0_7/Linux64bit-2-6-2-12
++++ export UPS_DIR
++++ '[' /cvmfs/oasis.opensciencegrid.org/osg/modules/lua/bin:/usr/games:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:. = '' ']'
++++ PATH=/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ups/v6_0_7/Linux64bit-2-6-2-12/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/lua/bin:/usr/games:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
++++ export PATH
++++ rc=0
++++ /bin/rm -f /srv/no_xfer/upsIsbQUg
++++ test 0 = 0
+++ test x/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ups/v6_0_7/Linux64bit-2-6-2-12 '!=' x
+++ return
++ setup ifdhc -z /cvmfs/fermilab.opensciencegrid.org/products/common/db
+++ /cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ups/v6_0_7/Linux64bit-2-6-2-12/bin/ups setup ifdhc -z /cvmfs/fermilab.opensciencegrid.org/products/common/db
++ . /srv/no_xfer/upsGrT0Tl
+++ IFDHC_DIR=/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ifdhc/v2_4_5/Linux64bit-2-6-2-12
+++ export IFDHC_DIR
+++ SETUP_IFDHC='ifdhc v2_4_5 -f Linux64bit+2.6-2.12 -z /cvmfs/fermilab.opensciencegrid.org/products/common/db'
+++ export SETUP_IFDHC
+++ IFDHC_VERSION=v2_4_5
+++ export IFDHC_VERSION
+++ IFDHC_FQ_DIR=/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ifdhc/v2_4_5/Linux64bit-2-6-2-12
+++ export IFDHC_FQ_DIR
+++ IFDHC_LIB=/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ifdhc/v2_4_5/Linux64bit-2-6-2-12/lib
+++ export IFDHC_LIB
+++ '[' /cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ups/v6_0_7/Linux64bit-2-6-2-12/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/lua/bin:/usr/games:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:. = '' ']'
+++ PATH=/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ifdhc/v2_4_5/Linux64bit-2-6-2-12/bin:/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ups/v6_0_7/Linux64bit-2-6-2-12/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/lua/bin:/usr/games:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
+++ export PATH
+++ '[' '' = '' ']'
+++ PYTHONPATH=/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ifdhc/v2_4_5/Linux64bit-2-6-2-12/lib/python
+++ export PYTHONPATH
++++ uname
+++ test Linux = Darwin
+++ '[' 1 = 0 ']'
+++ :
+++ '[' /.singularity.d/libs = '' ']'
+++ LD_LIBRARY_PATH=/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ifdhc/v2_4_5/Linux64bit-2-6-2-12/lib:/.singularity.d/libs
+++ export LD_LIBRARY_PATH
+++ IFDHC_CONFIG_DIR=/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ifdhc_config/v2_4_5/NULL
+++ export IFDHC_CONFIG_DIR
+++ SETUP_IFDHC_CONFIG='ifdhc_config v2_4_5 -f NULL -z /cvmfs/fermilab.opensciencegrid.org/products/common/db'
+++ export SETUP_IFDHC_CONFIG
+++ SETUP_CPN='cpn v1.7 -f NULL -z /cvmfs/fermilab.opensciencegrid.org/products/common/db'
+++ export SETUP_CPN
+++ CPN_DIR=/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/cpn/v1_7/NULL
+++ export CPN_DIR
+++ '[' /cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ifdhc/v2_4_5/Linux64bit-2-6-2-12/bin:/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ups/v6_0_7/Linux64bit-2-6-2-12/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/lua/bin:/usr/games:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:. = '' ']'
+++ PATH=/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/cpn/v1_7/NULL/bin:/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ifdhc/v2_4_5/Linux64bit-2-6-2-12/bin:/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ups/v6_0_7/Linux64bit-2-6-2-12/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/lua/bin:/usr/games:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
+++ export PATH
+++ SETUP_AWSCLI='awscli v1_7_15 -f Linux64bit+2.6-2.12 -z /cvmfs/fermilab.opensciencegrid.org/products/common/db'
+++ export SETUP_AWSCLI
+++ AWSCLI_DIR=/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/awscli/v1_7_15/Linux64bit-2-6-2-12
+++ export AWSCLI_DIR
+++ '[' /cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/cpn/v1_7/NULL/bin:/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ifdhc/v2_4_5/Linux64bit-2-6-2-12/bin:/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ups/v6_0_7/Linux64bit-2-6-2-12/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/lua/bin:/usr/games:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:. = '' ']'
+++ PATH=/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/awscli/v1_7_15/Linux64bit-2-6-2-12/bin:/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/cpn/v1_7/NULL/bin:/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ifdhc/v2_4_5/Linux64bit-2-6-2-12/bin:/cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ups/v6_0_7/Linux64bit-2-6-2-12/bin:/cvmfs/oasis.opensciencegrid.org/osg/modules/lua/bin:/usr/games:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:.
+++ export PATH
+++ rc=0
+++ /bin/rm -f /srv/no_xfer/upsGrT0Tl
+++ test 0 = 0
++ echo 'Here is the your environment in this job: '
++ env
++ echo 'group = gm2'
++ '[' -z gm2pro ']'
+++ echo gm2pro
++ echo 'GRID_USER = gm2pro'
+++ condor_config_val GLIDEIN_ToDie
+./submission_test_singularity.sh: line 197: condor_config_val: command not found
++ export GLIDEIN_ToDie=
++ GLIDEIN_ToDie=
++ echo 'GLIDEIN_ToDie = '
+++ which ifdh
++ ldd /cvmfs/fermilab.opensciencegrid.org/products/common/prd/ifdhc/v2_4_5/Linux64bit-2-6-2-12/bin/ifdh
++ sleeptime=13482
++ '[' -z 13482 ']'
++ sleeptime=180
++ sleep 180
++ umask 002
++ '[' -z /pnfs/GM2/scratch/users ']'
++ export IFDH_DEBUG=1
++ IFDH_DEBUG=1
++ export IFDH_CP_MAXRETRIES=2
++ IFDH_CP_MAXRETRIES=2
++ export 'IFDH_GRIDFTP_EXTRA=-st 1000'
++ IFDH_GRIDFTP_EXTRA='-st 1000'
++ ifdh ls /pnfs/GM2/scratch/users/gm2pro
+IFDH_DEBUG=1 => 1
+ifdh constructor: _baseuri is 'http://samweb.fnal.gov:8480/sam/gm2/api'
+checking configs: 
+ifdh: getting config file from IFDHC_CONFIG_DIR
+ifdh: using config file: /cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ifdhc_config/v2_4_5/NULL/ifdh.cfg
+checking conditionals:
+conditional0: gfal
+Renamevec.size() is 2 
+ renamevec: srm-gfal:, srm:
+ rtype: protocol 
+test: -x /usr/bin/gfal-copy renaming: srm-gfal: <= srm:
+conditional1: macos
+Renamevec.size() is 2 
+ renamevec: gsiftp-apple:, gsiftp:
+ rtype: protocol 
+conditional2: smu_onsite
+Renamevec.size() is 0 
+ trying rename_loc
+ renamevec: smuscratch-onsite, smuscratch
+ rtype: location 
+lookup_loc /pnfs/GM2/scratch/users/gm2pro
+checking prefix D0: -> D0:
+checking prefix /pnfs/dzero/ -> /pnfs/dzero/
+checking prefix /pnfs/cdfen/ -> /pnfs/cdfen/
+checking prefix /pnfs/fnal.gov/usr/%(EXPERIMENT)s/ -> /pnfs/fnal.gov/usr/(annie|argoneut|auger|btev|captmnv|cdms|cepa|chips|ckm|coupp|cpad|darkside|des|ds50|e990|dune|geant4|gm2|GM2|genie|icarus|lar1nd|lariat|lartpc|lbne|lbnewc|minerva|miniboone|mu2e|noble|nova|numix|nusoft|patriot|sbnd|sciboone|seaquest|Simons|uboone)/
+checking prefix gsiftp://lxse-dr01.jinr.ru/pnfs/jinr.ru/ -> gsiftp://lxse-dr01.jinr.ru/pnfs/jinr.ru/
+checking prefix /pnfs/jinr.ru/ -> /pnfs/jinr.ru/
+checking prefix /pnfs/ -> /pnfs/
+trimming 2 slashes from /pnfs/GM2/scratch/users/gm2pro
+trimmed to  GM2/scratch/users/gm2pro
+entering pick_proto_path, force== ''
+location dcache_stken protocols: gsiftp: srm: root: https:
+picked protocol gsiftp:
+Entering locpath
+for gsiftp: got can_stat_gsiftp:
+Checking for proxy cert...
+check_grid_credentials:
+saw path:/srv/x509cc_gm2pro_Production
+found: /fermilab/gm2/Role=Production/Capability=NULL
+
+... and passes voms-proxy-info -exists -valid check
+ check_grid_credentials:
+saw path:/srv/x509cc_gm2pro_Production
+found: /fermilab/gm2/Role=Production/Capability=NULL
+
+... and passes voms-proxy-info -exists -valid check
+ re1: ([-dl])[-rwxst]{9}\s*.*\s([0-9][0-9]*)\s\s*[A-Z].{11}\s\s*()([^/ ]*)\s*$
+re2: ([-dl])[-rwxst]{9}\s*.*\s([0-9][0-9]*)\s\s*[A-Z].{11}\s\s*(/.*/)([^/ ]*)\s*$
+running: uberftp -ls gsiftp://fndca1.fnal.gov/pnfs/fnal.gov/usr/GM2/scratch/users/gm2pro
+trying rotation: stken_gsiftp
+finding gsiftp dcache doors...[ stkendca49a.fnal.gov, stkendca50a.fnal.gov, stkendca26a.fnal.gov, stkendca1804.fnal.gov, stkendca15a.fnal.gov, stkendca60a.fnal.gov, stkendca38a.fnal.gov, stkendca13a.fnal.gov, stkendca27a.fnal.gov, stkendca1805.fnal.gov, stkendca28a.fnal.gov, stkendca16a.fnal.gov, stkendca35a.fnal.gov, stkendca12a.fnal.gov, stkendca39a.fnal.gov, stkendca41a.fnal.gov, stkendca52a.fnal.gov, stkendca47a.fnal.gov, stkendca53a.fnal.gov, stkendca1803.fnal.gov, stkendca36a.fnal.gov, stkendca51a.fnal.gov, stkendca48a.fnal.gov, stkendca25a.fnal.gov, stkendca40a.fnal.gov, stkendca14a.fnal.gov, stkendca37a.fnal.gov, stkendca32a.fnal.gov, stkendca55a.fnal.gov, stkendca20a.fnal.gov, stkendca19a.fnal.gov, stkendca43a.fnal.gov, stkendca42a.fnal.gov, stkendca1802.fnal.gov, stkendca31a.fnal.gov, stkendca46a.fnal.gov, stkendca34a.fnal.gov, stkendca11a.fnal.gov, stkendca45a.fnal.gov, stkendca44a.fnal.gov, stkendca33a.fnal.gov, stkendca1801.fnal.gov, ]
+repl is gsiftp://stkendca20a.fnal.gov/pnfs/fnal.gov/usr/
+replmatch[0] is gsiftp://stkendca20a.fnal.gov
+doors[0] is gsiftp://fndca1.fnal.gov
+replacing: gsiftp://fndca1.fnal.govwith gsiftp://stkendca20a.fnal.gov
+finally, cmd is: uberftp -ls gsiftp://stkendca20a.fnal.gov/pnfs/fnal.gov/usr/GM2/scratch/users/gm2pro
+trying rotation: cdfen_gsiftp
+mkdir /srv/no_xfer/ifdh_81254_0 => 0
+line: drwxrwxr-x  6 gm2pro 9950   512 Jul 21 21:14 2019-04-11-07-42-53                            
+matches:d,512,,2019-04-11-07-42-53;
+file: 2019-04-11-07-42-53 dir  size 512 dirflag: d
+basename: |gm2pro| file |2019-04-11-07-42-53|
+line: drwxrwxr-x  5 gm2pro 9950   512 Jun 22 02:46 2019-04-11-07-54-14                            
+matches:d,512,,2019-04-11-07-54-14;
+file: 2019-04-11-07-54-14 dir  size 512 dirflag: d
+line: drwxrwxr-x  5 gm2pro 9950   512 Jul 24 05:56 2019-04-18-15-58-07                            
+matches:d,512,,2019-04-18-15-58-07;
+file: 2019-04-18-15-58-07 dir  size 512 dirflag: d
+line: drwxrwxr-x  5 gm2pro 9950   512 Jul  4 09:25 2019-04-18-16-00-35                            
+matches:d,512,,2019-04-18-16-00-35;
+file: 2019-04-18-16-00-35 dir  size 512 dirflag: d
+line: drwxrwxr-x  6 gm2pro 9950   512 Jul  4 04:40 2019-04-18-17-19-47                            
+matches:d,512,,2019-04-18-17-19-47;
+file: 2019-04-18-17-19-47 dir  size 512 dirflag: d
+line: drwxrwxr-x  6 gm2pro 9950   512 Aug  7 05:50 2019-04-19-09-44-38                            
+matches:d,512,,2019-04-19-09-44-38;
+file: 2019-04-19-09-44-38 dir  size 512 dirflag: d
+line: drwxrwxr-x  6 gm2pro 9950   512 Aug  7 11:59 2019-04-19-09-57-06                            
+matches:d,512,,2019-04-19-09-57-06;
+file: 2019-04-19-09-57-06 dir  size 512 dirflag: d
+line: drwxr-xr-x  5 gm2pro 9950   512 Sep 20 10:07 daq                                            
+matches:d,512,,daq;
+file: daq dir  size 512 dirflag: d
+line: drwxr-xr-x  7 gm2pro 9950   512 Jul  1 13:06 DQCAna                                         
+matches:d,512,,DQCAna;
+file: DQCAna dir  size 512 dirflag: d
+line: drwxr-xr-x  4 gm2pro 9950   512 Sep 10  2018 file_store                                     
+matches:d,512,,file_store;
+file: file_store dir  size 512 dirflag: d
+line: drwxr-xr-x  4 gm2pro 9950   512 May  5 09:34 fts_logs                                       
+matches:d,512,,fts_logs;
+file: fts_logs dir  size 512 dirflag: d
+line: drwxrwxr-x  2 gm2pro 9950   512 Jul 19  2017 gm2_v7_06_00_gm2Prod_v7_06_00_tmp_local_area   
+matches:d,512,,gm2_v7_06_00_gm2Prod_v7_06_00_tmp_local_area;
+file: gm2_v7_06_00_gm2Prod_v7_06_00_tmp_local_area dir  size 512 dirflag: d
+line: drwxrwxr-x  2 gm2pro 9950   512 Jan 15  2018 gm2_v7_06_04_gm2Prod_v7_06_04_tmp_local_area   
+matches:d,512,,gm2_v7_06_04_gm2Prod_v7_06_04_tmp_local_area;
+file: gm2_v7_06_04_gm2Prod_v7_06_04_tmp_local_area dir  size 512 dirflag: d
+line: drwxrwxr-x  2 gm2pro 9950   512 Jan 15  2018 gm2_v7_06_06_gm2Prod_v7_06_05_tmp_local_area   
+matches:d,512,,gm2_v7_06_06_gm2Prod_v7_06_05_tmp_local_area;
+file: gm2_v7_06_06_gm2Prod_v7_06_05_tmp_local_area dir  size 512 dirflag: d
+line: drwxrwxr-x  2 gm2pro 9950   512 Feb  2  2018 gm2_v7_06_08_gm2Prod_v7_06_08_tmp_local_area   
+matches:d,512,,gm2_v7_06_08_gm2Prod_v7_06_08_tmp_local_area;
+file: gm2_v7_06_08_gm2Prod_v7_06_08_tmp_local_area dir  size 512 dirflag: d
+line: drwxrwxr-x  2 gm2pro 9950   512 Feb 13  2018 gm2_v8_02_00_gm2Prod_v8_02_00_tmp_local_area   
+matches:d,512,,gm2_v8_02_00_gm2Prod_v8_02_00_tmp_local_area;
+file: gm2_v8_02_00_gm2Prod_v8_02_00_tmp_local_area dir  size 512 dirflag: d
+line: drwxrwxr-x  2 gm2pro 9950   512 Mar 28  2018 gm2_v8_03_01_gm2Prod_v8_03_01_tmp_local_area   
+matches:d,512,,gm2_v8_03_01_gm2Prod_v8_03_01_tmp_local_area;
+file: gm2_v8_03_01_gm2Prod_v8_03_01_tmp_local_area dir  size 512 dirflag: d
+line: drwxrwxr-x  2 gm2pro 9950   512 Mar 25  2018 gm2_v8_03_01_Production_v8_03_01_tmp_local_area
+matches:d,512,,gm2_v8_03_01_Production_v8_03_01_tmp_local_area;
+file: gm2_v8_03_01_Production_v8_03_01_tmp_local_area dir  size 512 dirflag: d
+line: drwxrwxr-x  2 gm2pro 9950   512 May 27  2018 gm2_v8_04_00_gm2Prod_v8_04_00_tmp_local_area   
+matches:d,512,,gm2_v8_04_00_gm2Prod_v8_04_00_tmp_local_area;
+file: gm2_v8_04_00_gm2Prod_v8_04_00_tmp_local_area dir  size 512 dirflag: d
+line: drwxrwxr-x  2 gm2pro 9950   512 Feb 16  2019 gm2_v9_11_00_gm2Prod_v9_11_00_tmp_local_area   
+matches:d,512,,gm2_v9_11_00_gm2Prod_v9_11_00_tmp_local_area;
+file: gm2_v9_11_00_gm2Prod_v9_11_00_tmp_local_area dir  size 512 dirflag: d
+line: drwxrwxr-x  2 gm2pro 9950   512 Mar  9  2019 gm2_v9_12_00_gm2Prod_v9_12_00_tmp_local_area   
+matches:d,512,,gm2_v9_12_00_gm2Prod_v9_12_00_tmp_local_area;
+file: gm2_v9_12_00_gm2Prod_v9_12_00_tmp_local_area dir  size 512 dirflag: d
+line: drwxrwxr-x  2 gm2pro 9950   512 May  9 22:34 gm2_v9_15_00_v9_15_00_tmp_local_area           
+matches:d,512,,gm2_v9_15_00_v9_15_00_tmp_local_area;
+file: gm2_v9_15_00_v9_15_00_tmp_local_area dir  size 512 dirflag: d
+line: drwxrwxr-x  2 gm2pro 9950   512 Jun 17 12:57 gm2_v9_17_01_v9_17_01b_tmp_local_area          
+matches:d,512,,gm2_v9_17_01_v9_17_01b_tmp_local_area;
+file: gm2_v9_17_01_v9_17_01b_tmp_local_area dir  size 512 dirflag: d
+line: drwxrwxr-x  2 gm2pro 9950   512 Jul  4 02:31 gm2_v9_17_01_v9_17_01_tmp_local_area           
+matches:d,512,,gm2_v9_17_01_v9_17_01_tmp_local_area;
+file: gm2_v9_17_01_v9_17_01_tmp_local_area dir  size 512 dirflag: d
+line: drwxrwxr-x  2 gm2pro 9950   512 Jul 19 09:19 gm2_v9_19_01_v9_19_01_tmp_local_area           
+matches:d,512,,gm2_v9_19_01_v9_19_01_tmp_local_area;
+file: gm2_v9_19_01_v9_19_01_tmp_local_area dir  size 512 dirflag: d
+line: -rw-r--r--  1 gm2pro 9950 15672 Oct 10 15:22 job_output_11018.0.log                         
+matches:-,15672,,job_output_11018.0.log;
+file: job_output_11018.0.log dir  size 15672 dirflag: -
+line: -rw-r--r--  1 gm2pro 9950 15672 Oct 10 15:28 job_output_11018.1.log                         
+matches:-,15672,,job_output_11018.1.log;
+file: job_output_11018.1.log dir  size 15672 dirflag: -
+line: -rw-r--r--  1 gm2pro 9950 15672 Oct 10 15:29 job_output_11018.2.log                         
+matches:-,15672,,job_output_11018.2.log;
+file: job_output_11018.2.log dir  size 15672 dirflag: -
+line: -rw-r--r--  1 gm2pro 9950 15672 Oct 10 15:27 job_output_11018.3.log                         
+matches:-,15672,,job_output_11018.3.log;
+file: job_output_11018.3.log dir  size 15672 dirflag: -
+line: -rw-r--r--  1 gm2pro 9950 15672 Oct 10 15:24 job_output_11018.4.log                         
+matches:-,15672,,job_output_11018.4.log;
+file: job_output_11018.4.log dir  size 15672 dirflag: -
+line: -rw-r--r--  1 gm2pro 9950 15672 Oct 10 15:27 job_output_11018.5.log                         
+matches:-,15672,,job_output_11018.5.log;
+file: job_output_11018.5.log dir  size 15672 dirflag: -
+line: -rw-r--r--  1 gm2pro 9950 15672 Oct 10 15:22 job_output_11018.6.log                         
+matches:-,15672,,job_output_11018.6.log;
+file: job_output_11018.6.log dir  size 15672 dirflag: -
+line: -rw-r--r--  1 gm2pro 9950 15671 Oct 10 15:28 job_output_11018.7.log                         
+matches:-,15671,,job_output_11018.7.log;
+file: job_output_11018.7.log dir  size 15671 dirflag: -
+line: -rw-r--r--  1 gm2pro 9950 15906 Oct 10 06:10 job_output_24581158.0.log                      
+matches:-,15906,,job_output_24581158.0.log;
+file: job_output_24581158.0.log dir  size 15906 dirflag: -
+line: drwxrwxr-x  5 gm2pro 9950   512 Oct 10 09:18 localArea                                      
+matches:d,512,,localArea;
+file: localArea dir  size 512 dirflag: d
+line: drwxr-xr-x  5 gm2pro 9950   512 May  8 15:47 run1                                           
+matches:d,512,,run1;
+file: run1 dir  size 512 dirflag: d
+line: drwxr-xr-x  3 gm2pro 9950   512 Apr  3  2018 run1_gasgun                                    
+matches:d,512,,run1_gasgun;
+file: run1_gasgun dir  size 512 dirflag: d
+line: drwxr-xr-x 27 gm2pro 9950   512 Mar 15  2019 run2                                           
+matches:d,512,,run2;
+file: run2 dir  size 512 dirflag: d
+line: drwxr-xr-x  4 gm2pro 9950   512 May 14 07:15 skims                                          
+matches:d,512,,skims;
+file: skims dir  size 512 dirflag: d
+line: drwxr-xr-x 13 gm2pro 9950   512 Jun 12 13:26 test                                           
+matches:d,512,,test;
+file: test dir  size 512 dirflag: d
+line: drwxr-xr-x 13 gm2pro 9950   512 Mar 19  2019 testAnalyzer                                   
+matches:d,512,,testAnalyzer;
+file: testAnalyzer dir  size 512 dirflag: d
+line: drwxr-xr-x  3 gm2pro 9950   512 May 14 07:05 testlist                                       
+matches:d,512,,testlist;
+file: testlist dir  size 512 dirflag: d
+line: drwxr-xr-x  5 gm2pro 9950   512 Sep  6 09:52 testPreProduction                              
+matches:d,512,,testPreProduction;
+file: testPreProduction dir  size 512 dirflag: d
+line: drwxr-xr-x  4 gm2pro 9950   512 Apr 11 14:06 testProxy                                      
+matches:d,512,,testProxy;
+file: testProxy dir  size 512 dirflag: d
+line: drwxr-xr-x  9 gm2pro 9950   512 May  8 10:26 testSkimMultistep
+matches:d,512,,testSkimMultistep;
+file: testSkimMultistep dir  size 512 dirflag: d
++ '[' 0 -ne 0 ']'
++ ifdh cp -D job_output_13090.0.log /pnfs/GM2/scratch/users/gm2pro
+IFDH_DEBUG=1 => 1
+ifdh constructor: _baseuri is 'http://samweb.fnal.gov:8480/sam/gm2/api'
+checking configs: 
+ifdh: getting config file from IFDHC_CONFIG_DIR
+ifdh: using config file: /cvmfs/fermilab.opensciencegrid.org/products/common/db/../prd/ifdhc_config/v2_4_5/NULL/ifdh.cfg
+checking conditionals:
+conditional0: gfal
+Renamevec.size() is 2 
+ renamevec: srm-gfal:, srm:
+ rtype: protocol 
+test: -x /usr/bin/gfal-copy renaming: srm-gfal: <= srm:
+conditional1: macos
+Renamevec.size() is 2 
+ renamevec: gsiftp-apple:, gsiftp:
+ rtype: protocol 
+conditional2: smu_onsite
+Renamevec.size() is 0 
+ trying rename_loc
+ renamevec: smuscratch-onsite, smuscratch
+ rtype: location 
+adding cwd to job_output_13090.0.log
+starting ifdh::cp( -D /srv/no_xfer/job_output_13090.0.log /pnfs/GM2/scratch/users/gm2pro);
+lookup_loc /srv/no_xfer/job_output_13090.0.log
+checking prefix D0: -> D0:
+checking prefix /pnfs/dzero/ -> /pnfs/dzero/
+checking prefix /pnfs/cdfen/ -> /pnfs/cdfen/
+checking prefix /pnfs/fnal.gov/usr/%(EXPERIMENT)s/ -> /pnfs/fnal.gov/usr/(annie|argoneut|auger|btev|captmnv|cdms|cepa|chips|ckm|coupp|cpad|darkside|des|ds50|e990|dune|geant4|gm2|GM2|genie|icarus|lar1nd|lariat|lartpc|lbne|lbnewc|minerva|miniboone|mu2e|noble|nova|numix|nusoft|patriot|sbnd|sciboone|seaquest|Simons|uboone)/
+checking prefix gsiftp://lxse-dr01.jinr.ru/pnfs/jinr.ru/ -> gsiftp://lxse-dr01.jinr.ru/pnfs/jinr.ru/
+checking prefix /pnfs/jinr.ru/ -> /pnfs/jinr.ru/
+checking prefix /pnfs/ -> /pnfs/
+checking prefix /eos/ -> /eos/
+checking prefix /castor/ -> /castor/
+checking prefix /scratch/users/ -> /scratch/users/
+checking prefix root://eospublic.cern.ch//eos/ -> root://eospublic.cern.ch//eos/
+checking prefix gsiftp://eospublicftp.cern.ch//eos/ -> gsiftp://eospublicftp.cern.ch//eos/
+checking prefix root://castorpublic.cern.ch//castor/ -> root://castorpublic.cern.ch//castor/
+checking prefix gsiftp://castorpublic.cern.ch//castor/ -> gsiftp://castorpublic.cern.ch//castor/
+checking prefix gsiftp://fg-bestman1.fnal.gov:2811/ -> gsiftp://fg-bestman1.fnal.gov:2811/
+checking prefix gsiftp://fg-bestman1.fnal.gov/ -> gsiftp://fg-bestman1.fnal.gov/
+checking prefix srm://cdfca1.fnal.gov:8443/srm/managerv2?SFN=/pnfs/fnal.gov/usr/cdfen/ -> srm://cdfca1.fnal.gov:8443/srm/managerv2?SFN=/pnfs/fnal.gov/usr/cdfen/
+checking prefix gsiftp://cdfdca1/pnfs/fnal.gov/usr/cdfen/ -> gsiftp://cdfdca1/pnfs/fnal.gov/usr/cdfen/
+checking prefix srm://d0dca1.fnal.gov:8443/srm/managerv2?SFN=/pnfs/fnal.gov/usr/cdfen/ -> srm://d0dca1.fnal.gov:8443/srm/managerv2?SFN=/pnfs/fnal.gov/usr/cdfen/
+checking prefix https://fndca4a.fnal.gov:2880/pnfs/fnal.gov/usr/ -> https://fndca4a.fnal.gov:2880/pnfs/fnal.gov/usr/
+checking prefix root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/ -> root://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/
+checking prefix xroot://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/ -> xroot://fndca1.fnal.gov:1094/pnfs/fnal.gov/usr/
+checking prefix gsiftp://cdfdca1/pnfs/fnal.gov/usr/cdfen/ -> gsiftp://cdfdca1/pnfs/fnal.gov/usr/cdfen/
+checking prefix https://fndca4a.fnal.gov:2880/pnfs/ -> https://fndca4a.fnal.gov:2880/pnfs/
+checking prefix http:// -> http://
+checking prefix https:// -> https://
+checking prefix s3:// -> s3://
+checking prefix gs:// -> gs://
+checking prefix gsiftp:// -> gsiftp://
+checking prefix srm:// -> srm://
+checking prefix xroot:// -> xroot://
+checking prefix root:// -> root://
+checking prefix file:/// -> file:///
+checking prefix i:// -> i://
+checking prefix ucondb: -> ucondb:
+checking prefix / -> /
+trimming 0 slashes from /srv/no_xfer/job_output_13090.0.log
+trimmed to  /srv/no_xfer/job_output_13090.0.log
+lookup_loc /pnfs/GM2/scratch/users/gm2pro
+checking prefix D0: -> D0:
+checking prefix /pnfs/dzero/ -> /pnfs/dzero/
+checking prefix /pnfs/cdfen/ -> /pnfs/cdfen/
+checking prefix /pnfs/fnal.gov/usr/%(EXPERIMENT)s/ -> /pnfs/fnal.gov/usr/(annie|argoneut|auger|btev|captmnv|cdms|cepa|chips|ckm|coupp|cpad|darkside|des|ds50|e990|dune|geant4|gm2|GM2|genie|icarus|lar1nd|lariat|lartpc|lbne|lbnewc|minerva|miniboone|mu2e|noble|nova|numix|nusoft|patriot|sbnd|sciboone|seaquest|Simons|uboone)/
+checking prefix gsiftp://lxse-dr01.jinr.ru/pnfs/jinr.ru/ -> gsiftp://lxse-dr01.jinr.ru/pnfs/jinr.ru/
+checking prefix /pnfs/jinr.ru/ -> /pnfs/jinr.ru/
+checking prefix /pnfs/ -> /pnfs/
+trimming 2 slashes from /pnfs/GM2/scratch/users/gm2pro
+trimmed to  GM2/scratch/users/gm2pro
+pick_proto: srcloc: local_fs_1 protos: file: srm: gsiftp: http: https: s3: ucondb: gs: root:
+ dstloc: dcache_stken protos: gsiftp: srm: root: https:
+pick_proto: Picked protocol gsiftp:
+Entering locpath
+for gsiftp: got can_stat_gsiftp:file:///
+cache_stat ( /srv/no_xfer)
+Entering locpath
+for gsiftp: got can_stat_gsiftp:
+Checking for proxy cert...
+check_grid_credentials:
+saw path:/srv/x509cc_gm2pro_Production
+found: /fermilab/gm2/Role=Production/Capability=NULL
+
+... and passes voms-proxy-info -exists -valid check
+ check_grid_credentials:
+saw path:/srv/x509cc_gm2pro_Production
+found: /fermilab/gm2/Role=Production/Capability=NULL
+
+... and passes voms-proxy-info -exists -valid check
+ Entering locpath
+for gsiftp: got can_stat_gsiftp:file:///
+cache_stat ( /srv/no_xfer)
+Entering locpath
+for gsiftp: got can_stat_gsiftp:
+running: globus-url-copy -rst-retries 1 -gridftp2 -nodcau -restart -stall-timeout 14400 -st 1000 file:////srv/no_xfer/job_output_13090.0.log gsiftp://fndca1.fnal.gov/pnfs/fnal.gov/usr/GM2/scratch/users/gm2pro/job_output_13090.0.log
+trying rotation: stken_gsiftp
+finding gsiftp dcache doors...[ stkendca49a.fnal.gov, stkendca50a.fnal.gov, stkendca26a.fnal.gov, stkendca1804.fnal.gov, stkendca15a.fnal.gov, stkendca60a.fnal.gov, stkendca38a.fnal.gov, stkendca13a.fnal.gov, stkendca27a.fnal.gov, stkendca1805.fnal.gov, stkendca28a.fnal.gov, stkendca16a.fnal.gov, stkendca35a.fnal.gov, stkendca12a.fnal.gov, stkendca39a.fnal.gov, stkendca41a.fnal.gov, stkendca52a.fnal.gov, stkendca47a.fnal.gov, stkendca53a.fnal.gov, stkendca1803.fnal.gov, stkendca36a.fnal.gov, stkendca51a.fnal.gov, stkendca48a.fnal.gov, stkendca25a.fnal.gov, stkendca40a.fnal.gov, stkendca14a.fnal.gov, stkendca37a.fnal.gov, stkendca32a.fnal.gov, stkendca55a.fnal.gov, stkendca20a.fnal.gov, stkendca19a.fnal.gov, stkendca43a.fnal.gov, stkendca42a.fnal.gov, stkendca1802.fnal.gov, stkendca31a.fnal.gov, stkendca46a.fnal.gov, stkendca34a.fnal.gov, stkendca11a.fnal.gov, stkendca45a.fnal.gov, stkendca44a.fnal.gov, stkendca33a.fnal.gov, stkendca1801.fnal.gov, ]
+repl is gsiftp://stkendca41a.fnal.gov/pnfs/fnal.gov/usr/
+replmatch[0] is gsiftp://stkendca41a.fnal.gov
+doors[0] is gsiftp://fndca1.fnal.gov
+replacing: gsiftp://fndca1.fnal.govwith gsiftp://stkendca41a.fnal.gov
+finally, cmd is: globus-url-copy -rst-retries 1 -gridftp2 -nodcau -restart -stall-timeout 14400 -st 1000 file:////srv/no_xfer/job_output_13090.0.log gsiftp://stkendca41a.fnal.gov/pnfs/fnal.gov/usr/GM2/scratch/users/gm2pro/job_output_13090.0.log
+trying rotation: cdfen_gsiftp
+program: globus-url-copy -rst-retries 1 -gridftp2 -nodcau -restart -stall-timeout 14400 -st 1000 file:////srv/no_xfer/job_output_13090.0.log gsiftp://stkendca41a.fnal.gov/pnfs/fnal.gov/usr/GM2/scratch/users/gm2pro/job_output_13090.0.logexited status 0
+Entering locpath
+for file: got can_stat_file:
+cache_stat ( /srv/no_xfer/job_output_13090.0.log)
+Entering locpath
+for file: got can_stat_file:
+cache_stat ( /pnfs/GM2/scratch/users/gm2pro/job_output_13090.0.log)
+got bad bits on stat(/pnfs/GM2/scratch/users/gm2pro/job_output_13090.0.log) trying again
++ '[' 0 -ne 0 ']'
+++ date
++ echo 'End Thu Oct 10 20:48:17 UTC 2019'
++ exit 0
+Thu Oct 10 20:48:17 UTC 2019 submission_test_singularity.sh COMPLETED with exit status 0
