@@ -1,6 +1,6 @@
 from ctypes import cdll
 import ctypes
-lib = cdll.LoadLibrary('./libBlinders.so')
+lib = cdll.LoadLibrary('Blinding/libBlinders.so')
 
 class FitType:
     Omega_a, Omega_p = range(0, 2)
