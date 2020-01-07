@@ -1,7 +1,7 @@
 # EDMTracking
 g-2 EDM, grid-based tracking, and DB scripts 
 
-h1. To get the EDM-style blinding to work in Python with the blinding libraries:
+### To get the EDM-style blinding to work in Python with the blinding libraries: ### 
 A. Add changes to your local files from this commit: https://github.com/glukicov/EDMTracking/commit/e2c0979d45648bd0d9f09aa5de76d6b75dc4a183 
 B. Re-compile (in the Blinders.cc directroy):
 ```
