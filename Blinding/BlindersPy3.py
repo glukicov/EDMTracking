@@ -26,14 +26,14 @@ class Blinders(object):
             lib.Blinders_sys_blinded.restype = ctypes.c_void_p
             lib.Blinders_sys_blinded.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_double, ctypes.c_char_p]
             self.obj = lib.Blinders_sys_blinded(fit_type,studyIndex,ctypes.c_double(nominalR),bS)
-        # elif (numArgs == 4): # the 4th argument is just a dummy parameter to distinguish between the constructors 
-        #     blindingString = args[0].encode()
-        #     boxWidth = float(args[1]) 
-        #     gaussWidth = float(args[2])
-        #     #bS = blindingString.replace('"'.encode(),'\\"'.encode())
-        #     lib.Blinders_sys_blinded.restype = ctypes.c_void_p
-        #     lib.Blinders_sys_blinded.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_double, ctypes.c_double]
-        #     self.obj = lib.Blinders_edm_blinded(fit_type,blindingString,ctypes.c_double(boxWidth),ctypes.c_double(gaussWidth))
+        elif (numArgs == 4): # the 4th argument is just a dummy parameter to distinguish between the constructors 
+            blindingString = args[0].encode()
+            boxWidth = float(args[1]) 
+            gaussWidth = float(args[2])
+            #bS = blindingString.replace('"'.encode(),'\\"'.encode())
+            lib.Blinders_sys_blinded.restype = ctypes.c_void_p
+            lib.Blinders_sys_blinded.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_double, ctypes.c_double]
+            self.obj = lib.Blinders_edm_blinded(fit_type,blindingString,ctypes.c_double(boxWidth),ctypes.c_double(gaussWidth))
         else:
             print('UNKNOWN CONSTRUCTOR')
     def paramToFreq(self,R):
