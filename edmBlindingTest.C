@@ -4,7 +4,6 @@
 // run with e.g. "root edmBlindingTest.C" 
 
 // Blinding libraries 
-// #include "gm2analyses/EDM/glukicov/incRLoad.hh" // see https://cdcvs.fnal.gov/redmine/projects/gm2analyses/wiki/Library_installation
 R__LOAD_LIBRARY(/Users/gleb/software/EDMTracking/Blinding/libBlinders.so)
 #include "/Users/gleb/software/EDMTracking/Blinding/Blinders.hh"
 using namespace blinding;
@@ -35,7 +34,6 @@ double ppm = 1e-6;
 
 // blinding constructor constants 
 long double R = 3.5; // * d0 
-long int I = +1; // studyIndex
 long double boxWidth = 0.3;
 double gausWidth = 0.8;
 Blinders::fitType ftype = Blinders::kOmega_a;
@@ -53,8 +51,7 @@ double blinded_edm() {
     std::string blindString = Form("blindingString%d",i);
     // std::string blindString = "sameSame";
     std::cout << "blindString: " << blindString << "\n";
-    // Blinders iBlinder( ftype, blindString , boxWidth, gausWidth);
-    Blinders iBlinder( ftype, I, R, blindString);
+    Blinders iBlinder( ftype, blindString , boxWidth, gausWidth);
 
     // use the blinder to give us a blinded offset from the input R which is 10*d0
     double iAmp = iBlinder.paramToFreq(R); // this is something like 1.442 which is the shifted / blinded omegaA value

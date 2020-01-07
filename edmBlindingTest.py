@@ -56,7 +56,9 @@ def test_blidning(n_inject):
     for injection in range(n_inject):
         blinding_string = "There we go "+str(injection)
         # apply Omega_a blinding with the blinding_string and input pars  
-        getBlinded = Blinders(FitType.Omega_a, I, R, blinding_string)
+        # getBlinded = Blinders(FitType.Omega_a, +1, 3, blinding_string)
+        getBlinded = Blinders(FitType.Omega_a, blinding_string, boxWidth, gausWidth, "edm")
+        
 
 if __name__ == "__main__":
     main()
