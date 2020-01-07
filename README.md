@@ -16,7 +16,7 @@ D. Now construct your blinder *with 5 input arguments* as follows (e.g.):
 ```
 getBlinded = Blinders(FitType.Omega_a, blinding_string, boxWidth, gausWidth, "edm")
 ```
-The final 'edm' string argument is just a dummy parameter (can be anything!) to distinguish between the other systematic constructor
+The final 'edm' string argument is just a dummy parameter (can be anything!) to distinguish between the other systematic constructor.
 
 The official blinding guide is here: https://cdcvs.fnal.gov/redmine/projects/gm2analyses/wiki/Library_installation 
 
