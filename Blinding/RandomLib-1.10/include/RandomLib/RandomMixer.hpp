@@ -18,7 +18,7 @@
 
 #include <vector>
 #include <string>
-#include <RandomLib/RandomSeed.hpp>
+#include "RandomSeed.hpp"
 
 namespace RandomLib {
 

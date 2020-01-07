@@ -14,8 +14,8 @@
 #define RANDOMLIB_RANDOMCANONICAL_HPP 1
 
 #include <bitset>
-#include <RandomLib/RandomPower2.hpp>
-#include <RandomLib/RandomEngine.hpp>
+#include "RandomPower2.hpp"
+#include "RandomEngine.hpp"
 
 #if defined(_MSC_VER)
 // Squelch warnings about constant conditional expressions and casts truncating

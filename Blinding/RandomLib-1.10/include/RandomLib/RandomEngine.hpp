@@ -10,9 +10,9 @@
 #if !defined(RANDOMLIB_RANDOMENGINE_HPP)
 #define RANDOMLIB_RANDOMENGINE_HPP 1
 
-#include <RandomLib/RandomSeed.hpp>
-#include <RandomLib/RandomAlgorithm.hpp>
-#include <RandomLib/RandomMixer.hpp>
+#include "RandomSeed.hpp"
+#include "RandomAlgorithm.hpp"
+#include "RandomMixer.hpp"
 #include <limits>
 #include <string>
 #include <algorithm>

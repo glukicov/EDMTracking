@@ -16,7 +16,7 @@
 #if !defined(RANDOMLIB_RANDOMALGORITHM_HPP)
 #define RANDOMLIB_RANDOMALGORITHM_HPP 1
 
-#include <RandomLib/RandomType.hpp>
+#include "RandomType.hpp"
 #include <stdexcept>
 #include <string>
 #if defined(HAVE_SSE2) && HAVE_SSE2
