@@ -1,6 +1,6 @@
 from ctypes import cdll
 import ctypes
-lib = cdll.LoadLibrary('Blinding/libBlinders.so')
+lib = cdll.LoadLibrary('./libBlinders.so')
 
 class FitType:
     Omega_a, Omega_p = range(0, 2)
@@ -17,7 +17,7 @@ class Blinders(object):
             lib.Blinders_blinded.restype = ctypes.c_void_p
             lib.Blinders_blinded.argtypes = [ctypes.c_int, ctypes.c_char_p]
             self.obj = lib.Blinders_blinded(fit_type,blindingString)
-        # elif (numArgs == 3 and type(args[0]) == int):
+        elif (numArgs == 3):
             studyIndex = int(args[0])
             nominalR = float(args[1]) # assuming value has no more than 15 dp
             blindingString = args[2].encode()
@@ -26,13 +26,6 @@ class Blinders(object):
             lib.Blinders_sys_blinded.restype = ctypes.c_void_p
             lib.Blinders_sys_blinded.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_double, ctypes.c_char_p]
             self.obj = lib.Blinders_sys_blinded(fit_type,studyIndex,ctypes.c_double(nominalR),bS)
-        elif (numArgs == 3 and type(args[0]) == str):
-            blindingString = args[0].encode()
-            boxWidth = float(args[1]) 
-            gaussWidth = float(args[2])
-            lib.Blinders_edm_blinded.restype = ctypes.c_void_p
-            lib.Blinders_edm_blinded.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_double, ctypes.c_double]
-            self.obj = lib.Blinders_edm_blinded(fit_type,blindingString,ctypes.c_double(boxWidth),ctypes.c_double(gaussWidth))
         else:
             print('UNKNOWN CONSTRUCTOR')
     def paramToFreq(self,R):
