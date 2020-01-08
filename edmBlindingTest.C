@@ -59,6 +59,8 @@ double blinded_edm() {
     double iDiff =  ((iAmp / iRef) - 1) / ppm; // this is (R - Rref) in units of ppm
     
     std::cout << "iDiff = " << iDiff << "\n";
+    std::cout << "iRef = " << iDiff << "\n";
+    std::cout << "iAmp = " << iDiff << "\n";
     
     // iDiff tells us the edm value we have got
     // e.g. input EDM_blind = iDiff * d0
