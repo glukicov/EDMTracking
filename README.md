@@ -12,7 +12,7 @@ C. Now re-create a shared object library that can be used with both ROOT and Pyt
 ```
 g++ -shared -o libBlinders.so Blinders.o rlib/src/Random.o -L/usr/local/opt/openssl/lib -lssl -lcrypto
 ```
-D. Now construct your blinder *with 5 input arguments* as follows (e.g.):
+D. Now construct your blinder *with 4 input arguments* as follows (e.g.):
 ```
 edmBlinded = Blinders(FitType.Omega_a, blinding_string, boxWidth, gausWidth)
 ```
