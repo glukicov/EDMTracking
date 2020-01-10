@@ -40,17 +40,17 @@ Blinders::fitType ftype = Blinders::kOmega_a;
 
 double blinded_edm() {
 
-  std::cout << "R = " << R << "\n";
-  std::cout << "boxWidth = " << boxWidth << "\n";
-  std::cout << "gausWidth = " << gausWidth << "\n";
+  // std::cout << "R = " << R << "\n";
+  // std::cout << "boxWidth = " << boxWidth << "\n";
+  // std::cout << "gausWidth = " << gausWidth << "\n";
 
   TCanvas* c1 = new TCanvas();
-  TH1F* h1 = new TH1F("h1","R_{blind} - R_{ref}",100.,-1,10);
+  TH1F* h1 = new TH1F(" ","",100.,-1,10);
 
   for (int i(0); i<NInject; i++) {
-    std::string blindString = Form("blindingString%d",i);
+    std::string blindString = Form("There we go %d",i);
     // std::string blindString = "sameSame";
-    std::cout << "blindString: " << blindString << "\n";
+    // std::cout << "\nblindString: " << blindString << "\n";
     Blinders iBlinder( ftype, blindString , boxWidth, gausWidth);
 
     // use the blinder to give us a blinded offset from the input R which is 10*d0
@@ -58,9 +58,9 @@ double blinded_edm() {
     double iRef  = iBlinder.referenceValue(); // this is 1.443 which is the reference omegaA value
     double iDiff =  ((iAmp / iRef) - 1) / ppm; // this is (R - Rref) in units of ppm
     
-    std::cout << "iDiff = " << iDiff << "\n";
-    std::cout << "iRef = " << iDiff << "\n";
-    std::cout << "iAmp = " << iDiff << "\n";
+    // std::cout << "iDiff = " << iDiff << "\n";
+    // std::cout << "iRef = " << iRef << "\n";
+    // std::cout << "iAmp = " << iAmp << "\n";
     
     // iDiff tells us the edm value we have got
     // e.g. input EDM_blind = iDiff * d0
@@ -73,15 +73,20 @@ double blinded_edm() {
     double tan_delta_blind = (eta_blind * beta) / (2 * aMu);
     double delta_blind = atan(tan_delta_blind);
     
-    std::cout << "aMu = " << aMu << "\n";
-    std::cout << "beta = " << beta << "\n";
-    std::cout << "delta_blind = " << delta_blind << "\n";
+    // std::cout << "aMu = " << aMu << "\n";
+    // std::cout << "beta = " << beta << "\n";
+    // std::cout << "delta_blind = " << delta_blind << "\n";
+    // std::cout << "eta_blind = " << eta_blind << "\n";
+    // std::cout << "tan_delta_blind = " << tan_delta_blind << "\n";
 
     h1->Fill(iDiff);
 
   }
 
-  h1->GetXaxis()->SetTitle("x d_{0}");
+  h1->GetXaxis()->SetTitle("R_{blind} - R_{ref} (ppm)");
+  h1->GetXaxis()->CenterTitle();
+  Int_t bin = h1->GetXaxis()->GetNbins();
+  std::cout << "bins: " << bin << "\n";
   h1->Draw();
   c1->SaveAs("blindTest.png");
   
