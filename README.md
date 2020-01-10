@@ -2,7 +2,7 @@
 g-2 EDM, grid-based tracking, and DB scripts 
 
 ### To get the EDM-style blinding to work in Python with the blinding libraries: ### 
-A. Add changes to your local files from this commit: https://github.com/glukicov/EDMTracking/commit/2063bb22ff938637d2c47799cf9923e3c1f9e07c
+A. Add changes to your local files from this commit: https://github.com/glukicov/EDMTracking/commit/8c1ecff08ceb905aa449d6e18a858b5ec73980b7
 
 B. Re-compile (in the Blinders.cc directroy):
 ```
@@ -12,11 +12,14 @@ C. Now re-create a shared object library that can be used with both ROOT and Pyt
 ```
 g++ -shared -o libBlinders.so Blinders.o rlib/src/Random.o -L/usr/local/opt/openssl/lib -lssl -lcrypto
 ```
-D. Now construct your blinder *with 5 input arguments* as follows (e.g.):
+D. Now construct your blinder *with 4 input arguments* as follows (e.g.):
 ```
-getBlinded = Blinders(FitType.Omega_a, blinding_string, boxWidth, gausWidth, "edm")
+edmBlinded = Blinders(FitType.Omega_a, blinding_string, boxWidth, gausWidth)
 ```
-The final 'edm' string argument is just a dummy parameter (can be anything!) to distinguish between the other systematic constructor.
+E. Test that EDM-blinding works with
+```
+python3 testBlindingPy3.py
+```
 
 The official blinding guide is here: https://cdcvs.fnal.gov/redmine/projects/gm2analyses/wiki/Library_installation 
 
