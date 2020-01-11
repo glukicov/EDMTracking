@@ -25,7 +25,7 @@ def plotHist(data, n_bins=100, prec=4, font_size=14, input_color="green", x_labe
     plt.xticks(fontsize=font_size-1)
     plt.yticks(fontsize=font_size-1)
     plt.tight_layout()
-    
+
     return plt, ax, legend
 
 
@@ -61,3 +61,4 @@ def stats3(data):
     mean = np.mean(data)
     meanE = stats.sem(data)
     return N, mean, meanE
+

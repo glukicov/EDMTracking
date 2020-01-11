@@ -54,8 +54,8 @@ def main():
     test_blidning(n_inject)
     
     fig, ax, legend = cu.plotHist(idiff_array, x_label=r"$R_{blind}-R_{ref}$ (ppm)", y_label="") 
-    plt.xlim(-1, 10)
-    cu.textL(ax, 0.75, 0.8, str(legend), font_size=14)
+    #plt.xlim(-1, 10)
+    cu.textL(ax, 0.8, 0.85, str(legend), font_size=14)
     plt.savefig("edm_test.png", dpi=300)
 
 def test_blidning(n_inject):
@@ -87,7 +87,7 @@ def test_blidning(n_inject):
     
         #print("eta_blind:", eta_blind, "tan_delta_blind:", tan_delta_blind, "delta_blind:", delta_blind)
         
-        idiff_array.append(EDM_blind)  
+        idiff_array.append(delta_blind)  
     
     
 if __name__ == "__main__":
