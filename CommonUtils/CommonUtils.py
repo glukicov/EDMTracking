@@ -34,7 +34,6 @@ def plotHist2D(x, y, n_binsX=100, n_binsY=100, prec=4, font_size=14, cmap=plt.cm
     Inputs are two 1D arrays
     '''
     #make a seborn plot, with 2D histo on top
-    #fig = plt.figure()
     ax = sns.jointplot(x=x, y=y)
     ax.ax_joint.cla()
     plt.sca(ax.ax_joint)
@@ -49,7 +48,7 @@ def plotHist2D(x, y, n_binsX=100, n_binsY=100, prec=4, font_size=14, cmap=plt.cm
     # make a nice looking plot as default 
     plt.ylabel("",fontsize=font_size)
     plt.xlabel("",fontsize=font_size)
-    cbaxes = ax.fig.add_axes([0.8, 0.05, 0.05, 0.8]) 
+    cbaxes = ax.fig.add_axes([0.8, 0.05, 0.03, 0.6]) 
     cb = plt.colorbar(cax = cbaxes)  
     cb.ax.tick_params(labelsize=font_size-1) 
     plt.xticks(fontsize=font_size-1)
