@@ -1,4 +1,4 @@
-### Gleb 
+# Gleb (20 Sep 2019)
 # Looking into vertical beam from trackers at different quad settings 
 from os import listdir
 from os.path import isfile, join

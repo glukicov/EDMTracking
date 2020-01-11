@@ -1,5 +1,5 @@
-# Some common tools to go from
-# ROOT -> array-type data 
+# Some common tools to go from ROOT Histogram to array-type structure 
+# Gleb Lukicov (11 Jan 2020)  
 
 # Based on root_numpy package: 
 # http://scikit-hep.org/root_numpy/
@@ -10,10 +10,10 @@ import numpy as np
 from root_numpy import hist2array
 import sys
 
-def root2np(file_path="data.root", hist_path="Tracks/pvalue", cp=True, overflow=False, edges=True):
+def hist2np(file_path="data/data.root", hist_path="Tracks/pvalue", cp=True, overflow=False, edges=True):
     '''
     Extension of the hist2array to return full histo data as array 
-    Returns data and bins with dimensions equal to dimension (D) of the input histogram 
+    Returns data[D], n_bins[D] with dimensions equal to dimension (D) of the input histogram 
     '''
     print("Opening",hist_path,"in",file_path)
     tfile=TFile.Open(file_path)

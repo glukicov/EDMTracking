@@ -1,4 +1,5 @@
-# Define some commonly used functions here 
+# Define some commonly used functions here   \
+# Gleb Lukicov (11 Jan 2020)  
 from scipy import stats
 import numpy as np
 import seaborn as sns
@@ -24,7 +25,7 @@ def plotHist(data, n_bins=100, prec=4, font_size=14, input_color="green", alpha=
     ax.minorticks_on()
     plt.xticks(fontsize=font_size-1)
     plt.yticks(fontsize=font_size-1)
-    plt.tight_layout()
+    # plt.tight_layout()
 
     return ax, legend
 
