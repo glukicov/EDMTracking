@@ -1,4 +1,4 @@
-# Make a profile plot 
+# Make a profile plot from ROOT histogram
 # Gleb Lukicov (11 Jan 2020)  
 
 import os, sys
@@ -12,28 +12,54 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+arg_parser = argparse.ArgumentParser()
+arg_parser.add_argument("--file_path", type=str, default="DATA/noEDM.root") 
+arg_parser.add_argument("--hist_path", type=str, default="AllStations/VertexExtap/t>0/0<p<3600/thetay_vs_time_modg2") 
+# arg_parser.add_argument("--hist_path", type=str, default="AllStations/VertexExtap/t>0/0<p<3600/vertexPosSpread") 
+arg_parser.add_argument("--read", action='store_true', default=False) # read and write TH data into numpy file
+arg_parser.add_argument("--hist", action='store_true', default=False) # Make a 2D plot 
+arg_parser.add_argument("--profile", action='store_true', default=False)
+arg_parser.add_argument("--beam", action='store_true', default=False)
+args=arg_parser.parse_args()
 
+# get data from 2D hist
+if(args.read):
+    dataXY, n_binsXY, dBinsXY = ru.hist2np(file_path=args.file_path, hist_path=args.hist_path)
+    # store that data 
+    np.save("dataXY.npy", dataXY)
+    print("Data saved to dataXY.npy, re-run with --profile or --hist")
+    sys.exit()
 
-data, n_bins, dBins = ru.hist2D2np(file_path="DATA/noEDM.root", hist_path="AllStationsNoTQ/VertexExtap/t>30/700<p<2400/thetay_vs_time_modg2")
+# load 
+dataXY=np.load("dataXY.npy")
 
+# Plot a 2D histogram
+if (args.hist):
+    if(args.beam):
+        jg,cb,legendX,legendY =cu.plotHist2D(dataXY[0], dataXY[1], n_binsXY=(100,100))
+        jg.ax_joint.set_ylabel("Vertical beam position [mm]", fontsize=18)
+        jg.ax_joint.set_xlabel("Radial beam position [mm]", fontsize=18)
+        cu.textL(jg.ax_joint, 1.32, 1.15, "Vertical [mm]:"+"\n"+str(legendX), font_size=15)
+        cu.textL(jg.ax_joint, 1.32, 1.00, "Radial [mm]:"+"\n"+str(legendY), font_size=15)
+        N=cu.sci_notation(len(dataXY[0])) # format as a 
+        cu.textL(jg.ax_joint, 1.32, 0.00, "N: "+N, font_size=15)
+        plt.savefig("beam.png", dpi=300)
+    else:
+        jg,cb,legendX,legendY =cu.plotHist2D(dataXY[0], dataXY[1], n_binsXY=(75,75))
+        jg.ax_joint.set_ylabel(r"$\theta_y$ [rad]", fontsize=18)
+        jg.ax_joint.set_xlabel(r"$t^{mod}_{g-2} \ \mathrm{[\mu}$s]", fontsize=18)
+        cu.textL(jg.ax_joint, 1.32, 1.15, r"$t^{mod}_{g-2} \ \mathrm{[\mu}$s]:"+"\n"+str(legendX), font_size=15)
+        cu.textL(jg.ax_joint, 1.32, 1.00, r"$\theta_y$ [rad]:"+"\n"+str(legendY), font_size=15)
+        N=cu.sci_notation(len(dataXY[0])) # format as a 
+        cu.textL(jg.ax_joint, 1.32, 0.00, "N: "+N, font_size=15)
+        plt.savefig("thetavsT.png", dpi=300)
 
-# ##Example of getting 2D histro from data 
-# ##TODO adjust value to get default scaling better (can now adjust from few)
-# jg, legendX, legendY = cu.plotHist2D(data[0], data[1], n_binsX=n_bins[0], n_binsY=n_bins[1], return_cb=False)
-# print(legendX, legendY)
-# ## cb.set_label("Tracks",fontsize=13)
-# ## cu.textL(cbaxes, -15.0, 1.2, "X:\n"+str(legendX), font_size=14)
-# ## cu.textL(cbaxes, 0.8, 1.2, "Y:\n"+str(legendY), font_size=14)
-# jg.set_axis_labels("x", "y")
-# sns.set(font_scale = 4)
-# plt.show()
-# ## plt.savefig("2Dtest.png")
 
 # Profile Plot 
-# make into a function 
-# see more options
-# https://seaborn.pydata.org/generated/seaborn.regplot.html
-sns.regplot(x=data[0], y=data[1], x_bins=10, fit_reg=None)
-plt.show()
+if (args.profile):
+    ax=cu.plotProfile(dataXY[0], dataXY[1], bins=10, marker="o", fit_bool=True)
+    ax.set_ylabel(r"$\theta_y$ [rad]", fontsize=16)
+    ax.set_xlabel(r"$t^{mod}_{g-2} \ \mathrm{[\mu}$s]", fontsize=16)
+    plt.savefig("profile.png")
 
 
