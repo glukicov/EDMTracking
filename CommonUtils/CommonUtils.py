@@ -35,14 +35,14 @@ def plotHist(data, n_bins=100, prec=4, font_size=14, input_color="green", alpha=
     return ax, legend
 
 
-def plotHist2D(x, y, n_binsX=100, n_binsY=100, prec=4, font_size=14, cmap=plt.cm.jet):
+def plotHist2D(x, y, n_binsX=100, n_binsY=100, prec=4, font_size=14, cmap=plt.cm.jet, return_cb=True):
     '''
     Inputs are two 1D arrays
 
     # Example of getting 2D histro from data 
     # TODO adjust value to get default scaling better (can now adjust from few)
     # fig, axes = plt.subplots()
-    # jg, cb, cbaxes, legendX, legendY = cu.plotHist2D(dataX, dataX, n_binsX=binsX, n_binsY=binsX)
+    # jg, legendX, legendY, cb, cbaxes = cu.plotHist2D(dataX, dataX, n_binsX=binsX, n_binsY=binsX, return_cb=True)
     # cb.set_label("Tracks",fontsize=13)
     # cu.textL(cbaxes, -15.0, 1.2, "X:\n"+str(legendX), font_size=14)
     # cu.textL(cbaxes, 0.8, 1.2, "Y:\n"+str(legendY), font_size=14)
@@ -67,18 +67,22 @@ def plotHist2D(x, y, n_binsX=100, n_binsY=100, prec=4, font_size=14, cmap=plt.cm
     plt.hist2d(x, y, bins=(100, 100), cmap=cmap) 
 
     # 5 DoF stats in X and Y 
-    N, mean, meanE, sd, sdE = stats5(x)
-    legendX = legend5(N, mean, meanE, sd, sdE, prec) # return legend string x
-    N, mean, meanE, sd, sdE = stats5(y)
-    legendY = legend5(N, mean, meanE, sd, sdE, prec) # return legend string y
+    Nx, meanx, meanEx, sdx, sdEx = stats5(x)
+    legendX = legend5(Nx, meanx, meanEx, sdx, sdEx, prec) # return legend string x
+    Ny, meany, meanEy, sdy, sdEy = stats5(y)
+    legendY = legend5(Ny, meany, meanEy, sdy, sdEy, prec) # return legend string y
 
     # add the colour bar with new axis
-    cbaxes = jg.fig.add_axes([0.8, 0.05, 0.03, 0.6]) 
-    cb = plt.colorbar(cax = cbaxes)  
-    cb.ax.tick_params(labelsize=font_size-1) 
+    if(return_cb):
+        cbaxes = jg.fig.add_axes([0.8, 0.05, 0.03, 0.6]) 
+        cb = plt.colorbar(cax = cbaxes)  
+        cb.ax.tick_params(labelsize=font_size-1) 
     
     # the returned cbaxes can be used to put legend on the plot 
-    return jg, cb, cbaxes, legendX, legendY 
+    if(return_cb):
+        return jg, legendX, legendY, cb, cbaxes
+    if(not return_cb):
+        return jg, legendX, legendY
 
 
 def textL(ax, x, y, legend, font_size=14):
