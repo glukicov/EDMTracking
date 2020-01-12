@@ -5,6 +5,7 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import sys
+import re
 
 def plotHist(data, n_bins=100, prec=4, font_size=14, input_color="green", alpha=0.7):
     '''
@@ -95,7 +96,20 @@ def legend5(N, mean, meanE, sd, sdE, prec=4):
     '''
     form a string from 5 stats inputs with given precision
     '''
-    legend = "N={0:d} \n Mean={1:.{prec}f}({2:d}) \n SD={3:.{prec}f}({4:d})".format(N, mean, int(round(meanE*10**prec)), sd, int(round(sdE*10**prec)), prec=prec)
+    # form raw string with Latex
+    sigmaS=r"$\sigma$"
+    meanS=r"$\mathrm{\mu}$"
+    legend = "N={0:d}".format(N)+"\n"+str(meanS)+"={0:.{prec}f}({1:d})\n".format(mean, int(round(meanE*10**prec)), prec=prec)+str(sigmaS)+"={0:.{prec}f}({1:d})".format(sd, int(round(sdE*10**prec)), prec=prec)
+    return legend
+
+def legend4(mean, meanE, sd, sdE, prec=4):
+    '''
+    form a string from 4 stats inputs with given precision
+    '''
+    # form raw string with Latex
+    sigmaS=r"$\sigma$"
+    meanS=r"$\mathrm{\mu}$"
+    legend = str(meanS)+"={0:.{prec}f}({1:d}) \n ".format(mean, int(round(meanE*10**prec)), prec=prec)+str(sigmaS)+"={0:.{prec}f}({1:d})".format(sd, int(round(sdE*10**prec)), prec=prec)
     return legend
 
 def stats5(data):
