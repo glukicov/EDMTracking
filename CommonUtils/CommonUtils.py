@@ -17,16 +17,16 @@ sigmaS=r"$\sigma$"
 
 def plotProfile(x, y, x_estimator=np.mean, bins=10, fit_bool=False, ci=95, marker="+", color="green", font_size=14):
     # return axes with a profile plot 
-    ax = sns.regplot(x=x, y=y, x_estimator=x_estimator, x_bins=bins, fit_reg=fit_bool, marker=marker, color=color)
+    fig, ax = plt.subplots(1,1)
+    ax = sns.regplot(x=x, y=y, x_estimator=x_estimator, x_bins=bins, fit_reg=fit_bool, marker=marker, color=color, ax=ax)
     # make a nice looking plot as default 
-    ax.set_xlabel(xlabel="", fontsize=font_size)
-    ax.set_ylabel(ylabel="", fontsize=font_size)
+    ax.set_xlabel(xlabel="X", fontsize=font_size)
+    ax.set_ylabel(ylabel="Y", fontsize=font_size)
     ax.tick_params(axis='x', which='both', bottom=True, top=True, direction='inout')
     ax.tick_params(axis='y', which='both', left=True, right=True, direction='inout')
     ax.minorticks_on()
     plt.xticks(fontsize=font_size-1)
     plt.yticks(fontsize=font_size-1)
-    plt.tight_layout()
     return ax 
 
 def plotHist(data, n_bins=100, prec=4, font_size=14, input_color="green", alpha=0.7):
