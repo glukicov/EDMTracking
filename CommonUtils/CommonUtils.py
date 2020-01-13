@@ -5,6 +5,8 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import pandas as pd
+from pandas import Series, DataFrame
 import sys
 import re
 from copy import copy
@@ -14,20 +16,6 @@ from math import floor, log10
 meanS=r"$\mathrm{\mu}$"
 sigmaS=r"$\sigma$"
 
-
-def plotProfile(x, y, x_estimator=np.mean, bins=10, fit_bool=False, ci=95, marker="+", color="green", font_size=14):
-    # return axes with a profile plot 
-    fig, ax = plt.subplots(1,1)
-    ax = sns.regplot(x=x, y=y, x_estimator=x_estimator, x_bins=bins, fit_reg=fit_bool, marker=marker, color=color, ax=ax)
-    # make a nice looking plot as default 
-    ax.set_xlabel(xlabel="X", fontsize=font_size)
-    ax.set_ylabel(ylabel="Y", fontsize=font_size)
-    ax.tick_params(axis='x', which='both', bottom=True, top=True, direction='inout')
-    ax.tick_params(axis='y', which='both', left=True, right=True, direction='inout')
-    ax.minorticks_on()
-    plt.xticks(fontsize=font_size-1)
-    plt.yticks(fontsize=font_size-1)
-    return ax 
 
 def plotHist(data, n_bins=100, prec=4, font_size=14, input_color="green", alpha=0.7):
     '''
@@ -166,3 +154,58 @@ def sci_notation(num, decimal_digits=1, precision=None, exponent=None):
 
     return r"${0:.{2}f}\cdot10^{{{1:d}}}$".format(coeff, exponent, precision)
 
+#no data is returned by sns.regplot, just a pretty plot...really, seaborn?! 
+# use Profile instead
+def plotProfile(x, y, x_estimator=np.mean, bins=10, fit_bool=False, ci=95, marker="+", color="green", font_size=14):
+    ''' 
+    return axes with a profile plot 
+    '''
+    fig, ax = plt.subplots(1,1)
+    ax = sns.regplot(x=x, y=y, x_estimator=x_estimator, x_bins=bins, fit_reg=fit_bool, marker=marker, color=color, ax=ax)
+    # make a nice looking plot as default 
+    ax.set_xlabel(xlabel="X", fontsize=font_size)
+    ax.set_ylabel(ylabel="Y", fontsize=font_size)
+    ax.tick_params(axis='x', which='both', bottom=True, top=True, direction='inout')
+    ax.tick_params(axis='y', which='both', left=True, right=True, direction='inout')
+    ax.minorticks_on()
+    plt.xticks(fontsize=font_size-1)
+    plt.yticks(fontsize=font_size-1)
+    return ax 
+
+def Profile(x, y, ax, nbins=10, xmin=0, xmax=4, mean=False, sd=False, font_size=14, color="green"):
+    '''
+    Author: Keith 
+    https://stackoverflow.com/questions/23709403/plotting-profile-hitstograms-in-python
+
+    # Return both the plot and DF of binned data 
+    '''
+    df = DataFrame({'x' : x , 'y' : y})
+
+    binedges = xmin + ((xmax-xmin)/nbins) * np.arange(nbins+1)
+    df['bin'] = np.digitize(df['x'],binedges)
+
+    bincenters = xmin + ((xmax-xmin)/nbins)*np.arange(nbins) + ((xmax-xmin)/(2*nbins))
+    ProfileFrame = DataFrame({'bincenters' : bincenters, 'N' : df['bin'].value_counts(sort=False)},index=range(1,nbins+1))
+
+    bins = ProfileFrame.index.values
+    for bin in bins:
+        ProfileFrame.loc[bin,'ymean'] = df.loc[df['bin']==bin,'y'].mean()
+        ProfileFrame.loc[bin,'yStandDev'] = df.loc[df['bin']==bin,'y'].std()
+        ProfileFrame.loc[bin,'yMeanError'] = ProfileFrame.loc[bin,'yStandDev'] / np.sqrt(ProfileFrame.loc[bin,'N'])
+
+    if (mean):
+        ax.errorbar(ProfileFrame['bincenters'], ProfileFrame['ymean'], yerr=ProfileFrame['yMeanError'], xerr=(xmax-xmin)/(2*nbins), linewidth=0, elinewidth=2, color=color, marker="o") 
+    elif (sd):
+        ax.errorbar(ProfileFrame['bincenters'], ProfileFrame['ymean'], yerr=ProfileFrame['yStandDev'], xerr=(xmax-xmin)/(2*nbins), linewidth=0, elinewidth=2, color=color, marker="o") 
+    else:
+        raise Exception("Specify either 'mean' or 'sd' y_error as 'True'")
+    
+    # make a nice looking plot as default 
+    ax.set_xlabel(xlabel="X", fontsize=font_size)
+    ax.set_ylabel(ylabel="Y", fontsize=font_size)
+    ax.tick_params(axis='x', which='both', bottom=True, top=True, direction='inout')
+    ax.tick_params(axis='y', which='both', left=True, right=True, direction='inout')
+    ax.minorticks_on()
+    plt.xticks(fontsize=font_size-1)
+    plt.yticks(fontsize=font_size-1)
+    return ax, df

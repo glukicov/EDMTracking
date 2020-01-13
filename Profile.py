@@ -11,15 +11,18 @@ from scipy import stats
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+import pandas as pd
+from pandas import Series, DataFrame
 
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("--file_path", type=str, default="DATA/VLEDM.root") 
 arg_parser.add_argument("--hist_path", type=str, default="AllStationsNoTQ/VertexExt/t>0/0<p<3600/thetay_vs_time_modg2") 
 # arg_parser.add_argument("--hist_path", type=str, default="AllStations/VertexExt/t>0/0<p<3600/vertexPosSpread") 
 arg_parser.add_argument("--read", action='store_true', default=False) # read and write TH data into numpy file
+arg_parser.add_argument("--beam", action='store_true', default=False)
 arg_parser.add_argument("--hist", action='store_true', default=False) # Make a 2D plot 
 arg_parser.add_argument("--profile", action='store_true', default=False)
-arg_parser.add_argument("--beam", action='store_true', default=False)
+arg_parser.add_argument("--fit", action='store_true', default=False)
 args=arg_parser.parse_args()
 
 # get data from 2D hist
@@ -32,6 +35,8 @@ if(args.read):
 
 # load 
 dataXY=np.load("dataXY.npy")
+x=dataXY[0]
+y=dataXY[1]
 
 # Plot a 2D histogram
 if (args.hist):
@@ -58,17 +63,24 @@ if (args.hist):
 
 # Profile Plot 
 if (args.profile):
+
+    #convert 𝛉 into um
+    y=y*1e3 # rad -> mrad 
+
     print("Plotting a profile...")
-    ax=cu.plotProfile(dataXY[0], dataXY[1], bins=10, marker="o", fit_bool=False)
-    ax.set_ylabel(r"$\theta_y$ [rad]", fontsize=16)
+    fig,ax=plt.subplots()
+    ax, df =cu.Profile(x, y, ax, nbins=15, xmin=np.min(x),xmax=np.max(x), mean=True)
+    ax.set_ylabel(r"$\theta_y$ [mrad]", fontsize=16)
     ax.set_xlabel(r"$t^{mod}_{g-2} \ \mathrm{[\mu}$s]", fontsize=16)
     plt.tight_layout() 
     plt.savefig("profile.png")
 
-# TODO faster profile plots? 
-# just split data myself and to mean and gaussian fit to bins? 
-# got to do my own plotting anyways .. 
-# https://stackoverflow.com/questions/23709403/plotting-profile-hitstograms-in-python (see last answer)
+    np.save("dataXY.npy", df)
+
+if (args.fit):
+    print("Fitting a profile...") 
+
+# gaussian fit to bins from data frame 
 
 # fit sine 
 # Train on simple data here
