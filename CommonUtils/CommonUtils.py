@@ -194,8 +194,10 @@ def Profile(x, y, ax, nbins=10, xmin=0, xmax=4, mean=False, sd=False, font_size=
         ProfileFrame.loc[bin,'yMeanError'] = ProfileFrame.loc[bin,'yStandDev'] / np.sqrt(ProfileFrame.loc[bin,'N'])
 
     if (mean):
+        df_binned = DataFrame({'bincenters' : ProfileFrame['bincenters'] , 'ymean' : ProfileFrame['ymean'], 'xerr' : (xmax-xmin)/(2*nbins),  'yerr' : ProfileFrame['yMeanError']})
         ax.errorbar(ProfileFrame['bincenters'], ProfileFrame['ymean'], yerr=ProfileFrame['yMeanError'], xerr=(xmax-xmin)/(2*nbins), linewidth=0, elinewidth=2, color=color, marker="o") 
     elif (sd):
+        df_binned = DataFrame({'bincenters' : ProfileFrame['bincenters'] , 'ymean' : ProfileFrame['ymean'], 'xerr' : (xmax-xmin)/(2*nbins),  'yerr' : ProfileFrame['yStandDev']})
         ax.errorbar(ProfileFrame['bincenters'], ProfileFrame['ymean'], yerr=ProfileFrame['yStandDev'], xerr=(xmax-xmin)/(2*nbins), linewidth=0, elinewidth=2, color=color, marker="o") 
     else:
         raise Exception("Specify either 'mean' or 'sd' y_error as 'True'")
@@ -208,4 +210,4 @@ def Profile(x, y, ax, nbins=10, xmin=0, xmax=4, mean=False, sd=False, font_size=
     ax.minorticks_on()
     plt.xticks(fontsize=font_size-1)
     plt.yticks(fontsize=font_size-1)
-    return ax, df
+    return ax, df_binned, df

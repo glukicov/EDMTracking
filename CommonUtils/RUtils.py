@@ -40,7 +40,7 @@ def hist2np(file_path="data/data.root", hist_path="Tracks/pvalue", cp=True, over
         edges=edges[0]
 
         #find number of bins
-        n_bins=len(freq) 
+        n_bins=len(edges)-1 # 1 more edge than bin centres
         
         #find the bin width 
         dBin=edges[1]-edges[0]

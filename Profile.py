@@ -69,21 +69,22 @@ if (args.profile):
 
     print("Plotting a profile...")
     fig,ax=plt.subplots()
-    ax, df =cu.Profile(x, y, ax, nbins=15, xmin=np.min(x),xmax=np.max(x), mean=True)
+    ax, df_binned, df_input =cu.Profile(x, y, ax, nbins=15, xmin=np.min(x),xmax=np.max(x), mean=True)
     ax.set_ylabel(r"$\theta_y$ [mrad]", fontsize=16)
     ax.set_xlabel(r"$t^{mod}_{g-2} \ \mathrm{[\mu}$s]", fontsize=16)
     plt.tight_layout() 
     plt.savefig("profile.png")
 
-    np.save("dataXY.npy", df)
+    df_binned.to_csv("df.csv")
 
 if (args.fit):
     print("Fitting a profile...") 
 
-# gaussian fit to bins from data frame 
+    # normal fit to 16 points 
 
-# fit sine 
-# Train on simple data here
-# Make sure to include errors in the fit 
+    # Include errors in the fit (investigate the formulae)
+
+    # Gaussian fit to bins from data frame 
+
 
 print("Done!")
