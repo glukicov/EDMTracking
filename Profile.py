@@ -6,7 +6,8 @@ sys.path.append('CommonUtils/')
 import CommonUtils as cu
 import RUtils as ru
 
-import argparse, math
+import argparse 
+import math
 from scipy import stats
 import numpy as np
 import seaborn as sns
