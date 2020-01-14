@@ -1,5 +1,7 @@
 # EDMTracking
-g-2 EDM, grid-based tracking, and DB scripts 
+## g-2 EDM, grid-based tracking, and DB scripts 
+
+See here https://github.com/glukicov/EDMTracking/blob/master/PYReadTree.ipynb for a quick demo on how to load, make cuts, plot data, and fit from Trees
 
 ### To get the EDM-style blinding to work in Python with the blinding libraries: ### 
 A. Add changes to your local files from this commit: https://github.com/glukicov/EDMTracking/commit/8c1ecff08ceb905aa449d6e18a858b5ec73980b7
