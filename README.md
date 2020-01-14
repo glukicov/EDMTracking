@@ -5,7 +5,9 @@
 
 ### The analysis guide for Python is here: https://cdcvs.fnal.gov/redmine/projects/gm2analyses/wiki/Python-based_EDM_analysis
 
-### To get the EDM-style blinding to work in Python with the blinding libraries: ### 
+## Some common utility functions for plotting, statistics and ROOT access are in ./CommonUtils/
+
+## To get the EDM-style blinding to work in Python with the blinding libraries: ### 
 A. Add changes to your local files from this commit: https://github.com/glukicov/EDMTracking/commit/8c1ecff08ceb905aa449d6e18a858b5ec73980b7
 
 B. Re-compile (in the Blinders.cc directroy):
