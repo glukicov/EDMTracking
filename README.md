@@ -1,7 +1,9 @@
 # EDMTracking
 ## g-2 EDM, grid-based tracking, and DB scripts 
 
-### See here https://github.com/glukicov/EDMTracking/blob/master/PYReadTree.ipynb for a quick demo on how to load, make cuts, plot data, and fit from Trees
+### See here https://github.com/glukicov/EDMTracking/blob/master/PYReadTree.ipynb for a quick demo on how to load, make cuts, plot data, and fit from ROOT Trees
+
+### The analysis guide for Python is here: https://cdcvs.fnal.gov/redmine/projects/gm2analyses/wiki/Python-based_EDM_analysis
 
 ### To get the EDM-style blinding to work in Python with the blinding libraries: ### 
 A. Add changes to your local files from this commit: https://github.com/glukicov/EDMTracking/commit/8c1ecff08ceb905aa449d6e18a858b5ec73980b7
@@ -24,7 +26,5 @@ python3 testBlindingPy3.py
 ```
 
 The official blinding guide is here: https://cdcvs.fnal.gov/redmine/projects/gm2analyses/wiki/Library_installation 
-
-The getting-started Python guide is here: https://cdcvs.fnal.gov/redmine/projects/gm2analyses/wiki/Python-based_EDM_analysis
 
 Example of EDM Tracking art (C++) code is here https://cdcvs.fnal.gov/redmine/projects/gm2analyses/wiki/Tracker_EDM_analysis
