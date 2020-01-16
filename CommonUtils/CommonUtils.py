@@ -46,7 +46,7 @@ def plotHist(data, n_bins=100, prec=4, font_size=14, input_color="green", alpha=
     return ax, legend
 
 
-def plotHist2D(x, y, n_binsXY=(100, 100), prec=4, font_size=14, figsize=(10, 10), cmap=plt.cm.Greens):
+def plotHist2D(x, y, n_binsXY=(100, 100), prec=4, font_size=14, figsize=(10, 10), cmap=plt.cm.jet, cmin=1):
     '''
     Inputs are two 1D arrays
 
@@ -69,7 +69,7 @@ def plotHist2D(x, y, n_binsXY=(100, 100), prec=4, font_size=14, figsize=(10, 10)
     jg.fig.set_size_inches(figsize[0], figsize[1])
     jg.ax_joint.cla() # clear 
     plt.sca(jg.ax_joint) # join 
-    plt.hist2d(x, y, bins=(n_binsXY[0], n_binsXY[1]), cmap=cmap) #add 2D histo on top
+    plt.hist2d(x, y, bins=(n_binsXY[0], n_binsXY[1]), cmap=cmap, cmin=cmin) #add 2D histo on top
 
     #add color bar
     cb = plt.colorbar(use_gridspec=False, orientation="vertical", shrink=0.65, anchor=(1.9, 0.3))
@@ -154,23 +154,6 @@ def sci_notation(num, decimal_digits=1, precision=None, exponent=None):
 
     return r"${0:.{2}f}\cdot10^{{{1:d}}}$".format(coeff, exponent, precision)
 
-#no data is returned by sns.regplot, just a pretty plot...really, seaborn?! 
-# use Profile instead
-def plotProfile(x, y, x_estimator=np.mean, bins=10, fit_bool=False, ci=95, marker="+", color="green", font_size=14):
-    ''' 
-    return axes with a profile plot 
-    '''
-    fig, ax = plt.subplots(1,1)
-    ax = sns.regplot(x=x, y=y, x_estimator=x_estimator, x_bins=bins, fit_reg=fit_bool, marker=marker, color=color, ax=ax)
-    # make a nice looking plot as default 
-    ax.set_xlabel(xlabel="X", fontsize=font_size)
-    ax.set_ylabel(ylabel="Y", fontsize=font_size)
-    ax.tick_params(axis='x', which='both', bottom=True, top=True, direction='inout')
-    ax.tick_params(axis='y', which='both', left=True, right=True, direction='inout')
-    ax.minorticks_on()
-    plt.xticks(fontsize=font_size-1)
-    plt.yticks(fontsize=font_size-1)
-    return ax 
 
 def Profile(x, y, ax, nbins=10, xmin=0, xmax=4, mean=False, sd=False, font_size=14, color="green"):
     '''
@@ -211,3 +194,21 @@ def Profile(x, y, ax, nbins=10, xmin=0, xmax=4, mean=False, sd=False, font_size=
     plt.xticks(fontsize=font_size-1)
     plt.yticks(fontsize=font_size-1)
     return ax, df_binned, df
+
+#no data is returned by sns.regplot, just a pretty plot...really, seaborn?! 
+# use Profile instead, plus seaborn is quite slow... 
+def plotProfileSNS(x, y, x_estimator=np.mean, bins=10, fit_bool=False, ci=95, marker="+", color="green", font_size=14):
+    ''' 
+    return axes with a profile plot 
+    '''
+    fig, ax = plt.subplots(1,1)
+    ax = sns.regplot(x=x, y=y, x_estimator=x_estimator, x_bins=bins, fit_reg=fit_bool, marker=marker, color=color, ax=ax)
+    # make a nice looking plot as default 
+    ax.set_xlabel(xlabel="X", fontsize=font_size)
+    ax.set_ylabel(ylabel="Y", fontsize=font_size)
+    ax.tick_params(axis='x', which='both', bottom=True, top=True, direction='inout')
+    ax.tick_params(axis='y', which='both', left=True, right=True, direction='inout')
+    ax.minorticks_on()
+    plt.xticks(fontsize=font_size-1)
+    plt.yticks(fontsize=font_size-1)
+    return ax 

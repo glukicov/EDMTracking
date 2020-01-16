@@ -4,6 +4,7 @@
 from ROOT import TH1, TH2, TFile
 import numpy as np
 from root_numpy import hist2array # http://scikit-hep.org/root_numpy/
+import root_numpy
 import sys
 
 def hist2np(file_path="data/data.root", hist_path="Tracks/pvalue", cp=True, overflow=False, edges=True):
