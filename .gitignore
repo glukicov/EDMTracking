@@ -5,6 +5,11 @@
 *.bin
 *.txt
 *.exe
+*.npy
+*.csv
+
+test/
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
