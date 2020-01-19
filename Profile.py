@@ -20,14 +20,13 @@ mpl.use('Agg')
 import matplotlib.pyplot as plt
 
 arg_parser = argparse.ArgumentParser()
-arg_parser.add_argument("--file_path", type=str, default="DATA/noEDM.root") 
-# arg_parser.add_argument("--file_path", type=str, default="DATA/VLEDM.root") 
-
-arg_parser.add_argument("--hist_path", type=str, default="AllStations/VertexExtap/t>0/0<p<3600/thetay_vs_time_modg2") 
+# arg_parser.add_argument("--file_path", type=str, default="DATA/noEDM.root") 
+# arg_parser.add_argument("--hist_path", type=str, default="AllStations/VertexExtap/t>0/0<p<3600/thetay_vs_time_modg2") 
 # arg_parser.add_argument("--hist_path", type=str, default="AllStationsNoTQ/VertexExtap/t>0/0<p<3600/thetay_vs_time_modg2") 
 
+arg_parser.add_argument("--file_path", type=str, default="DATA/VLEDM.root") 
 # arg_parser.add_argument("--hist_path", type=str, default="AllStations/VertexExt/t>0/0<p<3600/thetay_vs_time_modg2") 
-# arg_parser.add_argument("--hist_path", type=str, default="AllStationsNoTQ/VertexExt/t>0/0<p<3600/thetay_vs_time_modg2") 
+arg_parser.add_argument("--hist_path", type=str, default="AllStationsNoTQ/VertexExt/t>0/0<p<3600/thetay_vs_time_modg2") 
 
 # arg_parser.add_argument("--hist_path", type=str, default="AllStations/VertexExt/t>0/0<p<3600/vertexPosSpread") 
 arg_parser.add_argument("--read", action='store_true', default=False) # read and write TH data into numpy file
@@ -140,7 +139,7 @@ if(args.iter):
                     print("Plotting a profile for", fullPath)
                     fig,ax=plt.subplots()
                     ax, df_binned, df_input =cu.Profile(x, y, ax, nbins=15, xmin=np.min(x),xmax=np.max(x), mean=True)
-                    ax.set_ylabel(r"$\theta_y$ [mrad]", fontsize=16)
+                    ax.set_ylabel(r"$\langle\theta_y\rangle$ [mrad]", fontsize=16)
                     ax.set_xlabel(r"$t^{mod}_{g-2} \ \mathrm{[\mu}$s]", fontsize=16)
                     N=cu.sci_notation(len(x)) # format as a 
                     cu.textL(ax, 0.88, 0.9, "N: "+N, font_size=14)
