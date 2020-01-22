@@ -8,11 +8,12 @@ import RUtils as ru
 
 import argparse 
 import math
-from scipy import stats
+from scipy import stats, optimize
 import numpy as np
 import seaborn as sns
 import pandas as pd
 from pandas import Series, DataFrame
+
 
 # MPL in batch mode
 import matplotlib as mpl
@@ -42,11 +43,45 @@ args=arg_parser.parse_args()
 # if all(not args_v):
 #     arg_parser.error('No arguments provided.')
 
+#set some global variables  
+info=[]
+names=[]
+
 # get data from 2D hist
 if(args.read):
     dataXY, n_binsXY, dBinsXY = ru.hist2np(file_path=args.file_path, hist_path=args.hist_path)
-    # store that data 
+    # store that data
     np.save("dataXY.npy", dataXY)
+
+    # and info
+    edm_setting=args.file_path.split("/")[1].split(".")[0]
+    Q_cut=args.hist_path.split("/")[0]
+    data_type=args.hist_path.split("/")[1]
+    time_cut=args.hist_path.split("/")[2]+r" $\mathrm{\mu}$s"
+    p_cut=args.hist_path.split("/")[3]+" MeV"
+    y_label=args.hist_path.split("/")[4].split("_")[0]
+    x_label=args.hist_path.split("/")[4].split("_")[2:]
+    N=len(dataXY[0])
+    
+    #some specific string transforms
+    if (edm_setting == "VLEDM"):
+        edm_setting=r"$d_{\mu} = 5.4\times10^{-18} \ e\cdot{\mathrm{cm}}$"
+    if (edm_setting == "noEDM"):
+        edm_setting=r"$d_{\mu} = 0 \ e\cdot{\mathrm{cm}}$"
+    if(y_label=="thetay"):
+        y_label=r"$\langle\theta_y\rangle$ [mrad]"
+    if(x_label[0]=="time" and x_label[1]=="modg2"):
+        x_label=r"$t^{mod}_{g-2} \ \mathrm{[\mu}$s]"
+
+    # two lists into dict 
+    info=[edm_setting, data_type, Q_cut, time_cut, p_cut, x_label, y_label, N]
+    names=["edm_setting", "data_type", "Q_cut", "time_cut", "p_cut", "x_label", "y_label", "N"]
+    info_dict = dict(zip(names, info))
+
+    #now pass along the information to the fitter
+    df_info = pd.DataFrame(info_dict, index=[0]) 
+    df_info.to_csv("df_info.csv")
+    
     print("Data saved to dataXY.npy, re-run with --profile or --hist to make plots")
     sys.exit()
 
@@ -81,13 +116,15 @@ if (args.hist):
 # Profile Plot 
 if (args.profile):
 
+    #Make a profiled data (as a DF) and display
+
     #convert 𝛉 into um
     y=y*1e3 # rad -> mrad 
 
     print("Plotting a profile...")
     fig,ax=plt.subplots()
     ax, df_binned, df_input =cu.Profile(x, y, ax, nbins=15, xmin=np.min(x),xmax=np.max(x), mean=True)
-    ax.set_ylabel(r"$\theta_y$ [mrad]", fontsize=16)
+    ax.set_ylabel(r"$\langle\theta_y\rangle$ [mrad]", fontsize=16)
     ax.set_xlabel(r"$t^{mod}_{g-2} \ \mathrm{[\mu}$s]", fontsize=16)
     N=cu.sci_notation(len(x)) # format as a 
     cu.textL(ax, 0.88, 0.9, "N: "+N, font_size=14)
@@ -95,22 +132,35 @@ if (args.profile):
     plt.savefig("profile.png")
 
     # can save the profile points with errors to a file
-    # df_binned.to_csv("df.csv")
+    df_binned.to_csv("df_binned.csv")
+ 
 
+if (args.fit):
+    print("Fitting a profile...") 
+
+    # normal fit to 16 points 
+
+    # Include errors in the fit (investigate the formulae)
+
+    # Gaussian fit to bins from data frame 
 
 if(args.iter):
 
-# AllStationsNoTQ/VertexExtap/t>0/0<p<3600/thetay_vs_time_modg2
-
     #loop over common plots
-    fileLabel=("LargeEDM", "noEDM")
-    fileName=("DATA/VLEDM.root", "DATA/noEDM.root")
+    # fileLabel=("LargeEDM", "noEDM")
+    # fileName=("DATA/VLEDM.root", "DATA/noEDM.root")
+
+    fileLabel=[("LargeEDM")]
+    fileName=[("DATA/VLEDM.root")]
     
     plotLabel=("Tracks", "Vertices")
     plotName=["TrackFit", "VertexExt"]
     
-    qLabel=("QT", "NQT")
-    qName=("AllStations", "AllStationsNoTQ")
+    # qLabel=("QT", "NQT")
+    # qName=("AllStations", "AllStationsNoTQ")
+
+    qLabel=[("NQT")]
+    qName=[("AllStationsNoTQ")]
     
     cutLabel=("0_p_3600", "400_p_2700", "700_p_2400")
     cutName=("t>0/0<p<3600", "t>0/400<p<2700", "t>0/700<p<2400")
@@ -128,34 +178,82 @@ if(args.iter):
                     fullPath=i_qName+"/"+i_plotName+"/"+i_cutName+"/thetay_vs_time_modg2"
                     fullLabel=fileLabel[i_file]+"_"+plotLabel[i_plot]+"_"+qLabel[i_q]+"_"+cutLabel[i_cut]
 
-                    dataXY, n_binsXY, dBinsXY = ru.hist2np(file_path=i_fileName, hist_path=fullPath)
-
-                    #get time (x), and 𝛉 (y) 
-                    x=dataXY[0]
-                    y=dataXY[1] 
-                    #convert 𝛉 into um
-                    y=np.array(y)*1e3 # rad -> mrad 
-
                     print("Plotting a profile for", fullPath)
-                    fig,ax=plt.subplots()
-                    ax, df_binned, df_input =cu.Profile(x, y, ax, nbins=15, xmin=np.min(x),xmax=np.max(x), mean=True)
-                    ax.set_ylabel(r"$\langle\theta_y\rangle$ [mrad]", fontsize=16)
-                    ax.set_xlabel(r"$t^{mod}_{g-2} \ \mathrm{[\mu}$s]", fontsize=16)
-                    N=cu.sci_notation(len(x)) # format as a 
-                    cu.textL(ax, 0.88, 0.9, "N: "+N, font_size=14)
-                    cu.textL(ax, 0.3, 0.9, fullLabel, font_size=14)
+
+                    #extract data from the histogram
+                    dataXY, n_binsXY, dBinsXY = ru.hist2np(file_path=i_fileName, hist_path=fullPath)
+                    #bin data into a profile 
+                    df_data=cu.Profile(dataXY[0], dataXY[1], False, nbins=15, xmin=np.min(dataXY[0]),xmax=np.max(dataXY[0]), mean=True, only_binned=True)
+                    x=df_data['bincenters']
+                    y=df_data['ymean']
+                    x_err=df_data['xerr']
+                    y_err=df_data['yerr']
+                    y=y*1e3 # rad -> mrad 
+                    y_err=y_err*1e3 # rad -> mrad 
+
+                    # and info
+                    edm_setting=fullPath.split("/")[1].split(".")[0]
+                    Q_cut=fullPath.split("/")[0]
+                    data_type=fullPath.split("/")[1]
+                    time_cut=fullPath.split("/")[2]+r" $\mathrm{\mu}$s"
+                    p_cut=fullPath.split("/")[3]+" MeV"
+                    y_label=fullPath.split("/")[4].split("_")[0]
+                    x_label=fullPath.split("/")[4].split("_")[2:]
+                    N=len(dataXY[0])
+                    
+                    #some specific string transforms
+                    if (edm_setting == "VLEDM"):
+                        edm_setting=r"$d_{\mu} = 5.4\times10^{-18} \ e\cdot{\mathrm{cm}}$"
+                    if (edm_setting == "noEDM"):
+                        edm_setting=r"$d_{\mu} = 0 \ e\cdot{\mathrm{cm}}$"
+                    if(y_label=="thetay"):
+                        y_label=r"$\langle\theta_y\rangle$ [mrad]"
+                    if(x_label[0]=="time" and x_label[1]=="modg2"):
+                        x_label=r"$t^{mod}_{g-2} \ \mathrm{[\mu}$s]"
+
+
+                    #fit a function and get pars 
+                    par, pcov = optimize.curve_fit(
+    cu.sin_unblinded, x, y, sigma=y_err, p0=[1.0, 1.0, 1.0], absolute_sigma=False, method='lm')
+                    par_e = np.sqrt(np.diag(pcov))
+
+                    # plot the fit and data 
+                    fig, ax = plt.subplots()
+                    ax.errorbar(x,y,xerr=x_err, yerr=y_err, linewidth=0, elinewidth=2, color="green", marker="o", label="Data")
+                    ax.plot(x, cu.sin_unblinded(x, par[0], par[1], par[2]), color="red", label='Fit')
+                    ax.legend(loc='best')
+                    ax.set_ylabel(y_label, fontsize=16)
+                    ax.set_xlabel(x_label, fontsize=16)
+                    # deal with fitter parameters
+                    parNames=[" A", "b", "c"]
+                    units=["mrad", "MHz", "mrad"]
+                    prec=2
+                    chi2_n=cu.chi2_ndf(x, y, y_err, cu.sin_unblinded, par)
+                    #form complex legeds 
+                    legend1=r"$\frac{\chi^2}{DoF}$= "+"{0:.{prec}f}".format(chi2_n, prec=prec)+"\n"
+                    print(legend1)
+                    for i, i_name in enumerate(parNames):
+                            value=i_name+"= {0:+.{prec}f}".format(par[i], prec=prec)+" \u00B1 {0:.{prec}f}".format( par_e[i], prec=prec)+" "+units[i]
+                            print(value)
+                            legend1+=value+"\n"
+
+                    legend2=data_type+"\n"+p_cut+"\n N="+cu.sci_notation(N)
+
+                    #decide on the postion based on the plot type
+                    y1=0.15
+                    y2=0.85
+                    
+                    if (data_type=="VertexExt" or data_type=="VertexExtap"):
+                        x1=0.25
+                        x2=0.65
+                    if (data_type=="TrackFit"):
+                        x1=0.65
+                        x2=0.25
+
+                    cu.textL(ax, x1, y1, legend1, font_size=12, color="red")    
+                    cu.textL(ax, x2, y2, legend2, font_size=12)
                     plt.tight_layout() 
                     plt.savefig(cutLabel[i_cut]+"/prof_"+fullLabel+"_.png")
-
-
-if (args.fit):
-    print("Fitting a profile...") 
-
-    # normal fit to 16 points 
-
-    # Include errors in the fit (investigate the formulae)
-
-    # Gaussian fit to bins from data frame 
 
 
 print("Done!")

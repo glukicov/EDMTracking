@@ -90,12 +90,26 @@ def plotHist2D(x, y, n_binsXY=(100, 100), prec=4, font_size=14, figsize=(10, 10)
     # axes can be accessed with cb.ax, jt.
     return jg, cb, legendX, legendY
 
+def chi2_ndf(x, y, y_err, func, pars):
+    '''
+    Calcualte chi2
+    # TODO generalise for any N of parameters
+    '''    
+    chi2=0
+    for i in range(1, len(x)+1):
+        r = y[i] - func(x[i], pars[0], pars[1], pars[2])  
+        chi2+=(r)**2/y_err[i]**2
+    ndf = len(x) - len(pars)
+    return chi2/ndf
 
-def textL(ax, x, y, legend, font_size=14):
+def sin_unblinded(t, A, b, c):
+    return A * np.sin(b * t)+c
+
+def textL(ax, x, y, legend, font_size=14, color="green"):
     '''
     return a good formatted plot legend
     '''
-    return ax.text(x, y, str(legend),  fontsize=font_size, transform=ax.transAxes, horizontalalignment='center', verticalalignment='center')
+    return ax.text(x, y, str(legend),  fontsize=font_size, transform=ax.transAxes, horizontalalignment='center', verticalalignment='center', color=color)
 
 def legend5(N, mean, meanE, sd, sdE, prec=4):
     '''
@@ -155,7 +169,7 @@ def sci_notation(num, decimal_digits=1, precision=None, exponent=None):
     return r"${0:.{2}f}\cdot10^{{{1:d}}}$".format(coeff, exponent, precision)
 
 
-def Profile(x, y, ax, nbins=10, xmin=0, xmax=4, mean=False, sd=False, font_size=14, color="green"):
+def Profile(x, y, ax, nbins=10, xmin=0, xmax=4, mean=False, sd=False, font_size=14, color="green", only_binned=False):
     '''
     Author: Keith 
     https://stackoverflow.com/questions/23709403/plotting-profile-hitstograms-in-python
@@ -178,22 +192,28 @@ def Profile(x, y, ax, nbins=10, xmin=0, xmax=4, mean=False, sd=False, font_size=
 
     if (mean):
         df_binned = DataFrame({'bincenters' : ProfileFrame['bincenters'] , 'ymean' : ProfileFrame['ymean'], 'xerr' : (xmax-xmin)/(2*nbins),  'yerr' : ProfileFrame['yMeanError']})
-        ax.errorbar(ProfileFrame['bincenters'], ProfileFrame['ymean'], yerr=ProfileFrame['yMeanError'], xerr=(xmax-xmin)/(2*nbins), linewidth=0, elinewidth=2, color=color, marker="o") 
     elif (sd):
         df_binned = DataFrame({'bincenters' : ProfileFrame['bincenters'] , 'ymean' : ProfileFrame['ymean'], 'xerr' : (xmax-xmin)/(2*nbins),  'yerr' : ProfileFrame['yStandDev']})
-        ax.errorbar(ProfileFrame['bincenters'], ProfileFrame['ymean'], yerr=ProfileFrame['yStandDev'], xerr=(xmax-xmin)/(2*nbins), linewidth=0, elinewidth=2, color=color, marker="o") 
     else:
         raise Exception("Specify either 'mean' or 'sd' y_error as 'True'")
     
-    # make a nice looking plot as default 
-    ax.set_xlabel(xlabel="X", fontsize=font_size)
-    ax.set_ylabel(ylabel="Y", fontsize=font_size)
-    ax.tick_params(axis='x', which='both', bottom=True, top=True, direction='inout')
-    ax.tick_params(axis='y', which='both', left=True, right=True, direction='inout')
-    ax.minorticks_on()
-    plt.xticks(fontsize=font_size-1)
-    plt.yticks(fontsize=font_size-1)
-    return ax, df_binned, df
+    if(not only_binned):
+        # make a nice looking plot as default 
+        ax.set_xlabel(xlabel="X", fontsize=font_size)
+        ax.set_ylabel(ylabel="Y", fontsize=font_size)
+        ax.tick_params(axis='x', which='both', bottom=True, top=True, direction='inout')
+        ax.tick_params(axis='y', which='both', left=True, right=True, direction='inout')
+        ax.minorticks_on()
+        plt.xticks(fontsize=font_size-1)
+        plt.yticks(fontsize=font_size-1)
+        if (mean):
+            ax.errorbar(ProfileFrame['bincenters'], ProfileFrame['ymean'], yerr=ProfileFrame['yMeanError'], xerr=(xmax-xmin)/(2*nbins), linewidth=0, elinewidth=2, color=color, marker="o") 
+        elif (sd):
+            ax.errorbar(ProfileFrame['bincenters'], ProfileFrame['ymean'], yerr=ProfileFrame['yStandDev'], xerr=(xmax-xmin)/(2*nbins), linewidth=0, elinewidth=2, color=color, marker="o") 
+        return ax, df_binned, df
+    if(only_binned):
+        return df_binned
+
 
 #no data is returned by sns.regplot, just a pretty plot...really, seaborn?! 
 # use Profile instead, plus seaborn is quite slow... 
