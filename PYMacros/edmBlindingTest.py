@@ -9,7 +9,7 @@ from BlindersPy3 import Blinders
 from BlindersPy3 import FitType
 
 #other imports
-sys.path.append('CommonUtils/')
+sys.path.append('../CommonUtils/')
 import CommonUtils as cu
 import argparse, math
 from scipy import stats
