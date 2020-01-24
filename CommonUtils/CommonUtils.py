@@ -28,7 +28,7 @@ def plotHist(data, n_bins=100, prec=4, font_size=14, input_color="green", alpha=
     '''
     # 5 DoF stats 
     N, mean, meanE, sd, sdE = stats5(data)
-    legend = legend5(N, mean, meanE, sd, sdE, prec) # return legend string 
+    legend = legend5(N, mean, meanE, sd, sdE, prec=prec) # return legend string 
 
     # seaborn hist plot with input pars
     ax = sns.distplot(data, bins=n_bins, hist=True, kde=False, color=input_color, hist_kws={"alpha": alpha})
@@ -59,9 +59,9 @@ def plotHist2D(x, y, n_binsXY=(100, 100), prec=4, font_size=14, figsize=(10, 10)
     '''
     # 4DoF stats in X and Y 
     Nx, meanx, meanEx, sdx, sdEx = stats5(x)
-    legendX = legend4(meanx, meanEx, sdx, sdEx, prec) # return legend string x
+    legendX = legend4(meanx, meanEx, sdx, sdEx, prec=prec) # return legend string x
     Ny, meany, meanEy, sdy, sdEy = stats5(y)
-    legendY = legend4(meany, meanEy, sdy, sdEy, prec) # return legend string y
+    legendY = legend4(meany, meanEy, sdy, sdEy, prec=prec) # return legend string y
 
     # the return in JointGrid (not axes)
     # fig : jg.fig, axes : jg.ax_joint

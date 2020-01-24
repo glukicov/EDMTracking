@@ -1,5 +1,5 @@
-//Author: Saskia
-//Modified by Gleb (6 Jan 2020)
+// Author: Saskia
+// Modified by Gleb (6 Jan 2020)
 // Test the "injection" EDM blinding
 // run with e.g. "root edmBlindingTest.C"
 

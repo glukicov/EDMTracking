@@ -1,14 +1,21 @@
-R__LOAD_LIBRARY(/gm2/app/users/scharity/Offline/Analysis/Blinding/dev_v9_30_00/build_slf6.x86_64/gm2util/lib/libgm2util_blinders.so)
-#include "../Blinders.hh"
+// Author: Saskia
+// Modified by Gleb (6 Jan 2020)
+// Simple 5-parameter blinded fit
+// Input: ROOT Tree data 
+
+// Blinding libraries 
+R__LOAD_LIBRARY(/Users/gleb/software/EDMTracking/Blinding/libBlinders.so)
+#include "/Users/gleb/software/EDMTracking/Blinding/Blinders.hh"
+using namespace blinding;
 
 #include "TFile.h"
 #include "TH1D.h"
 #include "TF1.h"
 #include "TTree.h"
 
-blinding::Blinders::fitType ftype = blinding::Blinders::kOmega_a;
+Blinders::fitType ftype = Blinders::kOmega_a;
 
-blinding::Blinders getBlinded( ftype, "please change this default blinding string" );
+Blinders getBlinded( ftype, "EDM every day!" );
 
 double blinded_wiggle(double *x, double *p){
   double norm = p[0];
@@ -23,11 +30,11 @@ double blinded_wiggle(double *x, double *p){
 
 void fitWithBlinders(){
 
-  TFile *file = new TFile("gm2offline_example.root");
+  TFile *file = new TFile("../DATA/Trees/60h_all_quality_tracks.root");
   file->ls();
 
-  TTree *clusterTree = (TTree*)file->Get("clusterTree/clusters");
-  clusterTree->Draw("time*1.25/1000>>wiggle(2000,0,300)","energy>1800 && energy < 10000","goff");
+  TTree *clusterTree = (TTree*)file->Get("QualityTracks");
+  clusterTree->Draw("trackT0*1.25/1000>>wiggle(2000,0,300)","trackMomentum>1800 && trackMomentum < 10000","goff");
   TH1D *wiggle = (TH1D*)gDirectory->Get("wiggle");
   
   TF1 *func = new TF1("func", blinded_wiggle, 30,280,5);

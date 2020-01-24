@@ -1,5 +1,11 @@
-R__LOAD_LIBRARY(/gm2/app/users/scharity/Offline/Analysis/Blinding/dev_v9_30_00/build_slf6.x86_64/gm2util/lib/libgm2util_blinders.so)
-#include "/gm2/app/users/scharity/Offline/Analysis/Blinding/dev_v9_30_00/srcs/gm2util/blinders/Blinders.hh"
+// Author: Saskia
+// Modified by Gleb (6 Jan 2020)
+
+// Blinding libraries 
+R__LOAD_LIBRARY(/Users/gleb/software/EDMTracking/Blinding/libBlinders.so)
+#include "/Users/gleb/software/EDMTracking/Blinding/Blinders.hh"
+using namespace blinding;
+
 
 #include "TFile.h"
 #include "TH1F.h"
@@ -52,11 +58,11 @@ std::string plotname = "";
 double R = 3.5; 
 double boxWidth = 0.25;
 double gausWidth = 0.7;
-blinding::Blinders::fitType ftype = blinding::Blinders::kOmega_a;
-blinding::Blinders getBlinded(ftype, "we all dream of a team of harry kanes", boxWidth, gausWidth);
+Blinders::fitType ftype = Blinders::kOmega_a;
+Blinders getBlinded(ftype, "we all dream of a team of harry kanes", boxWidth, gausWidth);
 // make a blinder for testing the unblinding procedure with a different plot
-blinding::Blinders getBlindedTest(ftype,"testing blinding with py vs p plot", boxWidth, gausWidth);
-//blinding::Blinders getBlindedTest(ftype,"do not use this string", boxWidth, gausWidth);
+Blinders getBlindedTest(ftype,"testing blinding with py vs p plot", boxWidth, gausWidth);
+//Blinders getBlindedTest(ftype,"do not use this string", boxWidth, gausWidth);
 
 double blinded_edm_value( bool test = false ) {
   

@@ -103,4 +103,4 @@ def hist2np(file_path="data/data.root", hist_path="Tracks/pvalue", cp=True, over
                 sys.exit()
     # D2 end
 
-    return data, n_bins, dBin
+    return np.array(data), n_bins, dBin
