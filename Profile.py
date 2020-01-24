@@ -235,20 +235,20 @@ if(args.iter):
                     y1=0.15
                     y2=0.85
                     if (data_type=="VertexExt" or data_type=="VertexExtap"):
-                        x1=0.20
-                        x2=0.65
+                        x1=0.25
+                        x2=0.70
                     if (data_type=="TrackFit"):
-                        x1=0.65
-                        x2=0.20
+                        x1=0.70
+                        x2=0.25
 
                     #place on the plot and save 
                     cu.textL(ax, x1, y1, legend1, font_size=16, color="red")    
                     cu.textL(ax, x2, y2, legend2, font_size=16)
-                    ax.legend(loc='center right')
+                    ax.legend(loc='center right', fontsize=16)
                     ax.set_ylabel(y_label, fontsize=18)
                     ax.set_xlabel(x_label, fontsize=18)
                     plt.tight_layout() 
-                    plt.savefig("fig/"+cutLabel[i_cut]+"/prof_"+fullLabel+"_.png")
+                    plt.savefig("fig/profFits/"+fullLabel+".png")
 
 
 print("Done!")

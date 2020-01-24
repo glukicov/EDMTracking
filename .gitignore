@@ -10,6 +10,7 @@
 
 test/
 DATA/
+fig/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

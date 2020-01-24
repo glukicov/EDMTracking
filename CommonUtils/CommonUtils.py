@@ -96,7 +96,7 @@ def chi2_ndf(x, y, y_err, func, pars):
     # TODO generalise for any N of parameters
     '''    
     chi2=0
-    for i in range(1, len(x)+1):
+    for i in range(0, len(x)):
         r = y[i] - func(x[i], pars[0], pars[1], pars[2])  
         chi2+=(r)**2/y_err[i]**2
     ndf = len(x) - len(pars)
@@ -169,7 +169,7 @@ def sci_notation(num, decimal_digits=1, precision=None, exponent=None):
     return r"${0:.{2}f}\cdot10^{{{1:d}}}$".format(coeff, exponent, precision)
 
 
-def Profile(x, y, ax, nbins=10, xmin=0, xmax=4, mean=False, sd=False, font_size=14, color="green", only_binned=False):
+def Profile(x, y, ax, nbins=10, xmin=0, xmax=4, mean=False, sd=False, full_y=False, font_size=14, color="green", only_binned=False):
     '''
     Author: Keith 
     https://stackoverflow.com/questions/23709403/plotting-profile-hitstograms-in-python
@@ -184,9 +184,16 @@ def Profile(x, y, ax, nbins=10, xmin=0, xmax=4, mean=False, sd=False, font_size=
     bincenters = xmin + ((xmax-xmin)/nbins)*np.arange(nbins) + ((xmax-xmin)/(2*nbins))
     ProfileFrame = DataFrame({'bincenters' : bincenters, 'N' : df['bin'].value_counts(sort=False)},index=range(1,nbins+1))
 
+    # store all y as array 
+    df_array_y = DataFrame(columns=['array_y'])
+
     bins = ProfileFrame.index.values
     for bin in bins:
         ProfileFrame.loc[bin,'ymean'] = df.loc[df['bin']==bin,'y'].mean()
+        # add the entire y data in the x bin without re-binning the y data (Gleb)
+        if (full_y):
+            df_array_y.at[bin, 'array_y'] = np.array(df.loc[df['bin']==bin,'y'])
+
         ProfileFrame.loc[bin,'yStandDev'] = df.loc[df['bin']==bin,'y'].std()
         ProfileFrame.loc[bin,'yMeanError'] = ProfileFrame.loc[bin,'yStandDev'] / np.sqrt(ProfileFrame.loc[bin,'N'])
 
@@ -194,6 +201,8 @@ def Profile(x, y, ax, nbins=10, xmin=0, xmax=4, mean=False, sd=False, font_size=
         df_binned = DataFrame({'bincenters' : ProfileFrame['bincenters'] , 'ymean' : ProfileFrame['ymean'], 'xerr' : (xmax-xmin)/(2*nbins),  'yerr' : ProfileFrame['yMeanError']})
     elif (sd):
         df_binned = DataFrame({'bincenters' : ProfileFrame['bincenters'] , 'ymean' : ProfileFrame['ymean'], 'xerr' : (xmax-xmin)/(2*nbins),  'yerr' : ProfileFrame['yStandDev']})
+    elif (full_y):
+        df_binned = DataFrame({'bincenters' : ProfileFrame['bincenters'] , 'y' : df_array_y['array_y'], 'xerr' : (xmax-xmin)/(2*nbins),  'yerr' : ProfileFrame['yMeanError']})
     else:
         raise Exception("Specify either 'mean' or 'sd' y_error as 'True'")
     
