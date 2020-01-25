@@ -21,11 +21,13 @@ import matplotlib.pyplot as plt
 
 arg_parser = argparse.ArgumentParser()
 # arg_parser.add_argument("--file_path", type=str, default="DATA/noEDM.root") 
+# arg_parser.add_argument("--hist_path", type=str, default="AllStations/VertexExtap/t>0/0<p<3600/vertexPosSpread") 
 # arg_parser.add_argument("--hist_path", type=str, default="AllStations/VertexExtap/t>0/0<p<3600/thetay_vs_time_modg2") 
 # arg_parser.add_argument("--hist_path", type=str, default="AllStationsNoTQ/VertexExtap/t>0/0<p<3600/thetay_vs_time_modg2") 
 arg_parser.add_argument("--file_path", type=str, default="DATA/VLEDM.root") 
 # arg_parser.add_argument("--hist_path", type=str, default="AllStations/VertexExt/t>0/0<p<3600/thetay_vs_time_modg2") 
-arg_parser.add_argument("--hist_path", type=str, default="AllStationsNoTQ/VertexExt/t>0/0<p<3600/thetay_vs_time_modg2") 
+# arg_parser.add_argument("--hist_path", type=str, default="AllStationsNoTQ/VertexExt/t>0/0<p<3600/thetay_vs_time_modg2") 
+arg_parser.add_argument("--hist_path", type=str, default="AllStationsNoTQ/VertexExt/t>0/0<p<3600/vertexPosSpread") 
 # arg_parser.add_argument("--hist_path", type=str, default="AllStations/VertexExt/t>0/0<p<3600/vertexPosSpread") 
 arg_parser.add_argument("--read", action='store_true', default=False) # read and write TH data into numpy file
 arg_parser.add_argument("--beam", action='store_true', default=False)
@@ -47,36 +49,33 @@ names=[]
 if(args.read):
     dataXY, n_binsXY, dBinsXY = ru.hist2np(file_path=args.file_path, hist_path=args.hist_path)
     # store that data
-    np.save("data/dataXY.npy", dataXY)
+    np.save("DATA/misc/dataXY.npy", dataXY)
 
     # and info
-    edm_setting=args.file_path.split("/")[1].split(".")[0]
-    Q_cut=args.hist_path.split("/")[0]
-    data_type=args.hist_path.split("/")[1]
-    time_cut=args.hist_path.split("/")[2]+r" $\mathrm{\mu}$s"
-    p_cut=args.hist_path.split("/")[3]+" MeV"
-    y_label=args.hist_path.split("/")[4].split("_")[0]
-    x_label=args.hist_path.split("/")[4].split("_")[2:]
-    N=len(dataXY[0])
-    
-    #some specific string transforms
-    if (edm_setting == "VLEDM"):
-        edm_setting=r"$d_{\mu} = 5.4\times10^{-18} \ e\cdot{\mathrm{cm}}$"
-    if (edm_setting == "noEDM"):
-        edm_setting=r"$d_{\mu} = 0 \ e\cdot{\mathrm{cm}}$"
-    if(y_label=="thetay"):
-        y_label=r"$\langle\theta_y\rangle$ [mrad]"
-    if(x_label[0]=="time" and x_label[1]=="modg2"):
-        x_label=r"$t^{mod}_{g-2} \ \mathrm{[\mu}$s]"
-
-    # two lists into dict 
-    info=[edm_setting, data_type, Q_cut, time_cut, p_cut, x_label, y_label, N]
-    names=["edm_setting", "data_type", "Q_cut", "time_cut", "p_cut", "x_label", "y_label", "N"]
-    info_dict = dict(zip(names, info))
-
-    #now pass along the information to the fitter
-    df_info = pd.DataFrame(info_dict, index=[0]) 
-    df_info.to_csv("data/df_info.csv")
+    # edm_setting=args.file_path.split("/")[1].split(".")[0]
+    # Q_cut=args.hist_path.split("/")[0]
+    # data_type=args.hist_path.split("/")[1]
+    # time_cut=args.hist_path.split("/")[2]+r" $\mathrm{\mu}$s"
+    # p_cut=args.hist_path.split("/")[3]+" MeV"
+    # y_label=args.hist_path.split("/")[4].split("_")[0]
+    # x_label=args.hist_path.split("/")[4].split("_")[2:]
+    # N=len(dataXY[0])
+    # #some specific string transforms
+    # if (edm_setting == "VLEDM"):
+    #     edm_setting=r"$d_{\mu} = 5.4\times10^{-18} \ e\cdot{\mathrm{cm}}$"
+    # if (edm_setting == "noEDM"):
+    #     edm_setting=r"$d_{\mu} = 0 \ e\cdot{\mathrm{cm}}$"
+    # if(y_label=="thetay"):
+    #     y_label=r"$\langle\theta_y\rangle$ [mrad]"
+    # if(x_label[0]=="time" and x_label[1]=="modg2"):
+    #     x_label=r"$t^{mod}_{g-2} \ \mathrm{[\mu}$s]"
+    # # two lists into dict 
+    # info=[edm_setting, data_type, Q_cut, time_cut, p_cut, x_label, y_label, N]
+    # names=["edm_setting", "data_type", "Q_cut", "time_cut", "p_cut", "x_label", "y_label", "N"]
+    # info_dict = dict(zip(names, info))
+    # #now pass along the information to the fitter
+    # df_info = pd.DataFrame(info_dict, index=[0]) 
+    # df_info.to_csv("DATA/misc/df_info.csv")
     
     print("Data saved to dataXY.npy, re-run with --profile or --hist to make plots")
     sys.exit()
@@ -86,7 +85,7 @@ if (args.hist):
     print("Plotting a histogram...")
         
     # load the data 
-    dataXY=np.load("dataXY.npy")
+    dataXY=np.load("DATA/misc/dataXY.npy")
     x=dataXY[0]
     y=dataXY[1]
 
@@ -94,11 +93,11 @@ if (args.hist):
         jg,cb,legendX,legendY =cu.plotHist2D(x, y, n_binsXY=(100,100), cmin=5, prec=2)
         jg.ax_joint.set_ylabel("Vertical beam position [mm]", fontsize=18)
         jg.ax_joint.set_xlabel("Radial beam position [mm]", fontsize=18)
-        cu.textL(jg.ax_joint, 1.32, 1.15, "Vertical [mm]:"+"\n"+str(legendX), font_size=15)
-        cu.textL(jg.ax_joint, 1.32, 1.00, "Radial [mm]:"+"\n"+str(legendY), font_size=15)
+        cu.textL(jg.ax_joint, 1.32, 1.15, "Radial [mm]:"+"\n"+str(legendX), font_size=15)
+        cu.textL(jg.ax_joint, 1.32, 1.00, "Vertical [mm]:"+"\n"+str(legendY), font_size=15)
         N=cu.sci_notation(len(x)) # format as a 
         cu.textL(jg.ax_joint, 1.32, 0.00, "N: "+N, font_size=15)
-        plt.savefig("beam.png", dpi=300)
+        plt.savefig("fig/beam.png", dpi=300)
     else:
         jg,cb,legendX,legendY =cu.plotHist2D(x, y, n_binsXY=(75,75), cmin=5, prec=3)
         jg.ax_joint.set_ylabel(r"$\theta_y$ [rad]", fontsize=18)
@@ -107,7 +106,7 @@ if (args.hist):
         cu.textL(jg.ax_joint, 1.32, 1.00, r"$\theta_y$ [rad]:"+"\n"+str(legendY), font_size=15)
         N=cu.sci_notation(len(x)) # format as a 
         cu.textL(jg.ax_joint, 1.32, 0.00, "N: "+N, font_size=17)
-        plt.savefig("thetavsT.png", dpi=300)
+        plt.savefig("fig/thetavsT.png", dpi=300)
 
 
 # Profile Plot 
@@ -231,17 +230,8 @@ if(args.iter):
 
                     legend2=data_type+"\n"+p_cut+"\n N="+cu.sci_notation(N)
 
-                    #decide on the position based on the plot type (TODO as dictionary?)
-                    y1=0.15
-                    y2=0.85
-                    if (data_type=="VertexExt" or data_type=="VertexExtap"):
-                        x1=0.25
-                        x2=0.70
-                    if (data_type=="TrackFit"):
-                        x1=0.70
-                        x2=0.25
-
                     #place on the plot and save 
+                    y1,y2,x1,x2=0.15,0.85,0.25,0.70
                     cu.textL(ax, x1, y1, legend1, font_size=16, color="red")    
                     cu.textL(ax, x2, y2, legend2, font_size=16)
                     ax.legend(loc='center right', fontsize=16)

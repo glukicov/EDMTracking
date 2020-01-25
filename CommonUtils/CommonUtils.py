@@ -96,7 +96,8 @@ def chi2_ndf(x, y, y_err, func, pars):
     # TODO generalise for any N of parameters
     '''    
     chi2=0
-    for i in range(0, len(x)):
+    for i in range(1, len(x)+1): # TODO fix dataframes to start from  0!! 
+    # for i in range(0, len(x)):
         r = y[i] - func(x[i], pars[0], pars[1], pars[2])  
         chi2+=(r)**2/y_err[i]**2
     ndf = len(x) - len(pars)
