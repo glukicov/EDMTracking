@@ -96,7 +96,7 @@ def chi2_ndf(x, y, y_err, func, pars):
     # TODO generalise for any N of parameters
     '''    
     chi2=0
-    for i in range(1, len(x)+1): # TODO fix dataframes to start from  0!! 
+    for i in range(0, len(x)): # TODO fix dataframes to start from  0!! 
     # for i in range(0, len(x)):
         r = y[i] - func(x[i], pars[0], pars[1], pars[2])  
         chi2+=(r)**2/y_err[i]**2
@@ -105,6 +105,10 @@ def chi2_ndf(x, y, y_err, func, pars):
 
 def sin_unblinded(t, A, b, c):
     return A * np.sin(b * t)+c
+
+def gauss(x, *p): 
+    A, mu, sigma = p
+    return A*np.exp(-(x-mu)**2/(2.*sigma**2))
 
 def textL(ax, x, y, legend, font_size=14, color="green"):
     '''
@@ -179,7 +183,7 @@ def Profile(x, y, ax, nbins=10, xmin=0, xmax=4, mean=False, sd=False, full_y=Fal
     '''
     df = DataFrame({'x' : x , 'y' : y})
 
-    binedges = xmin + ((xmax-xmin)/nbins) * np.arange(nbins+1)
+    binedges = xmin + ((xmax-xmin)/nbins) * np.arange(nbins)
     df['bin'] = np.digitize(df['x'],binedges)
 
     bincenters = xmin + ((xmax-xmin)/nbins)*np.arange(nbins) + ((xmax-xmin)/(2*nbins))
@@ -207,6 +211,9 @@ def Profile(x, y, ax, nbins=10, xmin=0, xmax=4, mean=False, sd=False, full_y=Fal
     else:
         raise Exception("Specify either 'mean' or 'sd' y_error as 'True'")
     
+    #reset index to start at 0...
+    df_binned.reset_index(inplace=True)
+
     if(not only_binned):
         # make a nice looking plot as default 
         ax.set_xlabel(xlabel="X", fontsize=font_size)

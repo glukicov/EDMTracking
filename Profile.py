@@ -34,6 +34,7 @@ arg_parser.add_argument("--beam", action='store_true', default=False)
 arg_parser.add_argument("--hist", action='store_true', default=False) # Make a 2D plot 
 arg_parser.add_argument("--profile", action='store_true', default=False)
 arg_parser.add_argument("--iter", action='store_true', default=False)
+arg_parser.add_argument("--gauss", action='store_true', default=False)
 args=arg_parser.parse_args()
 
 #TODO impliment check of at least 1 arg 
@@ -131,7 +132,7 @@ if (args.profile):
     plt.savefig("profile.png")
 
     # can save the profile points with errors to a file
-    df_binned.to_csv("df_binned.csv")
+    df_binned.to_csv("DATA/misc/df_binned.csv")
 
 # iterative fits over many profiles 
 if(args.iter):
@@ -174,9 +175,14 @@ if(args.iter):
                     dataXY, n_binsXY, dBinsXY = ru.hist2np(file_path=i_fileName, hist_path=fullPath)
                     
                     #bin data into a profile 
-                    df_data=cu.Profile(dataXY[0], dataXY[1], False, nbins=15, xmin=np.min(dataXY[0]),xmax=np.max(dataXY[0]), mean=True, only_binned=True)
+                    if(args.gauss):
+                        df_data=cu.Profile(dataXY[0], dataXY[1], False, nbins=15, xmin=np.min(dataXY[0]),xmax=np.max(dataXY[0]), full_y=True, only_binned=True)
+                        y=df_data['y']
+                    else:
+                        df_data=cu.Profile(dataXY[0], dataXY[1], False, nbins=15, xmin=np.min(dataXY[0]),xmax=np.max(dataXY[0]), mean=True, only_binned=True)
+                        y=df_data['ymean']
+                        
                     x=df_data['bincenters']
-                    y=df_data['ymean']
                     x_err=df_data['xerr']
                     y_err=df_data['yerr']
                     y=y*1e3 # rad -> mrad 
@@ -202,6 +208,54 @@ if(args.iter):
                     if(x_label[0]=="time" and x_label[1]=="modg2"):
                         x_label=r"$t^{mod}_{g-2} \ \mathrm{[\mu}$s]"
 
+                    # if extracting y and delta(y) from a Gaussian fit 
+                    if(args.gauss):
+                        means=[]
+                        means_errors=[]
+                        for i_point in range(0, len(df_data)):
+                            
+                            # fit for a range of data 
+                            n_bins=25
+                            y_min, y_max=-25, +25
+
+                            # all data y_hist, range is y 
+                            y_hist=y[i_point]
+                            y_select  = y_hist[np.logical_and(y_hist >= y_min, y_hist <= y_max)]
+
+                            #bin the data in range 
+                            hist, bin_edges = np.histogram(y_select, bins=n_bins, density=False)
+                            bin_centres = (bin_edges[:-1] + bin_edges[1:])/2
+                            bin_width=bin_edges[1]-bin_edges[0] 
+                            #find the right number of bins for. all data
+                            n_bins_hist=int( (np.max(y_hist)-np.min(y_hist))/bin_width )  
+
+                            # fit in range 
+                            p0=[1, 1, 1]
+                            par, pcov = optimize.curve_fit(cu.gauss, bin_centres, hist, p0=p0, absolute_sigma=False, method='trf')
+                            par_e = np.sqrt(np.diag(pcov))
+
+                            #append the fit parameters
+                            means.append(par[1])
+                            means_errors.append(par_e[1])
+
+                            #plot and stats + legend 
+                            legend_fit=cu.legend4(par[1], par_e[1], par[2], par_e[2], prec=2)
+                            ax, legend = cu.plotHist(y_hist, n_bins=n_bins_hist, prec=2)
+                            ax.plot(bin_centres, cu.gauss(bin_centres, *par), color="red", label='Fit')
+                            cu.textL(ax, 0.8, 0.78, r"$\theta_y$ [mrad]:"+"\n"+str(legend), font_size=15)
+                            cu.textL(ax, 0.2, 0.78, "Fit [mrad]:"+"\n"+str(legend_fit), font_size=15, color="red")
+                            ax.set_xlabel(r"$\theta_y$ [mrad]", fontsize=18)
+                            ax.set_ylabel(r"$\theta_y$ / "+str(round(bin_width))+" mrad", fontsize=18)
+                            plt.tight_layout()
+                            plt.savefig("fig/Gauss/Gauss_"+fullLabel+"_"+str(i_point)+".png", dpi=300)
+                            plt.clf()
+
+                        #done looping over y bins
+                        #reassign data "pointer names"
+                        y=means
+                        y_err=means_errors
+
+
                     #fit a function and get pars 
                     par, pcov = optimize.curve_fit(
     cu.sin_unblinded, x, y, sigma=y_err, p0=[1.0, 1.0, 1.0], absolute_sigma=False, method='lm')
@@ -211,7 +265,7 @@ if(args.iter):
                     # plot the fit and data 
                     fig, ax = plt.subplots()
                     # data
-                    ax.errorbar(x,y,xerr=x_err, yerr=y_err, linewidth=0, elinewidth=2, color="green", marker="o", label="Data")
+                    ax.errorbar(x,y,xerr=x_err, yerr=y_err, linewidth=0, elinewidth=2, color="green", marker="o", label="Sim.")
                     # fit 
                     ax.plot(x, cu.sin_unblinded(x, par[0], par[1], par[2]), color="red", label='Fit')
                   
@@ -239,6 +293,7 @@ if(args.iter):
                     ax.set_xlabel(x_label, fontsize=18)
                     plt.tight_layout() 
                     plt.savefig("fig/profFits/"+fullLabel+".png")
+                    plt.clf() 
 
 
 print("Done!")
