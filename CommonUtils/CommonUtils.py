@@ -15,9 +15,9 @@ from math import floor, log10
 #define common constants
 meanS=r"$\mathrm{\mu}$"
 sigmaS=r"$\sigma$"
+chi2ndfS=r"$\frac{\chi^2}{DoF}$"
 
-
-def plotHist(data, n_bins=100, prec=4, font_size=14, input_color="green", alpha=0.7):
+def plotHist(data, n_bins=100, prec=2, font_size=14, units="units", input_color="green", alpha=0.7):
     '''
     Input is a 1D array
 
@@ -28,7 +28,7 @@ def plotHist(data, n_bins=100, prec=4, font_size=14, input_color="green", alpha=
     '''
     # 5 DoF stats 
     N, mean, meanE, sd, sdE = stats5(data)
-    legend = legend5(N, mean, meanE, sd, sdE, prec=prec) # return legend string 
+    legend = legend5(N, mean, meanE, sd, sdE, units, prec=prec) # return legend string 
 
     # seaborn hist plot with input pars
     ax = sns.distplot(data, bins=n_bins, hist=True, kde=False, color=input_color, hist_kws={"alpha": alpha})
@@ -46,7 +46,7 @@ def plotHist(data, n_bins=100, prec=4, font_size=14, input_color="green", alpha=
     return ax, legend
 
 
-def plotHist2D(x, y, n_binsXY=(100, 100), prec=4, font_size=14, figsize=(10, 10), cmap=plt.cm.jet, cmin=1):
+def plotHist2D(x, y, n_binsXY=(100, 100), prec=2, font_size=14, units="units", figsize=(10, 10), cmap=plt.cm.jet, cmin=1):
     '''
     Inputs are two 1D arrays
 
@@ -59,9 +59,9 @@ def plotHist2D(x, y, n_binsXY=(100, 100), prec=4, font_size=14, figsize=(10, 10)
     '''
     # 4DoF stats in X and Y 
     Nx, meanx, meanEx, sdx, sdEx = stats5(x)
-    legendX = legend4(meanx, meanEx, sdx, sdEx, prec=prec) # return legend string x
+    legendX = legend4(meanx, meanEx, sdx, sdEx, units, prec=prec) # return legend string x
     Ny, meany, meanEy, sdy, sdEy = stats5(y)
-    legendY = legend4(meany, meanEy, sdy, sdEy, prec=prec) # return legend string y
+    legendY = legend4(meany, meanEy, sdy, sdEy, units, prec=prec) # return legend string y
 
     # the return in JointGrid (not axes)
     # fig : jg.fig, axes : jg.ax_joint
@@ -93,12 +93,11 @@ def plotHist2D(x, y, n_binsXY=(100, 100), prec=4, font_size=14, figsize=(10, 10)
 def chi2_ndf(x, y, y_err, func, pars):
     '''
     Calcualte chi2
-    # TODO generalise for any N of parameters
     '''    
     chi2=0
-    for i in range(0, len(x)): # TODO fix dataframes to start from  0!! 
+    for i in range(0, len(x)): 
     # for i in range(0, len(x)):
-        r = y[i] - func(x[i], pars[0], pars[1], pars[2])  
+        r = y[i] - func(x[i], *pars)  
         chi2+=(r)**2/y_err[i]**2
     ndf = len(x) - len(pars)
     return chi2/ndf
@@ -116,20 +115,42 @@ def textL(ax, x, y, legend, font_size=14, color="green"):
     '''
     return ax.text(x, y, str(legend),  fontsize=font_size, transform=ax.transAxes, horizontalalignment='center', verticalalignment='center', color=color)
 
-def legend5(N, mean, meanE, sd, sdE, prec=4):
+def legend5(N, mean, meanE, sd, sdE, units, prec=4):
     '''
     form a string from 5 stats inputs with given precision
     '''
     # form raw string with Latex
-    legend = "N={0:d}".format(N)+"\n"+str(meanS)+"={0:.{prec}f}({1:d})\n".format(mean, int(round(meanE*10**prec)), prec=prec)+str(sigmaS)+"={0:.{prec}f}({1:d})".format(sd, int(round(sdE*10**prec)), prec=prec)
+    legend = "N={0:d}".format(N)+"\n"+str(meanS)+"={0:.{prec}f}({1:d}) ".format(mean, int(round(meanE*10**prec)), prec=prec)+units+"\n"+str(sigmaS)+"={0:.{prec}f}({1:d}) ".format(sd, int(round(sdE*10**prec)), prec=prec)+units
     return legend
 
-def legend4(mean, meanE, sd, sdE, prec=4):
+def legend4(mean, meanE, sd, sdE, units, prec=4):
     '''
     form a string from 4 stats inputs with given precision
     '''
     # form raw string with Latex
-    legend = "  "+str(meanS)+"={0:.{prec}f}({1:d})\n".format(mean, int(round(meanE*10**prec)), prec=prec)+str(sigmaS)+"={0:.{prec}f}({1:d})".format(sd, int(round(sdE*10**prec)), prec=prec)
+    legend = "  "+str(meanS)+"={0:.{prec}f}({1:d}) ".format(mean, int(round(meanE*10**prec)), prec=prec)+units+str(sigmaS)+"={0:.{prec}f}({1:d})".format(sd, int(round(sdE*10**prec)), prec=prec)+units
+    return legend
+
+def legend4_fit(chi2ndf, mean, meanE, sd, sdE, units, prec=4):
+    '''
+    form a string from 4 stats inputs with given precision
+    '''
+    # form raw string with Latex
+    legend = "  "+str(chi2ndfS)+"={0:.{prec}f}\n".format(chi2ndf, prec=2)+str(meanS)+"={0:.{prec}f}({1:d}) ".format(mean, int(round(meanE*10**prec)), prec=prec)+units+"\n"+str(sigmaS)+"={0:.{prec}f}({1:d}) ".format(sd, int(round(sdE*10**prec)), prec=prec)+units
+    return legend
+
+def legend1_fit(chi2ndf, prec=2):
+    '''
+    form a string from 1 stat inputs with given precision
+    '''
+    # form raw string with Latex
+    legend = "  "+str(chi2ndfS)+"={0:.{prec}f}\n".format(chi2ndf, prec=2)
+    return legend
+
+def legend_par(legend, parNames, par, par_e, units, prec=2):
+    for i, i_name in enumerate(parNames):
+        value=i_name+"= {0:+.{prec}f}".format(par[i], prec=prec)+" \u00B1 {0:.{prec}f}".format(par_e[i], prec=prec)+" "+units[i]
+        legend+=value+"\n"
     return legend
 
 def stats5(data):

@@ -227,23 +227,26 @@ if(args.iter):
                             bin_centres = (bin_edges[:-1] + bin_edges[1:])/2
                             bin_width=bin_edges[1]-bin_edges[0] 
                             #find the right number of bins for. all data
-                            n_bins_hist=int( (np.max(y_hist)-np.min(y_hist))/bin_width )  
+                            n_bins_hist=int( (np.max(y_hist)-np.min(y_hist))/bin_width ) 
+                            y_err=np.sqrt(hist) # sqrt(N) per bin
 
                             # fit in range 
                             p0=[1, 1, 1]
-                            par, pcov = optimize.curve_fit(cu.gauss, bin_centres, hist, p0=p0, absolute_sigma=False, method='trf')
+                            par, pcov = optimize.curve_fit(cu.gauss, bin_centres, hist, p0=p0, sigma=y_err, absolute_sigma=False, method='trf')
                             par_e = np.sqrt(np.diag(pcov))
+                            chi2ndf= cu.chi2_ndf(bin_centres, hist, y_err, cu.gauss, par)
 
                             #append the fit parameters
                             means.append(par[1])
                             means_errors.append(par_e[1])
 
                             #plot and stats + legend 
-                            legend_fit=cu.legend4(par[1], par_e[1], par[2], par_e[2], prec=2)
-                            ax, legend = cu.plotHist(y_hist, n_bins=n_bins_hist, prec=2)
-                            ax.plot(bin_centres, cu.gauss(bin_centres, *par), color="red", label='Fit')
-                            cu.textL(ax, 0.8, 0.78, r"$\theta_y$ [mrad]:"+"\n"+str(legend), font_size=15)
-                            cu.textL(ax, 0.2, 0.78, "Fit [mrad]:"+"\n"+str(legend_fit), font_size=15, color="red")
+                            units="mrad"
+                            legend_fit=cu.legend4_fit(chi2ndf, par[1], par_e[1], par[2], par_e[2], units, prec=2)
+                            ax, legend = cu.plotHist(y_hist, n_bins=n_bins_hist, units=units, prec=2)
+                            ax.plot(bin_centres, cu.gauss(bin_centres, *par), color="red", linewidth=2, label='Fit')
+                            cu.textL(ax, 0.8, 0.78, r"$\theta_y$:"+"\n"+str(legend), font_size=15)
+                            cu.textL(ax, 0.2, 0.78, "Fit:"+"\n"+str(legend_fit), font_size=15, color="red")
                             ax.set_xlabel(r"$\theta_y$ [mrad]", fontsize=18)
                             ax.set_ylabel(r"$\theta_y$ / "+str(round(bin_width))+" mrad", fontsize=18)
                             plt.tight_layout()
@@ -275,13 +278,10 @@ if(args.iter):
                     prec=2 # set custom precision 
                     
                     #form complex legends 
-                    legend1=r"$\frac{\chi^2}{DoF}$= "+"{0:.{prec}f}".format(chi2_n, prec=prec)+"\n"
+                    legend1_chi2=cu.legend1_fit(chi2_n)
+                    legned1_par=""
+                    legend1=cu.legend_par(legned1_par,  parNames, par, par_e, units)
                     print(legend1)
-                    for i, i_name in enumerate(parNames):
-                            value=i_name+"= {0:+.{prec}f}".format(par[i], prec=prec)+" \u00B1 {0:.{prec}f}".format( par_e[i], prec=prec)+" "+units[i]
-                            print(value)
-                            legend1+=value+"\n"
-
                     legend2=data_type+"\n"+p_cut+"\n N="+cu.sci_notation(N)
 
                     #place on the plot and save 
