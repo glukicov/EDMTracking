@@ -100,7 +100,7 @@ def chi2_ndf(x, y, y_err, func, pars):
         r = y[i] - func(x[i], *pars)  
         chi2+=(r)**2/y_err[i]**2
     ndf = len(x) - len(pars)
-    return chi2/ndf
+    return chi2/ndf, chi2, ndf 
 
 def sin_unblinded(t, A, b, c):
     return A * np.sin(b * t)+c
@@ -109,11 +109,11 @@ def gauss(x, *p):
     A, mu, sigma = p
     return A*np.exp(-(x-mu)**2/(2.*sigma**2))
 
-def textL(ax, x, y, legend, font_size=14, color="green"):
+def textL(ax, x, y, legend, font_size=14, color="green", weight="normal"):
     '''
     return a good formatted plot legend
     '''
-    return ax.text(x, y, str(legend),  fontsize=font_size, transform=ax.transAxes, horizontalalignment='center', verticalalignment='center', color=color)
+    return ax.text(x, y, str(legend),  fontsize=font_size, transform=ax.transAxes, horizontalalignment='center', verticalalignment='center', color=color, weight=weight)
 
 def legend5(N, mean, meanE, sd, sdE, units, prec=4):
     '''
@@ -149,7 +149,7 @@ def legend1_fit(chi2ndf, prec=2):
 
 def legend_par(legend, parNames, par, par_e, units, prec=2):
     for i, i_name in enumerate(parNames):
-        value=i_name+"= {0:+.{prec}f}".format(par[i], prec=prec)+" \u00B1 {0:.{prec}f}".format(par_e[i], prec=prec)+" "+units[i]
+        value=i_name+"={0:+.{prec}f}".format(par[i], prec=prec)+"({0:d})".format( int(round(par_e[i]*10**prec)), prec=prec)+" "+units[i]
         legend+=value+"\n"
     return legend
 
