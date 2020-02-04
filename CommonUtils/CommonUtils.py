@@ -131,12 +131,12 @@ def legend4(mean, meanE, sd, sdE, units, prec=4):
     legend = "  "+str(meanS)+"={0:.{prec}f}({1:d}) ".format(mean, int(round(meanE*10**prec)), prec=prec)+units+str(sigmaS)+"={0:.{prec}f}({1:d})".format(sd, int(round(sdE*10**prec)), prec=prec)+units
     return legend
 
-def legend4_fit(chi2ndf, mean, meanE, sd, sdE, units, prec=4):
+def legend4_fit(chi2ndf, mean, meanE, sd, sdE, units, prec=2):
     '''
     form a string from 4 stats inputs with given precision
     '''
     # form raw string with Latex
-    legend = "  "+str(chi2ndfS)+"={0:.{prec}f}\n".format(chi2ndf, prec=2)+str(meanS)+"={0:.{prec}f}({1:d}) ".format(mean, int(round(meanE*10**prec)), prec=prec)+units+"\n"+str(sigmaS)+"={0:.{prec}f}({1:d}) ".format(sd, int(round(sdE*10**prec)), prec=prec)+units
+    legend = "  "+str(chi2ndfS)+"={:.{prec}f}\n".format(chi2ndf, prec=2)+str(meanS)+"={0:.{prec}f}({1:d}) ".format(mean, int(round(meanE*10**prec)), prec=prec)+units+"\n"+str(sigmaS)+"={0:.{prec}f}({1:d}) ".format(sd, int(round(sdE*10**prec)), prec=prec)+units
     return legend
 
 def legend1_fit(chi2ndf, prec=2):
@@ -144,7 +144,8 @@ def legend1_fit(chi2ndf, prec=2):
     form a string from 1 stat inputs with given precision
     '''
     # form raw string with Latex
-    legend = "  "+str(chi2ndfS)+"={0:.{prec}f}\n".format(chi2ndf, prec=2)
+    
+    legend = "  "+str(chi2ndfS)+"={0:.{prec}f}\n".format(chi2ndf, prec=prec)
     return legend
 
 def legend_par(legend, parNames, par, par_e, units, prec=2):
@@ -197,9 +198,6 @@ def sci_notation(num, decimal_digits=1, precision=None, exponent=None):
 
 def Profile(x, y, ax, nbins=10, xmin=0, xmax=4, mean=False, sd=False, full_y=False, font_size=14, color="green", only_binned=False):
     '''
-    Author: Keith 
-    https://stackoverflow.com/questions/23709403/plotting-profile-hitstograms-in-python
-
     # Return both the plot and DF of binned data 
     '''
     df = DataFrame({'x' : x , 'y' : y})

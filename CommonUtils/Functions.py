@@ -32,8 +32,8 @@ def iter_plots(n_prof_bins=15, extraLabel="", outdir="profFits", gauss=False, be
     qLabel=[("NQT")]
     qName=[("AllStationsNoTQ")]
     
-    cutLabel=("0_p_3600", "400_p_2700", "700_p_2400")
-    cutName=("t>0/0<p<3600", "t>0/400<p<2700", "t>0/700<p<2400")
+    cutLabel=("0_p_3600", "400_p_2700", "700_p_2400", "1500_p_3600", "1600_p_3600", "1700_p_3600", "1800_p_3600")
+    cutName=("t>0/0<p<3600", "t>0/400<p<2700", "t>0/700<p<2400", "t>0/1500<p<3600", "t>0/1600<p<3600", "t>0/1700<p<3600", "t>0/1800<p<3600")
 
     if (best):
         cutLabel=[("700_p_2400")]
@@ -126,7 +126,7 @@ def iter_plots(n_prof_bins=15, extraLabel="", outdir="profFits", gauss=False, be
 
                             #plot and stats + legend 
                             units="mrad"
-                            legend_fit=cu.legend4_fit(chi2ndf, par[1], par_e[1], par[2], par_e[2], units, prec=2)
+                            legend_fit=cu.legend4_fit(chi2ndf[0], par[1], par_e[1], par[2], par_e[2], units, prec=2)
                             ax, legend = cu.plotHist(y_hist, n_bins=n_bins_hist, units=units, prec=2)
                             ax.plot(bin_centres, cu.gauss(bin_centres, *par), color="red", linewidth=2, label='Fit')
                             cu.textL(ax, 0.8, 0.78, r"$\theta_y$:"+"\n"+str(legend), font_size=15)
@@ -162,7 +162,7 @@ def iter_plots(n_prof_bins=15, extraLabel="", outdir="profFits", gauss=False, be
                     prec=2 # set custom precision 
                     
                     #form complex legends 
-                    legend1_chi2=cu.legend1_fit(chi2_n)
+                    legend1_chi2=cu.legend1_fit(chi2_n[0])
                     legned1_par=""
                     legned1_par=cu.legend_par(legned1_par,  parNames, par, par_e, units)
                     legend1=legend1_chi2+"\n"+legned1_par
@@ -180,4 +180,4 @@ def iter_plots(n_prof_bins=15, extraLabel="", outdir="profFits", gauss=False, be
                     plt.savefig("fig/"+outdir+"/"+fullLabel+".png")
                     plt.clf()
 
-    return par[0], par_e[0], chi2_n
+    return par[0], par_e[0], chi2_n[0]
