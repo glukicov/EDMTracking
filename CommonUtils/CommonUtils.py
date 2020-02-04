@@ -251,6 +251,48 @@ def Profile(x, y, ax, nbins=10, xmin=0, xmax=4, mean=False, sd=False, full_y=Fal
         return df_binned
 
 
+def profilePlotEqBin(x,y,xmin,xmax,bs,debug=0):
+    '''
+    Author: Prof. M. Lancaster 
+    An alternative implementation of a Profile histogram
+    '''
+    if (debug == 1):
+        print(xmin,xmax,bs)
+
+    ii = np.argsort(x)
+    x = x[ii]
+    y = y[ii]
+    bins = np.arange(xmin-bs/2.0, xmax+bs/2.0+0.1, bs)
+    binc = np.arange(xmin,xmax+0.1,bs)
+    nbins = len(bins)-1
+    inds = np.digitize(x, bins, right=False)
+
+    if (debug == 1):
+        print(binc)
+        print(x)
+        print(y)
+        print(inds)
+
+    mean  = np.array([])
+    rms   = np.array([])
+    emean = np.array([])
+    xv = np.array([])
+    for i in range(nbins):
+        itemindex = np.where(inds==i+1)
+        n = itemindex[0].size
+        if (n > 5):
+            i1 = itemindex[0][0]
+            i2 = itemindex[0][-1]
+
+            mean  = np.append(mean,np.mean(y[i1:i2+1]))
+            rmsV  = np.nanstd(y[i1:i2+1])
+            rms   = np.append(rms, rmsV)
+            emean = np.append(emean, rmsV/np.sqrt(i2-i1+1))
+            xv    = np.append(xv,binc[i])
+
+    return xv,mean,rms,emean
+
+
 #no data is returned by sns.regplot, just a pretty plot...really, seaborn?! 
 # use Profile instead, plus seaborn is quite slow... 
 def plotProfileSNS(x, y, x_estimator=np.mean, bins=10, fit_bool=False, ci=95, marker="+", color="green", font_size=14):
