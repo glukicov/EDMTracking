@@ -90,6 +90,24 @@ def plotHist2D(x, y, n_binsXY=(100, 100), prec=2, font_size=14, units="units", f
     # axes can be accessed with cb.ax, jt.
     return jg, cb, legendX, legendY
 
+def plotScatter(x, y, font_size=14, input_color="green", figsize=(12,5)):
+    fig, ax = plt.subplots(figsize=figsize)
+    ax.plot(x, y, c='g')
+    
+    # make a nice looking plot as default 
+    ax.set_xlabel(xlabel="", fontsize=font_size)
+    ax.set_ylabel(ylabel="", fontsize=font_size)
+    ax.tick_params(axis='x', which='both', bottom=True, top=True, direction='inout')
+    ax.tick_params(axis='y', which='both', left=True, right=True, direction='inout')
+    ax.minorticks_on()
+    plt.xticks(fontsize=font_size-1)
+    plt.yticks(fontsize=font_size-1)
+    # plt.tight_layout()
+
+    return fig, ax
+
+
+
 def chi2_ndf(x, y, y_err, func, pars):
     '''
     Calcualte chi2
