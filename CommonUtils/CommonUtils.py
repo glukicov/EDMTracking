@@ -90,7 +90,8 @@ def plotHist2D(x, y, n_binsXY=(100, 100), prec=2, font_size=14, units="units", f
     # axes can be accessed with cb.ax, jt.
     return jg, cb, legendX, legendY
 
-def plotScatter(x, y, font_size=14, input_color="green", figsize=(12,5), label=None, lw=1):
+def plotScatter(x, y, font_size=14, input_color="green", figsize=(12,5), label=None, lw=1, tight=True):
+    
     fig, ax = plt.subplots(figsize=figsize)
     ax.plot(x, y, c='g', label=label, lw=lw)
     
@@ -102,7 +103,8 @@ def plotScatter(x, y, font_size=14, input_color="green", figsize=(12,5), label=N
     ax.minorticks_on()
     plt.xticks(fontsize=font_size-1)
     plt.yticks(fontsize=font_size-1)
-    # plt.tight_layout()
+    if(tight):
+        fig.tight_layout()
 
     return fig, ax
 
