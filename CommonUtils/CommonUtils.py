@@ -90,9 +90,9 @@ def plotHist2D(x, y, n_binsXY=(100, 100), prec=2, font_size=14, units="units", f
     # axes can be accessed with cb.ax, jt.
     return jg, cb, legendX, legendY
 
-def plotScatter(x, y, font_size=14, input_color="green", figsize=(12,5)):
+def plotScatter(x, y, font_size=14, input_color="green", figsize=(12,5), label=None, lw=1):
     fig, ax = plt.subplots(figsize=figsize)
-    ax.plot(x, y, c='g')
+    ax.plot(x, y, c='g', label=label, lw=lw)
     
     # make a nice looking plot as default 
     ax.set_xlabel(xlabel="", fontsize=font_size)
@@ -106,7 +106,15 @@ def plotScatter(x, y, font_size=14, input_color="green", figsize=(12,5)):
 
     return fig, ax
 
-
+def residuals(x, y, func, pars):
+    '''
+    Calcualte fit residuals
+    '''
+    residuals=[]
+    for i in range(0, len(x)): 
+        r = y[i] - func(x[i], *pars)  
+        residuals.append(r)
+    return np.array(residuals)
 
 def chi2_ndf(x, y, y_err, func, pars):
     '''
