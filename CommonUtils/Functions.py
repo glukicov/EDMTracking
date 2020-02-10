@@ -164,7 +164,7 @@ def iter_plots(n_prof_bins=15, extraLabel="", outdir="profFits", gauss=False, be
                     #form complex legends 
                     legend1_chi2=cu.legend1_fit(chi2_n[0])
                     legned1_par=""
-                    legned1_par=cu.legend_par(legned1_par,  parNames, par, par_e, units)
+                    legned1_par=cu.legend_par(legned1_par, parNames, par, par_e, units)
                     legend1=legend1_chi2+"\n"+legned1_par
                     print(legend1)
                     legend2=data_type+"\n"+p_cut+"\n N="+cu.sci_notation(N)

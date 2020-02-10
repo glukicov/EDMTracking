@@ -90,10 +90,13 @@ def plotHist2D(x, y, n_binsXY=(100, 100), prec=2, font_size=14, units="units", f
     # axes can be accessed with cb.ax, jt.
     return jg, cb, legendX, legendY
 
-def plotScatter(x, y, font_size=14, input_color="green", figsize=(12,5), label=None, lw=1, tight=True):
+def plotScatter(x, y, font_size=14, input_color="green", figsize=(12,5), label=None, lw=1, tight=True, step=False):
     
     fig, ax = plt.subplots(figsize=figsize)
-    ax.plot(x, y, c='g', label=label, lw=lw)
+    if (not step):
+        ax.plot(x, y, c=input_color, label=label, lw=lw)
+    if (step):
+        ax.step(x, y, where="post", c=input_color, llabel=label, lw=lw)
     
     # make a nice looking plot as default 
     ax.set_xlabel(xlabel="", fontsize=font_size)
@@ -107,6 +110,17 @@ def plotScatter(x, y, font_size=14, input_color="green", figsize=(12,5), label=N
         fig.tight_layout()
 
     return fig, ax
+
+def get_freq_bin_c_from_data(data, bin_w, bin_range):
+    '''
+    Return binned data bin frequencies and bin centres
+    given bin width and range 
+    '''
+    bin_n = int(round((bin_range[1] - bin_range[0])/bin_w)) 
+    freq, bin_edges = np.histogram(data, bins=bin_n, range=bin_range)
+    bin_c=np.linspace(bin_edges[0]+bin_w/2, bin_edges[-1]-bin_w/2, len(freq))
+    assert( len(freq) == len(bin_c) ==  bin_n)
+    return bin_c, freq 
 
 def residuals(x, y, func, pars):
     '''
