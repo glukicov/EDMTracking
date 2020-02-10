@@ -1,7 +1,7 @@
 # Make profile plots from ROOT histogram
 # Gleb Lukicov (11 Jan 2020)  
 import os, sys
-sys.path.append('CommonUtils/')
+sys.path.append('../CommonUtils/')
 import CommonUtils as cu
 import RUtils as ru
 import Functions as fu
@@ -52,7 +52,7 @@ names=[]
 if(args.read):
     dataXY, n_binsXY, dBinsXY = ru.hist2np(file_path=args.file_path, hist_path=args.hist_path)
     # store that data
-    np.save("DATA/misc/dataXY.npy", dataXY)
+    np.save("../DATA/misc/dataXY.npy", dataXY)
 
     # and info
     edm_setting=args.file_path.split("/")[1].split(".")[0]
@@ -80,7 +80,7 @@ if(args.read):
     info_dict = dict(zip(names, info))
     #now pass along the information to the fitter
     df_info = pd.DataFrame(info_dict, index=[0]) 
-    df_info.to_csv("DATA/misc/df_info.csv")
+    df_info.to_csv("../DATA/misc/df_info.csv")
     
     print("Data saved to dataXY.npy, re-run with --profile or --hist to make plots")
     sys.exit()
@@ -90,7 +90,7 @@ if (args.hist):
     print("Plotting a histogram...")
         
     # load the data 
-    dataXY=np.load("DATA/misc/dataXY.npy")
+    dataXY=np.load("../DATA/misc/dataXY.npy")
     x=dataXY[0]
     y=dataXY[1]
 
@@ -102,7 +102,7 @@ if (args.hist):
         cu.textL(jg.ax_joint, 1.32, 1.00, "Vertical [mm]:"+"\n"+str(legendY), font_size=15)
         N=cu.sci_notation(len(x)) # format as a 
         cu.textL(jg.ax_joint, 1.32, 0.00, "N: "+N, font_size=15)
-        plt.savefig("fig/beam.png", dpi=300)
+        plt.savefig("../fig/beam.png", dpi=300)
     else:
         jg,cb,legendX,legendY =cu.plotHist2D(x, y, n_binsXY=(75,75), cmin=5, prec=3)
         jg.ax_joint.set_ylabel(r"$\theta_y$ [rad]", fontsize=18)
@@ -111,14 +111,14 @@ if (args.hist):
         cu.textL(jg.ax_joint, 1.32, 1.00, r"$\theta_y$ [rad]:"+"\n"+str(legendY), font_size=15)
         N=cu.sci_notation(len(x)) # format as a 
         cu.textL(jg.ax_joint, 1.32, 0.00, "N: "+N, font_size=17)
-        plt.savefig("fig/thetavsT.png", dpi=300)
+        plt.savefig("../fig/thetavsT.png", dpi=300)
 
 
 # Profile Plot 
 if (args.profile):
 
     # load the data 
-    dataXY=np.load("DATA/misc/dataXY.npy")
+    dataXY=np.load("../DATA/misc/dataXY.npy")
     x=dataXY[0]
     y=dataXY[1]
 
@@ -133,10 +133,10 @@ if (args.profile):
     N=cu.sci_notation(len(x)) # format as a 
     cu.textL(ax, 0.88, 0.9, "N: "+N, font_size=14)
     plt.tight_layout() 
-    plt.savefig("fig/profile.png")
+    plt.savefig("../fig/profile.png")
 
     # can save the profile points with errors to a file
-    df_binned.to_csv("DATA/misc/df_binned.csv")
+    df_binned.to_csv("../DATA/misc/df_binned.csv")
 
 # iterative fits over many profiles 
 if(args.iter and not args.bins):
@@ -159,7 +159,7 @@ if(args.iter and args.bins):
     #dict -> DF -> csv for plotting 
     d = {'A':A,'A_e':A_e,"Chi2":Chi2}
     df = pd.DataFrame(d)
-    df.to_csv("DATA/misc/df_bins.csv")
+    df.to_csv("../DATA/misc/df_bins.csv")
 
 
 print("Done!")

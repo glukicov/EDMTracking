@@ -58,10 +58,10 @@ def main():
     ax.set_xlabel(xlabel=r"$R_{blind}-R_{ref}$ (ppm)")
     ax.set_ylabel(ylabel="")
     cu.textL(ax, 0.8, 0.85, str(legend), font_size=14)
-    plt.savefig("edm_test.png", dpi=300)
+    plt.savefig("../fig/edm_test.png", dpi=300)
 
     np.set_printoptions(precision=15)
-    np.save("pyEDMBlind.npy", idiff_array)
+    np.save("../fig/pyEDMBlind.npy", idiff_array)
 
 def test_blidning(n_inject):
     #print("R:", R, "boxWidth:", boxWidth, "gausWidth:", gausWidth) 

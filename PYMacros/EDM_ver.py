@@ -67,7 +67,7 @@ def makePlots(name, y_title, value, value_error, both=False):
     ax.set_xlabel("Setting/Run", fontsize=14, fontweight='bold')
     ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), prop={'size': 12}) # outside (R) of the plot 
     plt.tight_layout()
-    plt.savefig("vertical_"+str(name)+".png", dpi=100)
+    plt.savefig("../fig/vertical_"+str(name)+".png", dpi=100)
 
 
 #S12 and S18 
