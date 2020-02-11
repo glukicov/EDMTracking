@@ -1,5 +1,7 @@
 # EDMTracking
 
+<a href=http://www.hep.ucl.ac.uk/~lukicov/> <img src="docs/edm.png" height="250" class="center"></a>
+
 <div style="text-align:center"><a href=http://www.hep.ucl.ac.uk/~lukicov target="_blank"><img src="docs/edm_1.png" height="280"></a></div>
 
 #### This project contains analysis code to place a new limit on the 
