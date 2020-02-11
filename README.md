@@ -1,4 +1,4 @@
-![EDMTracking logo. Reference: http://www.hep.ucl.ac.uk/~lukicov/](docs/edm.png)
+<a href=http://www.hep.ucl.ac.uk/~lukicov/> <img src="docs/edm.png" height="300" class="center"></a>
 
 EDMTracking
 ======
