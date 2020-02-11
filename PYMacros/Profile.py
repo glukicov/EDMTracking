@@ -135,7 +135,7 @@ if (args.profile):
     plt.tight_layout() 
     plt.savefig("../fig/profile.png")
 
-    # can save the profile points with errors to a file
+    # can save the profile points with errors to a file 
     df_binned.to_csv("../DATA/misc/df_binned.csv")
 
 # iterative fits over many profiles 
