@@ -1,4 +1,4 @@
-<a href=http://www.hep.ucl.ac.uk/~lukicov/> <img src="docs/edm.png" height="300" class="center"></a>
+<a href=http://www.hep.ucl.ac.uk/~lukicov/> <img src="docs/edm.png" height="250" class="center"></a>
 
 EDMTracking
 ======
