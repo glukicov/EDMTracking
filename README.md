@@ -1,6 +1,4 @@
-.. image:: docs/edm.png
-   :alt: EDMTracking
-   :target: http://www.hep.ucl.ac.uk/~lukicov/
+![EDMTracking logo. Reference: http://www.hep.ucl.ac.uk/~lukicov/](docs/edm.png)
 
 EDMTracking
 ======
