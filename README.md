@@ -1,5 +1,9 @@
-### EDMTracking
-## g-2 Electric Dipole Moment (EDM), grid-based tracking, and DB scripts 
+.. image:: docs/edm.png
+   :alt: EDMTracking
+   :target: http://www.hep.ucl.ac.uk/~lukicov/
+
+EDMTracking
+======
 
 ### See here https://github.com/glukicov/EDMTracking/blob/master/JupyterNB/PYReadTree.ipynb for a quick demo on how to load, make cuts, plot data, and fit from ROOT Trees
 
