@@ -144,6 +144,17 @@ def chi2_ndf(x, y, y_err, func, pars):
     ndf = len(x) - len(pars)
     return chi2/ndf, chi2, ndf 
 
+def thetaY_unblinded(t, *pars, phi=6.240):
+    print("Using constant phase from simulation of", phi)
+    A_mu  = pars[0]      
+    A_edm = pars[1]    
+    c     = pars[2]    
+    omega     = pars[3]
+
+
+    return A_mu * np.cos(omega * t + phi) + A_edm * np.sin(omega  * t + phi) + c
+
+
 def sin_unblinded(t, A, b, c):
     return A * np.sin(b * t)+c
 

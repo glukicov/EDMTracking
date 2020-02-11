@@ -21,11 +21,11 @@ mpl.use('Agg')
 import matplotlib.pyplot as plt
 
 arg_parser = argparse.ArgumentParser()
-# arg_parser.add_argument("--file_path", type=str, default="DATA/noEDM.root") 
+# arg_parser.add_argument("--file_path", type=str, default="../ DATA/noEDM.root") 
 # arg_parser.add_argument("--hist_path", type=str, default="AllStations/VertexExtap/t>0/0<p<3600/vertexPosSpread") 
 # arg_parser.add_argument("--hist_path", type=str, default="AllStations/VertexExtap/t>0/0<p<3600/thetay_vs_time_modg2") 
 # arg_parser.add_argument("--hist_path", type=str, default="AllStationsNoTQ/VertexExtap/t>0/0<p<3600/thetay_vs_time_modg2") 
-arg_parser.add_argument("--file_path", type=str, default="DATA/VLEDM.root") 
+arg_parser.add_argument("--file_path", type=str, default="../DATA/VLEDM.root") 
 # arg_parser.add_argument("--hist_path", type=str, default="AllStations/VertexExt/t>0/0<p<3600/thetay_vs_time_modg2") 
 # arg_parser.add_argument("--hist_path", type=str, default="AllStationsNoTQ/VertexExt/t>0/0<p<3600/thetay_vs_time_modg2") 
 # arg_parser.add_argument("--hist_path", type=str, default="AllStationsNoTQ/VertexExt/t>0/0<p<3600/vertexPosSpread") 
@@ -141,7 +141,11 @@ if (args.profile):
 # iterative fits over many profiles 
 if(args.iter and not args.bins):
     print("Plotting iterative profiles...")
-    fu.iter_plots(n_prof_bins=15, gauss=args.gauss)
+    # df = pd.DataFrame(columns=['cut', 'A_mu','A_edm','c','w','chi2'])
+    fu.iter_plots(n_prof_bins=15, gauss=args.gauss, df=df)
+
+    # print(df)
+    # df.to_csv("../DATA/misc/df_fits.csv")
 
 if(args.iter and args.bins):
     print("Plotting iterative profiles with bins...")

@@ -11,13 +11,13 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 
-def iter_plots(n_prof_bins=15, extraLabel="", outdir="profFits", gauss=False, best=False, vertex=False):
+def iter_plots(n_prof_bins=15, extraLabel="", outdir="profFits", gauss=False, best=False, vertex=False, df=None):
     #loop over common plots
     
     # fileLabel=("LargeEDM", "noEDM")
     # fileName=("DATA/VLEDM.root", "DATA/noEDM.root")
     fileLabel=[("LargeEDM")]
-    fileName=[("DATA/VLEDM.root")]
+    fileName=[("../DATA/VLEDM.root")]
     
     plotLabel=("Tracks", "Vertices")
     plotName=["TrackFit", "VertexExt"]
@@ -134,7 +134,7 @@ def iter_plots(n_prof_bins=15, extraLabel="", outdir="profFits", gauss=False, be
                             ax.set_xlabel(r"$\theta_y$ [mrad]", fontsize=18)
                             ax.set_ylabel(r"$\theta_y$ / "+str(round(bin_width))+" mrad", fontsize=18)
                             plt.tight_layout()
-                            plt.savefig("fig/Gauss/Gauss_"+fullLabel+"_"+str(i_point)+".png", dpi=300)
+                            plt.savefig("../fig/Gauss/Gauss_"+fullLabel+"_"+str(i_point)+".png", dpi=300)
                             plt.clf()
 
                         #done looping over y bins
@@ -144,21 +144,20 @@ def iter_plots(n_prof_bins=15, extraLabel="", outdir="profFits", gauss=False, be
 
 
                     #fit a function and get pars 
-                    par, pcov = optimize.curve_fit(
-    cu.sin_unblinded, x, y, sigma=y_err, p0=[1.0, 1.0, 1.0], absolute_sigma=False, method='lm')
+                    par, pcov = optimize.curve_fit(cu.thetaY_unblinded, x, y, sigma=y_err, p0=[0.0, 0.18, -0.06, 1.4], absolute_sigma=False, method='lm')
                     par_e = np.sqrt(np.diag(pcov))
-                    chi2_n=cu.chi2_ndf(x, y, y_err, cu.sin_unblinded, par)
+                    chi2_n=cu.chi2_ndf(x, y, y_err, cu.thetaY_unblinded, par)
 
                     # plot the fit and data 
                     fig, ax = plt.subplots()
                     # data
                     ax.errorbar(x,y,xerr=x_err, yerr=y_err, linewidth=0, elinewidth=2, color="green", marker="o", label="Sim.")
                     # fit 
-                    ax.plot(x, cu.sin_unblinded(x, par[0], par[1], par[2]), color="red", label='Fit')
+                    ax.plot(x, cu.thetaY_unblinded(x, par[0], par[1], par[2], par[3]), color="red", label='Fit')
                   
                     # deal with fitted parameters (to display nicely)
-                    parNames=[" A", "b", "c"]
-                    units=["mrad", "MHz", "mrad"]
+                    parNames=[r"$ A_{\mu}$", r"$ A_{\rm{EDM}}$", "c", r"$\omega$"]
+                    units=["mrad", "mrad", "mrad", "MhZ"]
                     prec=2 # set custom precision 
                     
                     #form complex legends 
@@ -177,7 +176,10 @@ def iter_plots(n_prof_bins=15, extraLabel="", outdir="profFits", gauss=False, be
                     ax.set_ylabel(y_label, fontsize=18)
                     ax.set_xlabel(x_label, fontsize=18)
                     plt.tight_layout() 
-                    plt.savefig("fig/"+outdir+"/"+fullLabel+".png")
+                    plt.savefig("../fig/"+outdir+"/"+fullLabel+".png")
                     plt.clf()
 
-    return par[0], par_e[0], chi2_n[0]
+                    # if (df):
+                    #     df.loc[-1] = [p_cut, par[0], par[1], par[2], par[3], chi2_n[0]]
+
+    # return p_cut, par[0], par[1], par[2], par[3], chi2_n[0]
