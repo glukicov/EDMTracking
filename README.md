@@ -4,7 +4,7 @@
 
 #### This project contains analysis code to place a new limit on the Electric Dipole Moment (EDM) of the muon using the g-2 tracking detectors
 
-The g−2 experiment at Fermilab, near Chicago, is closing on a tantalising sign of New Physics (e.g. new particles or forces) - deviation between an experimentally measured and theoretically predicted value of the muon magnetic moment. There is also an additional measurement that will be made using the trackers: setting a new limit on the electric dipole moment (EDM) of the muon, which, if found to be non-zero, would provide a new source of charge-parity (CP) violation - a promising key in understanding the  matter-antimatter asymmetry of the universe!
+The g−2 experiment at Fermilab, near Chicago, is closing on a tantalising sign of New Physics (e.g. new particles or forces) - deviation between an experimentally measured and theoretically predicted value of the muon magnetic moment. There is also an additional measurement that will be made using the trackers: setting a new limit on the electric dipole moment (EDM) of the muon, which, if found to be non-zero, would provide a new source of charge-parity (CP) violation - a promising key in understanding the  matter-antimatter asymmetry of the universe! EDM signal manifests itself as an oscillation in the observed vertical angle of the tracks.
 #### Results in simulation
 The EDM signal in simulation can be extracted from the fitted amplitude of the oscillation of the average (binned/profiled) vertical angle of the tracks in the detector.
 <div style="text-align:center"><a href=http://www.hep.ucl.ac.uk/~lukicov target="_blank"><img src="docs/edm_2.png" width="880"></a></div>
