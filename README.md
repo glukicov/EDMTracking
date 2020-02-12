@@ -9,6 +9,14 @@ The g−2 experiment at Fermilab, near Chicago, is closing on a tantalising sign
 The EDM signal in simulation can be extracted from the fitted amplitude of the oscillation of the average (binned/profiled) vertical angle of the tracks in the detector.
 <div style="text-align:center"><a href=http://www.hep.ucl.ac.uk/~lukicov target="_blank"><img src="docs/edm_2.png" width="880"></a></div>
 
+The oscillation in the number of the observed tracks in the detector can be plotted and fitted 
+<div style="text-align:center"><a href=http://www.hep.ucl.ac.uk/~lukicov target="_blank"><img src="docs/edm.gif" width="600"></a></div>
+
+The difference between the the observation and the fit (i.e. residuals) can also be computed, to extract even more information (i.e. missing fit parameters) from the above plot using the Fast Fourier Transform (FFT) [1] analysis (FFT converts residuals from time to frequency domain):
+<div style="text-align:center"><a href=http://www.hep.ucl.ac.uk/~lukicov target="_blank"><img src="docs/edm_3.png" width="400"></a></div>
+
+[1] J. Cooley and J. Tukey, Math. Comp. **19**, 297 (1965)
+
 * **This work led to a publication (arXiv:1909.12900): <a href=https://arxiv.org/pdf/1909.12900.pdf target="_blank"> https://arxiv.org/pdf/1909.12900.pdf</a>, where EDM analysis strategy with data is discussed.**
 * **The detectors were previously calibrated in https://github.com/glukicov/alignTrack**
 * The analysis guide using Python and ROOT is here: https://cdcvs.fnal.gov/redmine/projects/gm2analyses/wiki/Python-based_EDM_analysis
