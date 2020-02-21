@@ -17,6 +17,7 @@ meanS=r"$\mathrm{\mu}$"
 sigmaS=r"$\sigma$"
 chi2ndfS=r"$\frac{\chi^2}{DoF}$"
 
+
 def plotHist(data, n_bins=100, prec=2, font_size=14, units="units", input_color="green", alpha=0.7):
     '''
     Input is a 1D array
@@ -144,15 +145,14 @@ def chi2_ndf(x, y, y_err, func, pars):
     ndf = len(x) - len(pars)
     return chi2/ndf, chi2, ndf 
 
-def thetaY_unblinded(t, *pars, phi=6.240):
-    print("Using constant phase from simulation of", phi)
-    A_mu  = pars[0]      
+def thetaY_unblinded_phase(t, *pars, phi=6.240):    
+    
+    A_bz  = pars[0]      
     A_edm = pars[1]    
     c     = pars[2]    
-    omega     = pars[3]
-
-
-    return A_mu * np.cos(omega * t + phi) + A_edm * np.sin(omega  * t + phi) + c
+    omega = pars[3]
+    
+    return A_bz * np.cos(omega * t + phi) + A_edm * np.sin(omega * t + phi) + c
 
 
 def sin_unblinded(t, A, b, c):
