@@ -7,10 +7,16 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import pandas as pd
 from pandas import Series, DataFrame
-import sys
+import sys,os
 import re
 from copy import copy
 from math import floor, log10
+
+# Import blinding libraries 
+sys.path.append(os.environ['Blind_Path']) # path to Blinding libs from profile 
+from BlindersPy3 import Blinders
+from BlindersPy3 import FitType
+getBlinded = Blinders(FitType.Omega_a, "EDM all day") 
 
 #define common constants
 meanS=r"$\mathrm{\mu}$"
@@ -91,11 +97,11 @@ def plotHist2D(x, y, n_binsXY=(100, 100), prec=2, font_size=14, units="units", f
     # axes can be accessed with cb.ax, jt.
     return jg, cb, legendX, legendY
 
-def plotScatter(x, y, font_size=14, input_color="green", figsize=(12,5), label=None, lw=1, tight=True, step=False):
+def plotScatter(x, y, font_size=14, input_color="green", figsize=(12,5), label=None, lw=1, lc='g', ls="-", tight=True, step=False):
     
     fig, ax = plt.subplots(figsize=figsize)
     if (not step):
-        ax.plot(x, y, c=input_color, label=label, lw=lw)
+        ax.plot(x, y, c=input_color, label=label, lw=lw, ls=ls)
     if (step):
         ax.step(x, y, where="post", c=input_color, llabel=label, lw=lw)
     
@@ -111,6 +117,68 @@ def plotScatter(x, y, font_size=14, input_color="green", figsize=(12,5), label=N
         fig.tight_layout()
 
     return fig, ax
+
+def modulo_wiggle_5par_fit_plot(x, y, t_mod, t_max, t_min, N, par, par_e, binW,
+                                data_bool=True,
+                                legend_fit=r'Fit: $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]$',
+                                font_size=15):
+    '''
+    Fit and plot folded (modulo wiggle function)
+    '''
+    
+    fig, ax = plt.subplots(figsize=(8, 5))
+
+    #log the y and set axis scales 
+    plt.yscale("log")
+    ax.set_ylim(1e2, 1.0e6)
+    ax.set_xlim(0, t_mod)
+    label_data="Data: \n Quality Tracks \n"
+    legend_data="Run-1 tracker data"
+    plot_name="_data"
+    if (not data_bool):
+        ax.set_xlim(0.2, t_mod) 
+        ax.set_ylim(70, 4.0e4)
+        label_data="Sim.: \n All Tracks \n"
+        legend_data="Sim. tracker data"
+        plot_name="_sim"
+
+    #split into folds/section for modulo plot 
+    left=0 
+    i_section = 0
+
+    #loop over folds and plot each section
+    while left < t_max:
+        right=left + t_mod
+        mod_filter = (x >= left) & (x<= right) # boolean mask
+        #plot data as step-hist. and the fit function
+        #plot for that section and label only the 1st
+        ax.step(x=x[mod_filter]-left, y=y[mod_filter], where="post", color="g", label=legend_data if i_section==0 else '')
+        ax.plot(x[mod_filter]-left, blinded_wiggle_function( x[mod_filter], *par ) , color="red", label=legend_fit if i_section==0 else '', linestyle=":")
+        left=right # get the next fold 
+        i_section += 1
+
+    #Put legend and pars values 
+    N_str=sci_notation(N)
+    textL(ax, 0.16, 0.8, label_data+ r"$p$"+" > 1.8 GeV \n"+str(t_min)+r" $\rm{\mu}$s < t < "+str(t_max)+r" $\rm{\mu}$s"+"\n N="+N_str, font_size=font_size-1,  weight="normal")
+    # deal with fitted parameters (to display nicely)
+    parNames=[r"$\tau$", r"$\phi$"]
+    units=[r"$\rm{\mu}$s", "rad"]
+    prec=3 # set custom precision 
+    #legned_par=r"$\frac{\chi^2}{\rm{DoF}}$="+str(round(chi2_ndf,1))+"\nR="+str(int(round(par[3])))+"("+str(int(round(par_e[3])))+") ppm \n"
+    #legned_par=legend_par(legned_par,  parNames, (par[1], par[4]), (par_e[1], par_e[4]), units, prec=prec)
+    #textL(ax, 0.83, 0.77, "Fit:\n"+legned_par, font_size=font_size-1, color="red", weight="normal")
+
+    #axis labels and ticks
+    plt.ylabel(r"Counts ($N$) per "+str(int(binW*1e3))+" ns", fontsize=font_size)
+    plt.xlabel(r"Time [$\mathrm{\mu}$s] (modulo "+str(t_mod)+r" $\mathrm{\mu}$s)", fontsize=font_size)
+    ax.tick_params(axis='x', which='both', bottom=True, top=True, direction='inout')
+    ax.tick_params(axis='y', which='both', left=True, right=True, direction='inout')
+    ax.minorticks_on()
+    plt.xticks(fontsize=font_size-1)
+    plt.yticks(fontsize=font_size-1)
+
+    return fig, ax
+
 
 def get_freq_bin_c_from_data(data, bin_w, bin_range):
     '''
@@ -144,6 +212,20 @@ def chi2_ndf(x, y, y_err, func, pars):
         chi2+=(r)**2/y_err[i]**2
     ndf = len(x) - len(pars)
     return chi2/ndf, chi2, ndf 
+
+
+def blinded_wiggle_function(x, *pars):
+    norm  = pars[0]
+    life  = pars[1]
+    asym  = pars[2]
+    R     = pars[3]
+    phi   = pars[4]
+    
+    time  = x
+    omega = getBlinded.paramToFreq(R)
+    
+    return norm * np.exp(-time/life) * (1 + asym*np.cos(omega*time + phi))
+
 
 def thetaY_unblinded_phase(t, *pars, phi=6.240):    
     

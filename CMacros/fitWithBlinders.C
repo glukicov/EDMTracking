@@ -34,7 +34,7 @@ void fitWithBlinders(){
   file->ls();
 
   TTree *clusterTree = (TTree*)file->Get("QualityTracks");
-  clusterTree->Draw("trackT0*1.25/1000>>wiggle(2000,0,300)","trackMomentum>1800 && trackMomentum < 10000","goff");
+  clusterTree->Draw("trackT0/1000>>wiggle(2000,0,300)","trackMomentum>1800 && trackMomentum < 10000","goff");
   TH1D *wiggle = (TH1D*)gDirectory->Get("wiggle");
   
   TF1 *func = new TF1("func", blinded_wiggle, 30,280,5);

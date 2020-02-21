@@ -92,7 +92,7 @@ long double blinded_edm() {
 
   }
 
-  TFile* file = new TFile("CEDMBlind.root", "new");
+  TFile* file = new TFile("../DATA/misc/CEDMBlind.root", "new");
 
   h1->GetXaxis()->SetTitle("R_{blind} - R_{ref} (ppm)");
   h1->GetXaxis()->CenterTitle();
@@ -100,12 +100,12 @@ long double blinded_edm() {
   std::cout << "bins: " << bin << "\n";
   h1->Draw();
   h1->Write();
-  c1->SaveAs("blindTest.png");
+  c1->SaveAs("../fig/blindTest.png");
 
   file->Close();
 
   //write to file using a vector iterator
-  std::ofstream output_file("./CEDMBlind.txt");
+  std::ofstream output_file("../DATA/misc/CEDMBlind.txt");
   output_file << std::setprecision(15);
   std::ostream_iterator<long double> output_iterator(output_file, "\n");
   std::copy(sanity.begin(), sanity.end(), output_iterator);
