@@ -121,6 +121,8 @@ def plotScatter(x, y, font_size=14, input_color="green", figsize=(12,5), label=N
 def modulo_wiggle_5par_fit_plot(x, y, t_mod, t_max, t_min, N, par, par_e, binW,
                                 data_bool=True,
                                 legend_fit=r'Fit: $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]$',
+                                legend_data="Run-1 tracker data",
+                                key="Quality Tracks",
                                 font_size=15):
     '''
     Fit and plot folded (modulo wiggle function)
@@ -132,8 +134,7 @@ def modulo_wiggle_5par_fit_plot(x, y, t_mod, t_max, t_min, N, par, par_e, binW,
     plt.yscale("log")
     ax.set_ylim(1e2, 1.0e6)
     ax.set_xlim(0, t_mod)
-    label_data="Data: \n Quality Tracks \n"
-    legend_data="Run-1 tracker data"
+    label_data="Data: \n"+key+"\n"
     plot_name="_data"
     if (not data_bool):
         ax.set_xlim(0.2, t_mod) 

@@ -3,7 +3,7 @@
 # on skimmed data in HDF5 format (from skimTrees.py module)
 
 #Blinding lib imported in CommonUtils:
-import os, sys 
+import os, sys, re
 sys.path.append('../CommonUtils/') # https://github.com/glukicov/EDMTracking/blob/master/CommonUtils/CommonUtils.py
 import CommonUtils as cu
 import argparse
@@ -18,8 +18,10 @@ stations=(12, 18)
 #Input fitting parameters 
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("--p0", nargs='+', type=float, default=[85263, 64.0, 0.1, 1.0, 2.0]) #fit parameters (initial guess)
+arg_parser.add_argument("--max", type=float, default=400) #max fit time 
 arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/MMA/60h.h5") #input data 
 arg_parser.add_argument("--key", type=str, default="QualityTracks") # or QualityVertices
+arg_parser.add_argument("--label", type=str, default="60h") # or QualityVertices
 args=arg_parser.parse_args()
     
 def main():
@@ -68,9 +70,14 @@ def fit():
         print("Plotting fit and data!")
         #use pre-define module wiggle function from CU
         # plt.tight_layout()
-        fig,ax = cu.modulo_wiggle_5par_fit_plot(x, y, t_mod, max_x, min_x, N, par, par_e, bin_w)
+        
+        #make more automated things for "plot prettiness"
+        data_type = re.findall('[A-Z][^A-Z]*', args.key) # should break into "Quality" and "Tracks"/"Vertices"
+
+        fig,ax = cu.modulo_wiggle_5par_fit_plot(x, y, t_mod, max_x, min_x, N, par, par_e, bin_w,
+                                                key=data_type[0]+" "+data_type[1], legend_data="Run-1: "+args.label+" dataset S"+str(station) )
         plt.legend(fontsize=11, loc='upper center', bbox_to_anchor=(0.5, 1.1) )
-        plt.savefig("../fig/wiggle_blind"+station+".png", dpi=300)
+        plt.savefig("../fig/wiggle_blind_S"+str(station)+"_"+args.label+".png", dpi=300)
         print("Done for", station)
 
 if __name__ == "__main__":
