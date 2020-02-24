@@ -16,7 +16,7 @@ arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("--trees", type=str, default="../DATA/Trees/60h_in1File") # dir with ROOT Trees 
 arg_parser.add_argument("--df", type=str, default="../DATA/HDF/60h_skim") # path+fileLabel will be appended with filecount + ".hd5"
 arg_parser.add_argument("--t_cut", type=int, default=30) # us 
-arg_parser.add_argument("--p_cut", type=int, default=1800) # MeV
+arg_parser.add_argument("--p_cut", type=int, default=-1) # MeV
 arg_parser.add_argument("--add", action='store_true', default=False)
 arg_parser.add_argument("--add_label", type=str, default=None) # file label name
 arg_parser.add_argument("--add_dir", type=str, default=None) # file label name

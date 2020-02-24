@@ -17,15 +17,20 @@ stations=(12, 18)
 
 #Input fitting parameters 
 arg_parser = argparse.ArgumentParser()
-arg_parser.add_argument("--p0", nargs='+', type=float, default=[85263, 64.0, 0.1, 1.0, 2.0]) #fit parameters 
-arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/60h_qt_skim.hdf") #input data 
+arg_parser.add_argument("--p0", nargs='+', type=float, default=[85263, 64.0, 0.1, 1.0, 2.0]) #fit parameters (initial guess)
+arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/MMA/60h.h5") #input data 
+arg_parser.add_argument("--key", type=str, default="QualityTracks") # or QualityVertices
 args=arg_parser.parse_args()
     
-#open Tree only the trackT0 (for speed) and fit 
 def main():
-    print("Opening data...", args.hdf)
-    data = pd.read_hdf('../DATA/HDF/data.h5', 'data')
-    print("Total of", data.shape[0], "tracks")
+
+    #open the hdf file and fit! 
+    fit()
+
+def fit():
+    print("Opening", args.key, "in", args.hdf, "...")
+    data = pd.read_hdf(args.hdf, args.key)
+    print("Found", data.shape[0], "entries")
     
     #define station cuts to loop over 
     s12_cut = (data['station'] == stations[0])
@@ -35,9 +40,9 @@ def main():
     for i_cut, station in enumerate(stations):
         data_station=data[station_cut[i_cut]]
         # resolve into t variable for ease for a station
-        t = data_station['trackT0'] 
+        t = data_station['trackT0'] # already expected in us (or can just *1e-3 here if not)
         N=data_station.shape[0]
-        print("After cuts", N, "tracks in", station)
+        print("Entries: ", N, " in", station)
         
         #define modulation and limits 
         bin_w = 150*1e-3 # 150 ns 
@@ -45,18 +50,18 @@ def main():
         max_x = 400 # us 
         t_mod=100 # us; fold plot every N us 
 
-        print("digitsing data (binning)")
+        print("digitising data (binning)...")
         # just call x,y = frequencies, bin_centres for plotting and fitting 
-        x, y = cu.get_freq_bin_c_from_data(t, bin_w, (min_x, max_x) )
+        x, y = cu.get_freq_bin_c_from_data( t, bin_w, (min_x, max_x) )
         y_err = np.sqrt(y) # sigma =sqrt(N)
-        print("digitsed data done!")
+        print("digitised data done!")
 
-        print("Fitting!")
+        print("Fitting...")
         # Levenberg-Marquardt algorithm as implemented in MINPACK
         par, pcov = optimize.curve_fit(f=cu.blinded_wiggle_function, xdata=x, ydata=y, sigma=y_err, p0=args.p0, absolute_sigma=False, method='lm')
         par_e = np.sqrt(np.diag(pcov))
-        print("Pars_ :", *par)
-        print("Pars_e:",*par_e)
+        print("Pars  :", *par)
+        print("Pars e:",*par_e)
         chi2_ndf, chi2, ndf=cu.chi2_ndf(x, y, y_err, cu.blinded_wiggle_function, par)
         print("Fit 𝝌2/DoF="+str(round(chi2_ndf,2)) )
 
