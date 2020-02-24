@@ -30,7 +30,7 @@ arg_parser.add_argument("--file_path", type=str, default="../DATA/VLEDM.root")
 # arg_parser.add_argument("--hist_path", type=str, default="AllStationsNoTQ/VertexExt/t>0/0<p<3600/thetay_vs_time_modg2") 
 # arg_parser.add_argument("--hist_path", type=str, default="AllStationsNoTQ/VertexExt/t>0/0<p<3600/vertexPosSpread") 
 arg_parser.add_argument("--hist_path", type=str, default="AllStationsNoTQ/VertexExt/t>0/1800<p<3600/thetay_vs_time_modg2") 
-arg_parser.add_argument("--read", action='store_true', default=False) # read and write TH data into numpy file
+arg_parser.add_argument("--read",  action='store_true', default=False)# read and write TH data into numpy file
 arg_parser.add_argument("--beam", action='store_true', default=False)
 arg_parser.add_argument("--hist", action='store_true', default=False) # Make a 2D plot 
 arg_parser.add_argument("--profile", action='store_true', default=False)
