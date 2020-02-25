@@ -13,13 +13,14 @@ import CommonUtils as cu
 from scipy import stats, optimize, fftpack
 import matplotlib as mpl
 mpl.use('Agg') # MPL in batch mode
-font_size=14
+font_size=15
 import matplotlib.pyplot as plt
 
 #Input fitting parameters 
 arg_parser = argparse.ArgumentParser()
-arg_parser.add_argument("--p0", nargs='+', type=float, default=[85263, 64.0, 0.1, 1.0, 2.0]) #fit parameters (initial guess)
-arg_parser.add_argument("--max", type=float, default=400) #max fit time 
+arg_parser.add_argument("--p0", nargs='+', type=float, default=[85263, 64.0, 0.33, 1.0, 2.0]) #fit parameters (initial guess)
+arg_parser.add_argument("--max", type=float, default=400.0) #max fit time 
+arg_parser.add_argument("--min", type=float, default=30.0) #max fit time 
 arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/MMA/60h.h5") #input data 
 arg_parser.add_argument("--key", type=str, default="QualityTracks") # or QualityVertices
 arg_parser.add_argument("--label", type=str, default="60h") # or QualityVertices
@@ -30,7 +31,7 @@ stations=(12, 18)
 
 #define modulation and limits (more can be made as arguments) 
 bin_w = 150*1e-3 # 150 ns 
-min_x = 30 # us
+min_x = args.min # us
 max_x = args.max # us 
 t_mod=100 # us; fold plot every N us 
 
@@ -100,7 +101,7 @@ def fit():
         print("Pars  :", np.array(par))
         print("Pars e:",np.array(par_e))
         chi2_ndf, chi2, ndf=cu.chi2_ndf(x, y, y_err, cu.blinded_wiggle_function, par)
-        print("Fit 𝝌2/DoF="+str(round(chi2_ndf,2)) )
+        print("Fit 𝝌2/DoF="+str(round(chi2_ndf,1)) )
 
         print("Plotting fit and data!")
         #make more automated things for "plot prettiness"
@@ -169,7 +170,7 @@ def fft(residuals):
         ax.plot( (cbo_P_gm2_f, cbo_P_gm2_f), (y_min, y_max), c="c", ls=":", label=r"CBO + $(g-2)$")
         ax.plot( (vm_f, vm_f), (y_min, y_max), c="m", ls=(0, (1, 10)), label="VW")
     
-        ax.legend(fontsize=12, loc="best")
+        ax.legend(fontsize=font_size, loc="best")
         ax.set_ylabel("FFT magnitude (normalised)", fontsize=font_size)
         ax.set_xlabel("Frequency [MHz]", fontsize=font_size)
         plt.savefig("../fig/fft_S"+str(stations[i_station])+"_"+args.label+".png", dpi=300)

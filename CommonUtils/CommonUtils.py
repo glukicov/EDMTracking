@@ -133,7 +133,7 @@ def modulo_wiggle_5par_fit_plot(x, y, t_mod, t_max, t_min, N, par, par_e, chi2_n
 
     #log the y and set axis scales 
     plt.yscale("log")
-    ax.set_ylim(min(y)*0.90, max(y)*35)
+    ax.set_ylim(min(y)*0.90, max(y)*150)
     ax.set_xlim(0, t_mod)
     label_data="Data: \n"+key+"\n"
     plot_name="_data"
@@ -161,13 +161,13 @@ def modulo_wiggle_5par_fit_plot(x, y, t_mod, t_max, t_min, N, par, par_e, chi2_n
 
     #Put legend and pars values 
     N_str=sci_notation(N)
-    textL(ax, 0.17, 0.83, label_data+ r"$p$"+" > 1.8 GeV \n"+str(t_min)+r" $\rm{\mu}$s < t < "+str(t_max)+r" $\rm{\mu}$s"+"\n N="+N_str, font_size=font_size-1,  weight="normal")
+    textL(ax, 0.80, 0.80, label_data+ r"$p$"+" > 1.8 GeV \n"+str(t_min)+r" $\rm{\mu}$s < t < "+str(t_max)+r" $\rm{\mu}$s"+"\n N="+N_str, font_size=font_size-2,  weight="normal")
     # deal with fitted parameters (to display nicely)
     parNames=[r"$N$", r"$\tau$", r"$A$", r"$R$", r"$\phi$"]
     units=["", r"$\rm{\mu}$s", "", "ppm",  "rad"]
     legned_par=r"$\frac{\chi^2}{\rm{DoF}}$="+str(round(chi2_ndf,1))+"\n"
     legned_par=legend_par(legned_par,  parNames, par, par_e, units, prec=prec)
-    textL(ax, 0.83, 0.73, "Fit:\n"+legned_par, font_size=font_size-1, color="red", weight="normal")
+    textL(ax, 0.17, 0.73, "Fit: "+legned_par, font_size=font_size-2, color="red", weight="normal")
 
     #axis labels and ticks
     plt.ylabel(r"Counts ($N$) per "+str(int(binW*1e3))+" ns", fontsize=font_size)
