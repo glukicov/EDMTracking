@@ -3,13 +3,15 @@
 # on skimmed data in HDF5 format (from skimTrees.py module)
 
 #Blinding lib imported in CommonUtils:
-import os, sys, re
+import sys, re
 sys.path.append('../CommonUtils/') # https://github.com/glukicov/EDMTracking/blob/master/CommonUtils/CommonUtils.py
 import CommonUtils as cu
 import argparse
 from scipy import stats, optimize
 import numpy as np
-import seaborn as sns
+np.set_printoptions(precision=3) # 3 sig.fig 
+import matplotlib as mpl
+mpl.use('Agg') # MPL in batch mode
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -29,6 +31,7 @@ def main():
     #open the hdf file and fit! 
     fit()
 
+
 def fit():
     print("Opening", args.key, "in", args.hdf, "...")
     data = pd.read_hdf(args.hdf, args.key)
@@ -46,10 +49,10 @@ def fit():
         N=data_station.shape[0]
         print("Entries: ", N, " in", station)
         
-        #define modulation and limits 
+        #define modulation and limits (more can be made as arguments) 
         bin_w = 150*1e-3 # 150 ns 
         min_x = 30 # us
-        max_x = 400 # us 
+        max_x = args.max # us 
         t_mod=100 # us; fold plot every N us 
 
         print("digitising data (binning)...")
@@ -62,8 +65,8 @@ def fit():
         # Levenberg-Marquardt algorithm as implemented in MINPACK
         par, pcov = optimize.curve_fit(f=cu.blinded_wiggle_function, xdata=x, ydata=y, sigma=y_err, p0=args.p0, absolute_sigma=False, method='lm')
         par_e = np.sqrt(np.diag(pcov))
-        print("Pars  :", *par)
-        print("Pars e:",*par_e)
+        print("Pars  :", np.array(par))
+        print("Pars e:",np.array(par_e))
         chi2_ndf, chi2, ndf=cu.chi2_ndf(x, y, y_err, cu.blinded_wiggle_function, par)
         print("Fit 𝝌2/DoF="+str(round(chi2_ndf,2)) )
 
@@ -74,7 +77,7 @@ def fit():
         #make more automated things for "plot prettiness"
         data_type = re.findall('[A-Z][^A-Z]*', args.key) # should break into "Quality" and "Tracks"/"Vertices"
 
-        fig,ax = cu.modulo_wiggle_5par_fit_plot(x, y, t_mod, max_x, min_x, N, par, par_e, bin_w,
+        fig,ax = cu.modulo_wiggle_5par_fit_plot(x, y, t_mod, max_x, min_x, N, par, par_e, chi2_ndf, bin_w,
                                                 key=data_type[0]+" "+data_type[1], legend_data="Run-1: "+args.label+" dataset S"+str(station) )
         plt.legend(fontsize=11, loc='upper center', bbox_to_anchor=(0.5, 1.1) )
         plt.savefig("../fig/wiggle_blind_S"+str(station)+"_"+args.label+".png", dpi=300)
