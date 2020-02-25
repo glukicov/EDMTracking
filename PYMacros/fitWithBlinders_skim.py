@@ -3,7 +3,7 @@
 # on skimmed data in HDF5 format (from skimTrees.py module)
 
 #Blinding lib imported in CommonUtils:
-import sys, re
+import sys, re, subprocess
 sys.path.append('../CommonUtils/') # https://github.com/glukicov/EDMTracking/blob/master/CommonUtils/CommonUtils.py
 import CommonUtils as cu
 import argparse
@@ -15,7 +15,12 @@ mpl.use('Agg') # MPL in batch mode
 import matplotlib.pyplot as plt
 import pandas as pd
 
+# constants 
 stations=(12, 18)
+
+#global storage 
+residuals=[[],[]] 
+times_binned=[[],[]] 
 
 #Input fitting parameters 
 arg_parser = argparse.ArgumentParser()
@@ -25,14 +30,32 @@ arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/MMA/60h.h5") #in
 arg_parser.add_argument("--key", type=str, default="QualityTracks") # or QualityVertices
 arg_parser.add_argument("--label", type=str, default="60h") # or QualityVertices
 args=arg_parser.parse_args()
+
     
 def main():
 
     #open the hdf file and fit! 
-    fit()
+    times_binned, residuals=fit()
+
+    #now plot the (data - fit)
+    residual_plots(times_binned, residuals)
+
+    #FFTs
+
+    #finally add plots into single canvas
 
 
 def fit():
+    '''
+    Open HDF5
+    chose the station
+    apply further time cuts
+    take-in initial fitting parameters
+    do the fit
+    plot as the modulated wiggle
+    get 𝝌2
+    pass residuals as the output 
+    '''
     print("Opening", args.key, "in", args.hdf, "...")
     data = pd.read_hdf(args.hdf, args.key)
     print("Found", data.shape[0], "entries")
@@ -42,8 +65,8 @@ def fit():
     s18_cut = (data['station'] == stations[1])
     station_cut = (s12_cut, s18_cut)
 
-    for i_cut, station in enumerate(stations):
-        data_station=data[station_cut[i_cut]]
+    for i_station, station in enumerate(stations):
+        data_station=data[station_cut[i_station]]
         # resolve into t variable for ease for a station
         t = data_station['trackT0'] # already expected in us (or can just *1e-3 here if not)
         N=data_station.shape[0]
@@ -71,17 +94,33 @@ def fit():
         print("Fit 𝝌2/DoF="+str(round(chi2_ndf,2)) )
 
         print("Plotting fit and data!")
-        #use pre-define module wiggle function from CU
-        # plt.tight_layout()
-        
         #make more automated things for "plot prettiness"
         data_type = re.findall('[A-Z][^A-Z]*', args.key) # should break into "Quality" and "Tracks"/"Vertices"
 
+         #use pre-define module wiggle function from CU
         fig,ax = cu.modulo_wiggle_5par_fit_plot(x, y, t_mod, max_x, min_x, N, par, par_e, chi2_ndf, bin_w,
-                                                key=data_type[0]+" "+data_type[1], legend_data="Run-1: "+args.label+" dataset S"+str(station) )
+                                                prec=3,
+                                                key=data_type[0]+" "+data_type[1], 
+                                                legend_data="Run-1: "+args.label+" dataset S"+str(station) 
+                                                )
         plt.legend(fontsize=11, loc='upper center', bbox_to_anchor=(0.5, 1.1) )
-        plt.savefig("../fig/wiggle_blind_S"+str(station)+"_"+args.label+".png", dpi=300)
+        plt.savefig("../fig/wiggle_S"+str(station)+"_"+args.label+".png", dpi=300)
+        
+        # Get residuals for next set of plots  
+        residuals[i_station] = cu.residuals(x, y, cu.blinded_wiggle_function, par)
+        times_binned[i_station] = x 
         print("Done for", station)
+    
+    return times_binned, residuals
+
+def residual_plots(times_binned, residuals):
+    for i_station, (x, residual) in enumerate(zip(times_binned, residuals)):
+        fig, ax = plt.subplots(figsize=(8, 5))
+        ax.plot(x, residuals, c='g', label="Run-1: "+args.label+" dataset S"+str(stations[i_station])+" Data-fit")
+        ax.set_ylabel(r"Fit residuals (counts, $N$)", fontsize=font_size);
+        ax.set_xlabel(r"Time [$\mathrm{\mu}$s]", fontsize=font_size)
+        ax.legend(fontsize=font_size)
+        plt.savefig("../fig/res_S"+str(stations[i_station])+"_"+args.label+".png", dpi=300)
 
 if __name__ == "__main__":
     main()
