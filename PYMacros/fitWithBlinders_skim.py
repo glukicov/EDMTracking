@@ -4,23 +4,17 @@
 
 #Blinding lib imported in CommonUtils:
 import sys, re, subprocess
-sys.path.append('../CommonUtils/') # https://github.com/glukicov/EDMTracking/blob/master/CommonUtils/CommonUtils.py
-import CommonUtils as cu
 import argparse
-from scipy import stats, optimize
+import pandas as pd
 import numpy as np
 np.set_printoptions(precision=3) # 3 sig.fig 
+sys.path.append('../CommonUtils/') # https://github.com/glukicov/EDMTracking/blob/master/CommonUtils/CommonUtils.py
+import CommonUtils as cu
+from scipy import stats, optimize, fftpack
 import matplotlib as mpl
 mpl.use('Agg') # MPL in batch mode
+font_size=14
 import matplotlib.pyplot as plt
-import pandas as pd
-
-# constants 
-stations=(12, 18)
-
-#global storage 
-residuals=[[],[]] 
-times_binned=[[],[]] 
 
 #Input fitting parameters 
 arg_parser = argparse.ArgumentParser()
@@ -30,6 +24,26 @@ arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/MMA/60h.h5") #in
 arg_parser.add_argument("--key", type=str, default="QualityTracks") # or QualityVertices
 arg_parser.add_argument("--label", type=str, default="60h") # or QualityVertices
 args=arg_parser.parse_args()
+
+### Constants 
+stations=(12, 18)
+
+#define modulation and limits (more can be made as arguments) 
+bin_w = 150*1e-3 # 150 ns 
+min_x = 30 # us
+max_x = args.max # us 
+t_mod=100 # us; fold plot every N us 
+
+# expected frequencies in FFTs 
+cbo_f = 0.37 # MHz n=0.108 (60h)
+gm2_f = 0.23 # MHz 
+cbo_M_gm2_f = cbo_f - gm2_f 
+cbo_P_gm2_f = cbo_f + gm2_f
+vm_f = 10*gm2_f  #  (60h) analyical: f_vm = f_c - 2*f_ybo
+
+### Global storage 
+residuals=[[],[]] 
+times_binned=[[],[]] 
 
     
 def main():
@@ -41,9 +55,10 @@ def main():
     residual_plots(times_binned, residuals)
 
     #FFTs
+    fft(residuals)
 
     #finally add plots into single canvas
-
+    canvas()
 
 def fit():
     '''
@@ -72,12 +87,6 @@ def fit():
         N=data_station.shape[0]
         print("Entries: ", N, " in", station)
         
-        #define modulation and limits (more can be made as arguments) 
-        bin_w = 150*1e-3 # 150 ns 
-        min_x = 30 # us
-        max_x = args.max # us 
-        t_mod=100 # us; fold plot every N us 
-
         print("digitising data (binning)...")
         # just call x,y = frequencies, bin_centres for plotting and fitting 
         x, y = cu.get_freq_bin_c_from_data( t, bin_w, (min_x, max_x) )
@@ -97,13 +106,13 @@ def fit():
         #make more automated things for "plot prettiness"
         data_type = re.findall('[A-Z][^A-Z]*', args.key) # should break into "Quality" and "Tracks"/"Vertices"
 
-         #use pre-define module wiggle function from CU
+        #use pre-define module wiggle function from CommonUtils
         fig,ax = cu.modulo_wiggle_5par_fit_plot(x, y, t_mod, max_x, min_x, N, par, par_e, chi2_ndf, bin_w,
                                                 prec=3,
                                                 key=data_type[0]+" "+data_type[1], 
                                                 legend_data="Run-1: "+args.label+" dataset S"+str(station) 
                                                 )
-        plt.legend(fontsize=11, loc='upper center', bbox_to_anchor=(0.5, 1.1) )
+        plt.legend(fontsize=font_size-3, loc='upper center', bbox_to_anchor=(0.5, 1.1) )
         plt.savefig("../fig/wiggle_S"+str(station)+"_"+args.label+".png", dpi=300)
         
         # Get residuals for next set of plots  
@@ -114,13 +123,62 @@ def fit():
     return times_binned, residuals
 
 def residual_plots(times_binned, residuals):
+    '''
+    loop over the two lists to fill residual plots
+    '''
     for i_station, (x, residual) in enumerate(zip(times_binned, residuals)):
         fig, ax = plt.subplots(figsize=(8, 5))
-        ax.plot(x, residual, c='g', label="Run-1: "+args.label+" dataset S"+str(stations[i_station])+" Data-fit")
+        ax.plot(x, residual, c='g', label="Run-1: "+args.label+" dataset S"+str(stations[i_station])+" data-fit")
         ax.set_ylabel(r"Fit residuals (counts, $N$)", fontsize=font_size);
         ax.set_xlabel(r"Time [$\mathrm{\mu}$s]", fontsize=font_size)
         ax.legend(fontsize=font_size)
         plt.savefig("../fig/res_S"+str(stations[i_station])+"_"+args.label+".png", dpi=300)
+
+
+def fft(residuals):
+    '''
+    perform the FFT analysis on the fit residuals 
+    '''
+
+    for i_station, residual in enumerate(residuals):
+
+        fig, ax = plt.subplots(figsize=(8, 5))
+        
+        # detrend data (trying to remove the peak at 0 Hza)
+        res_detrend = np.subtract(residual, np.average(residuals))
+    
+        #Normalise
+        norm = args.p0[0]/3 # arbitary 
+        res_detrend=res_detrend/norm
+    
+        res_fft = fftpack.fft(res_detrend) # return DFT on the fit resiudals
+        res_fft = np.absolute(res_fft) # magnitude of the complex number 
+        freqs = fftpack.fftfreq(len(res_detrend), d=bin_w)  # DFT sample frequencies (d=sample spacing, ~150 ns)
+    
+        ax.step(freqs, res_fft, label="Run-1: "+args.label+" dataset S"+str(stations[i_station])+": FFT", lw=2, c="g")
+    
+        #set plot limits
+        x_min, x_max, y_min, y_max = 0.01, np.max(freqs), 0,  1.2
+        ax.set_xlim(x_min, x_max)
+        ax.set_ylim(y_min, y_max)
+    
+        #plot expected frequencies
+        ax.plot( (cbo_f, cbo_f), (y_min, y_max), c="r", ls="--", label="CBO")
+        ax.plot( (gm2_f, gm2_f), (y_min, y_max), c="b", ls="-", label=r"$(g-2)$")
+        ax.plot( (cbo_M_gm2_f, cbo_M_gm2_f), (y_min, y_max), c="k", ls="-.", label=r"CBO - $(g-2)$")
+        ax.plot( (cbo_P_gm2_f, cbo_P_gm2_f), (y_min, y_max), c="c", ls=":", label=r"CBO + $(g-2)$")
+        ax.plot( (vm_f, vm_f), (y_min, y_max), c="m", ls=(0, (1, 10)), label="VW")
+    
+        ax.legend(fontsize=12, loc="best")
+        ax.set_ylabel("FFT magnitude (normalised)", fontsize=font_size)
+        ax.set_xlabel("Frequency [MHz]", fontsize=font_size)
+        plt.savefig("../fig/fft_S"+str(stations[i_station])+"_"+args.label+".png", dpi=300)
+
+
+def canvas():
+    subprocess.call(["convert" , "+append", "../fig/wiggle_S"+str(stations[0])+"_"+args.label+".png" , "../fig/wiggle_S"+str(stations[1])+"_"+args.label+".png", "../fig/wiggle_"+args.label+".png"])
+    subprocess.call(["convert" , "+append", "../fig/fft_S"+str(stations[0])+"_"+args.label+".png" , "../fig/fft_S"+str(stations[1])+"_"+args.label+".png", "../fig/fft_"+args.label+".png"])
+    subprocess.call(["convert" , "-append", "../fig/wiggle_"+args.label+".png" , "../fig/fft_"+args.label+".png", "../fig/"+args.label+".png"])
 
 if __name__ == "__main__":
     main()
