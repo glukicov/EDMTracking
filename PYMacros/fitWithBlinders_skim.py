@@ -116,7 +116,7 @@ def fit():
 def residual_plots(times_binned, residuals):
     for i_station, (x, residual) in enumerate(zip(times_binned, residuals)):
         fig, ax = plt.subplots(figsize=(8, 5))
-        ax.plot(x, residuals, c='g', label="Run-1: "+args.label+" dataset S"+str(stations[i_station])+" Data-fit")
+        ax.plot(x, residual, c='g', label="Run-1: "+args.label+" dataset S"+str(stations[i_station])+" Data-fit")
         ax.set_ylabel(r"Fit residuals (counts, $N$)", fontsize=font_size);
         ax.set_xlabel(r"Time [$\mathrm{\mu}$s]", fontsize=font_size)
         ax.legend(fontsize=font_size)
