@@ -118,7 +118,7 @@ def plotScatter(x, y, font_size=14, input_color="green", figsize=(12,5), label=N
 
     return fig, ax
 
-def modulo_wiggle_5par_fit_plot(x, y, t_mod, t_max, t_min, N, par, par_e, chi2_ndf, binW,
+def modulo_wiggle_fit_plot(x, y, t_mod, t_max, t_min, N, par, par_e, chi2_ndf, binW,
                                 prec=3, # set custom precision 
                                 data_bool=True,
                                 legend_fit=r'Fit: $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]$',
