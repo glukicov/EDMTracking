@@ -1,6 +1,9 @@
 # Author: Gleb Lukicov (21 Feb 2020)
-# Perform a 5-parameter blinded fit 
+# Perform a 5 or 9-parameter blinded fit 
 # on skimmed data in HDF5 format (from skimTrees.py module)
+
+# For Run-1 data DS names, labels, tune and expected FFTs are defined for the four DSs (e.g. 60h.h5 == 60h)
+# For Run-2 or unexpected fileName.h5 this needs to be extended... 
 
 #Blinding lib imported in CommonUtils:
 import sys, re, subprocess
@@ -18,29 +21,50 @@ import matplotlib.pyplot as plt
 
 #Input fitting parameters 
 arg_parser = argparse.ArgumentParser()
-arg_parser.add_argument("--p0", nargs='+', type=float, default=[85263, 64.0, 0.33, 1.0, 2.0]) #fit parameters (initial guess)
-arg_parser.add_argument("--max", type=float, default=400.0) #max fit time 
-arg_parser.add_argument("--min", type=float, default=30.0) #max fit time 
 arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/MMA/60h.h5") #input data 
 arg_parser.add_argument("--key", type=str, default="QualityTracks") # or QualityVertices
-arg_parser.add_argument("--label", type=str, default="60h") # or QualityVertices
+arg_parser.add_argument("--min", type=float, default=30.0) #min fit starts time 
+arg_parser.add_argument("--max", type=float, default=500.0) #max fit start time 
+arg_parser.add_argument("--cbo", action='store_true', default=False) # include extra 4 CBO terms if True in the fitting
+arg_parser.add_argument("--scan", action='store_true', default=False) # if run externally for iterative scans - dump 𝝌2 and fitted pars to a file for summary plots 
 args=arg_parser.parse_args()
 
 ### Constants 
 stations=(12, 18)
+expected_DSs = ("60h", "9D", "HK", "EG")
+f_a = 0.23 # MHz "g-2" frequency
+f_c = 6.71 # MHz cyclotron frequency
+
+### Get ds_name from filename 
+ds_name=args.hdf.replace(".","/").split("/")[-2] # if all special chars are "/" the DS name is just after extension
+print("Detected DS name:", ds_name, "from the input file!")
+if(not ds_name in expected_DSs):
+    print("Unexpected input hdf name: if using Run-1 data, rename your file to DS.h5 (e.g. 60h.h5)")
+    print("Otherwise, modify functionality of this programme...exiting...")
+    sys.exit()
+
+# Now that we know what DS we have, we can 
+# set tune and calculate expected FFTs and
+print("\nSetting tune parameters for ", ds_name, "DS\n")
+if (ds_name=="60h" or ds_name=="EG"): n_tune = 0.108
+if (ds_name=="9D" or ds_name=="HK"): n_tune = 0.120
+f_cbo = f_c * (1 - np.sqrt(1-n_tune) )
+f_vw = f_c * (1 - 2 *np.sqrt(n_tune) )
+f_cbo_M_a = f_cbo - f_a 
+f_cbo_P_a = f_cbo + f_a
+
+### (2) Deal with weather we are doing 5 or 9 parameter fit 
+p0=[1e5, 64.0, 0.33, 1.0, 2.0]
+
+# for CBO pars see Joe's DocDB TODO 
+if (args.cbo): p0.append(1.0, 1.0, 1.0, 1.0)
+
 
 #define modulation and limits (more can be made as arguments) 
 bin_w = 150*1e-3 # 150 ns 
 min_x = args.min # us
 max_x = args.max # us 
 t_mod=100 # us; fold plot every N us 
-
-# expected frequencies in FFTs 
-cbo_f = 0.37 # MHz n=0.108 (60h)
-gm2_f = 0.23 # MHz 
-cbo_M_gm2_f = cbo_f - gm2_f 
-cbo_P_gm2_f = cbo_f + gm2_f
-vm_f = 10*gm2_f  #  (60h) analyical: f_vm = f_c - 2*f_ybo
 
 ### Global storage 
 residuals=[[],[]] 
@@ -94,7 +118,7 @@ def fit(scan=False):
 
         print("Fitting...")
         # Levenberg-Marquardt algorithm as implemented in MINPACK
-        par, pcov = optimize.curve_fit(f=cu.blinded_wiggle_function, xdata=x, ydata=y, sigma=y_err, p0=args.p0, absolute_sigma=False, method='lm')
+        par, pcov = optimize.curve_fit(f=cu.blinded_wiggle_function, xdata=x, ydata=y, sigma=y_err, p0=p0, absolute_sigma=False, method='lm')
         par_e = np.sqrt(np.diag(pcov))
         print("Pars  :", np.array(par))
         print("Pars e:",np.array(par_e))
@@ -109,10 +133,10 @@ def fit(scan=False):
         fig,ax = cu.modulo_wiggle_fit_plot(x, y, t_mod, max_x, min_x, N, par, par_e, chi2_ndf, bin_w,
                                                 prec=3,
                                                 key=data_type[0]+" "+data_type[1], 
-                                                legend_data="Run-1: "+args.label+" dataset S"+str(station) 
+                                                legend_data="Run-1: "+ds_name+" dataset S"+str(station) 
                                                 )
         plt.legend(fontsize=font_size-3, loc='upper center', bbox_to_anchor=(0.5, 1.1) )
-        plt.savefig("../fig/wiggle_S"+str(station)+"_"+args.label+".png", dpi=300)
+        plt.savefig("../fig/wiggle_S"+str(station)+"_"+ds_name+".png", dpi=300)
         
         # Get residuals for next set of plots  
         residuals[i_station] = cu.residuals(x, y, cu.blinded_wiggle_function, par)
@@ -122,7 +146,7 @@ def fit(scan=False):
         # dump the parameters to a unique file for summary plots 
         if(scan==True):
             par_dump=np.array(chi2_ndf, par) 
-            file_label=args.label+"_S"+str(station)+"_"+str(args.min)+"_"+str(args.max)
+            file_label=ds_name+"_S"+str(station)+"_"+str(args.min)+"_"+str(args.max)
             np.save("../DATA/misc/scans/data_"+file_label+".npy", par_dump)
             plt.savefig("../DATA/misc/scans/wiggle_"+file_label+".png", dpi=300) 
     
@@ -134,11 +158,11 @@ def residual_plots(times_binned, residuals):
     '''
     for i_station, (x, residual) in enumerate(zip(times_binned, residuals)):
         fig, ax = plt.subplots(figsize=(8, 5))
-        ax.plot(x, residual, c='g', label="Run-1: "+args.label+" dataset S"+str(stations[i_station])+" data-fit")
+        ax.plot(x, residual, c='g', label="Run-1: "+ds_name+" dataset S"+str(stations[i_station])+" data-fit")
         ax.set_ylabel(r"Fit residuals (counts, $N$)", fontsize=font_size);
         ax.set_xlabel(r"Time [$\mathrm{\mu}$s]", fontsize=font_size)
         ax.legend(fontsize=font_size)
-        plt.savefig("../fig/res_S"+str(stations[i_station])+"_"+args.label+".png", dpi=300)
+        plt.savefig("../fig/res_S"+str(stations[i_station])+"_"+ds_name+".png", dpi=300)
 
 
 def fft(residuals, scan=False):
@@ -182,27 +206,27 @@ def fft(residuals, scan=False):
         # arbitrary: scale by max value in range of largest non-zero peak
         norm = 1./max(res_fft[index:-1])
         res_fft=res_fft*norm
-        ax.plot(freq, res_fft, label="Run-1: "+args.label+" dataset S"+str(stations[i_station])+": FFT", lw=2, c="g")
+        ax.plot(freq, res_fft, label="Run-1: "+ds_name+" dataset S"+str(stations[i_station])+": FFT", lw=2, c="g")
        
         #plot expected frequencies
-        ax.plot( (cbo_f, cbo_f), (y_min, y_max), c="r", ls="--", label="CBO")
-        ax.plot( (gm2_f, gm2_f), (y_min, y_max), c="b", ls="-", label=r"$(g-2)$")
-        ax.plot( (cbo_M_gm2_f, cbo_M_gm2_f), (y_min, y_max), c="k", ls="-.", label=r"CBO - $(g-2)$")
-        ax.plot( (cbo_P_gm2_f, cbo_P_gm2_f), (y_min, y_max), c="c", ls=":", label=r"CBO + $(g-2)$")
-        ax.plot( (vm_f, vm_f), (y_min, y_max), c="m", ls=(0, (1, 10)), label="VW")
+        ax.plot( (f_cbo, f_cbo), (y_min, y_max), c="r", ls="--", label="CBO")
+        ax.plot( (f_a, f_a), (y_min, y_max), c="b", ls="-", label=r"$(g-2)$")
+        ax.plot( (f_cbo_M_a, f_cbo_M_a), (y_min, y_max), c="k", ls="-.", label=r"CBO - $(g-2)$")
+        ax.plot( (f_cbo_P_a, f_cbo_P_a), (y_min, y_max), c="c", ls=":", label=r"CBO + $(g-2)$")
+        ax.plot( (f_vw, f_vw), (y_min, y_max), c="m", ls=(0, (1, 10)), label="VW")
         
         # prettify and save plot 
         ax.legend(fontsize=font_size, loc="best")
         ax.set_ylabel("FFT magnitude (normalised)", fontsize=font_size)
         ax.set_xlabel("Frequency [MHz]", fontsize=font_size)
-        plt.savefig("../fig/fft_S"+str(stations[i_station])+"_"+args.label+".png", dpi=300)
+        plt.savefig("../fig/fft_S"+str(stations[i_station])+"_"+ds_name+".png", dpi=300)
 
 
 def canvas():
-    subprocess.call(["convert" , "+append", "../fig/wiggle_S"+str(stations[0])+"_"+args.label+".png" , "../fig/wiggle_S"+str(stations[1])+"_"+args.label+".png", "../fig/wiggle_"+args.label+".png"])
-    subprocess.call(["convert" , "+append", "../fig/fft_S"+str(stations[0])+"_"+args.label+".png" , "../fig/fft_S"+str(stations[1])+"_"+args.label+".png", "../fig/fft_"+args.label+".png"])
-    subprocess.call(["convert" , "-append", "../fig/wiggle_"+args.label+".png" , "../fig/fft_"+args.label+".png", "../fig/"+args.label+".png"])
-    print("Final plot: ", "../fig/"+args.label+".png")
+    subprocess.call(["convert" , "+append", "../fig/wiggle_S"+str(stations[0])+"_"+ds_name+".png" , "../fig/wiggle_S"+str(stations[1])+"_"+ds_name+".png", "../fig/wiggle_"+ds_name+".png"])
+    subprocess.call(["convert" , "+append", "../fig/fft_S"+str(stations[0])+"_"+ds_name+".png" , "../fig/fft_S"+str(stations[1])+"_"+ds_name+".png", "../fig/fft_"+ds_name+".png"])
+    subprocess.call(["convert" , "-append", "../fig/wiggle_"+ds_name+".png" , "../fig/fft_"+ds_name+".png", "../fig/"+ds_name+".png"])
+    print("Final plot: ", "../fig/"+ds_name+".png")
 
 if __name__ == "__main__":
     main()
