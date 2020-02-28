@@ -120,6 +120,7 @@ def plotScatter(x, y, font_size=14, input_color="green", figsize=(12,5), label=N
 
 def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, t_mod, t_max, t_min, binW, N,
                                 prec=3, # set custom precision 
+                                show_cbo_terms=False, 
                                 data_bool=True,
                                 legend_fit=r'Fit: $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]$',
                                 legend_data="Run-1 tracker data",
@@ -161,13 +162,18 @@ def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, t_mod, t_max, t_min
 
     #Put legend and pars values 
     N_str=sci_notation(N)
-    textL(ax, 0.80, 0.80, label_data+ r"$p$"+" > 1.8 GeV \n"+str(t_min)+r" $\rm{\mu}$s < t < "+str(t_max)+r" $\rm{\mu}$s"+"\n N="+N_str, font_size=font_size-2,  weight="normal")
+    textL(ax, 0.82, 0.78, label_data+ r"$p$"+" > 1.8 GeV \n"+str(t_min)+r" $\rm{\mu}$s < t < "+str(t_max)+r" $\rm{\mu}$s"+"\n N="+N_str, font_size=font_size-2,  weight="normal")
     # deal with fitted parameters (to display nicely)
     parNames=[r"$N$", r"$\tau$", r"$A$", r"$R$", r"$\phi$"]
     units=["", r"$\rm{\mu}$s", "", "ppm",  "rad"]
     legned_par=r"$\frac{\chi^2}{\rm{DoF}}$="+str(round(chi2_ndf,1))+"\n"
     legned_par=legend_par(legned_par,  parNames, par, par_e, units, prec=prec)
     textL(ax, 0.17, 0.73, "Fit: "+legned_par, font_size=font_size-2, color="red", weight="normal")
+    if(show_cbo_terms):
+        parNames=[r"$\rm{A_{CBO}}$", r"$\omega_{\rm{CBO}}$", r"$\phi_{\rm{CBO}}$", r"$\rm{T_{CBO}}$"]
+        units=[" ", r"$\rm{\mu}$s", "rad", r"$\rm{\mu}$s"]
+        legned_cbo=legend_par("",  parNames, par[5:], par_e[5:], units, prec=prec)
+        textL(ax, 0.48, 0.75, r"CBO, $C(t)$"+":\n "+legned_cbo, font_size=font_size-3, color="red", weight="normal")
 
     #axis labels and ticks
     plt.ylabel(r"Counts ($N$) per "+str(int(binW*1e3))+" ns", fontsize=font_size)

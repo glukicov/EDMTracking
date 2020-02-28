@@ -57,13 +57,18 @@ f_cbo_P_a = f_cbo + f_a
 p0=[1e5, 64.0, 0.33, 1.0, 2.0]
 func = cu.blinded_wiggle_function # standard blinded function from CommonUtils
 func_label="5par"
+legend_fit=r'Fit: $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]$'
+show_cbo_terms=False
 
 # for CBO pars see Joe's DocDB:12933 
 if (args.cbo): 
     # p0.extend([1.0, 1.0, 1.0, 1.0])
-    p0.extend([12.0, 3.0, 3.0, 2.0])
+    # p0.extend([-0.05, 2.3, 2.0, 200.0]) #good
+    p0.extend([-0.05, 2.3, 2.0, 100.0])
     func=cu.blinded_wiggle_function_cbo
     func_label="9par"
+    legend_fit=legend_fit+r"$\cdot C(t)$"
+    show_cbo_terms=True
 
 #define modulation and limits (more can be made as arguments) 
 bin_w = 150*1e-3 # 150 ns 
@@ -127,6 +132,7 @@ def fit(scan=False):
 
         print("Fitting...")
         # Levenberg-Marquardt algorithm as implemented in MINPACK
+        # par, pcov = optimize.curve_fit(f=func, xdata=x, ydata=y, sigma=y_err, p0=p0, absolute_sigma=False, method='lm')
         par, pcov = optimize.curve_fit(f=func, xdata=x, ydata=y, sigma=y_err, p0=p0, absolute_sigma=False, method='lm')
         par_e = np.sqrt(np.diag(pcov))
         print("Pars  :", np.array(par))
@@ -140,6 +146,8 @@ def fit(scan=False):
 
         #use pre-define module wiggle function from CommonUtils
         fig,ax = cu.modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, t_mod, max_x, min_x, bin_w,  N,
+                                                show_cbo_terms=show_cbo_terms, 
+                                                legend_fit=legend_fit,
                                                 prec=3,
                                                 key=data_type[0]+" "+data_type[1], 
                                                 legend_data="Run-1: "+ds_name+" dataset S"+str(station) 
@@ -205,7 +213,7 @@ def fft(residuals, scan=False):
         print("Nyquist freq:", round(nyquist_freq,3), "MHz\n")
 
         # set plot limits
-        x_min, x_max, y_min, y_max = 0.02, nyquist_freq, 0,  1.2
+        x_min, x_max, y_min, y_max = 0.03, nyquist_freq, 0,  1.2
         ax.set_xlim(x_min, x_max)
         ax.set_ylim(y_min, y_max)
     
@@ -235,7 +243,7 @@ def canvas():
     subprocess.call(["convert" , "+append", "../fig/wiggle/wiggle"+file_label[0]+".png" , "../fig/wiggle/wiggle"+file_label[1]+".png", "../fig/wiggle/wiggle"+global_label+".png"])
     subprocess.call(["convert" , "+append", "../fig/fft/fft"+file_label[0]+".png" , "../fig/fft/fft"+file_label[1]+".png", "../fig/fft/fft"+global_label+".png"])
     subprocess.call(["convert" , "-append", "../fig/wiggle/wiggle"+global_label+".png" , "../fig/fft/fft"+global_label+".png", "../fig/"+global_label+".png"])
-    print("Final plot: ", "../fig/"+ds_name+".png")
+    print("Final plot: ", "../fig/"+global_label+".png")
 
 if __name__ == "__main__":
     main()
