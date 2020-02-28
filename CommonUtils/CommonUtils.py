@@ -118,7 +118,7 @@ def plotScatter(x, y, font_size=14, input_color="green", figsize=(12,5), label=N
 
     return fig, ax
 
-def modulo_wiggle_fit_plot(x, y, t_mod, t_max, t_min, N, par, par_e, chi2_ndf, binW,
+def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, t_mod, t_max, t_min, binW, N,
                                 prec=3, # set custom precision 
                                 data_bool=True,
                                 legend_fit=r'Fit: $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]$',
@@ -155,7 +155,7 @@ def modulo_wiggle_fit_plot(x, y, t_mod, t_max, t_min, N, par, par_e, chi2_ndf, b
         #plot data as step-hist. and the fit function
         #plot for that section and label only the 1st
         ax.step(x=x[mod_filter]-left, y=y[mod_filter], where="post", color="g", label=legend_data if i_section==0 else '')
-        ax.plot(x[mod_filter]-left, blinded_wiggle_function( x[mod_filter], *par ) , color="red", label=legend_fit if i_section==0 else '', linestyle=":")
+        ax.plot(x[mod_filter]-left, func( x[mod_filter], *par ) , color="red", label=legend_fit if i_section==0 else '', linestyle=":")
         left=right # get the next fold 
         i_section += 1
 
@@ -216,16 +216,56 @@ def chi2_ndf(x, y, y_err, func, pars):
 
 
 def blinded_wiggle_function(x, *pars):
+    '''
+    ### Define blinded fit function $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]$,
+    where  
+    [0] $N$ is the overall normalisation  
+    [1] $\tau$ is the boosted muon lifetime $\tau = \gamma \cdot \tau_0 = 29.3\cdot2.2=66.44 \, \mu$s  
+    [2] $A$ is the asymmetry  
+    [3] $\omega_a$ is the anomalous precision frequency (blinded)  
+    [4] $\phi$ is the initial phase  
+    '''
+    time  = x
     norm  = pars[0]
     life  = pars[1]
     asym  = pars[2]
     R     = pars[3]
     phi   = pars[4]
     
-    time  = x
     omega = getBlinded.paramToFreq(R)
     
     return norm * np.exp(-time/life) * (1 + asym*np.cos(omega*time + phi))
+
+def blinded_wiggle_function_cbo(x, *pars):
+    '''
+    same as blinded_wiggle_function 
+    + 4 CBO terms: Courtesy of J. Price (DocDB:12933)
+    $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]\cdot{C(t)}$
+    where
+    $C(t) = 1.0 + e^{-t / \rm{T_{CBO}}}\rm{A_{CBO}} \cos(\rm{WV_{CBO}} \cdot t + \phi_{\rm{CBO}})$
+    '''
+    time  = x
+    norm  = pars[0]
+    life  = pars[1]
+    asym  = pars[2]
+    R     = pars[3]
+    omega = getBlinded.paramToFreq(R)
+    
+    #adjust phase sign 
+    # while (pars[4] < 0):par[4] += np.pi()*2.0 
+    # while (pars[4] > np.pi()*2.0): par[4] -= np.pi()*2.0 
+    phi   = pars[4]
+
+    #now add CBO pars
+    A_cbo = pars[5]
+    w_cbo = pars[6]
+    # while (pars[7] < 0):           par[7] += np.pi()*2.0 
+    # while (pars[7] > np.pi()*2.0): par[7] -= np.pi()*2.0 
+    phi_cbo = pars[7]
+    t_cbo = pars[8]
+    
+    C = 1.0 + (np.exp(-time / t_cbo) * A_cbo * np.cos(w_cbo * time+ phi_cbo))   
+    return norm * np.exp(-time/life) * (1 + asym*np.cos(omega*time + phi)) * C
 
 
 def thetaY_unblinded_phase(t, *pars, phi=6.240):    

@@ -21,12 +21,12 @@ import matplotlib.pyplot as plt
 
 #Input fitting parameters 
 arg_parser = argparse.ArgumentParser()
-arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/MMA/60h.h5") #input data 
-arg_parser.add_argument("--key", type=str, default="QualityTracks") # or QualityVertices
-arg_parser.add_argument("--min", type=float, default=30.0) #min fit starts time 
-arg_parser.add_argument("--max", type=float, default=500.0) #max fit start time 
-arg_parser.add_argument("--cbo", action='store_true', default=False) # include extra 4 CBO terms if True in the fitting
-arg_parser.add_argument("--scan", action='store_true', default=False) # if run externally for iterative scans - dump 𝝌2 and fitted pars to a file for summary plots 
+arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/MMA/60h.h5", help="input data")
+arg_parser.add_argument("--key", type=str, default="QualityTracks", help="or QualityVertices")
+arg_parser.add_argument("--min", type=float, default=30.0, help="min fit starts time") 
+arg_parser.add_argument("--max", type=float, default=500.0, help="max fit start time") 
+arg_parser.add_argument("--cbo", action='store_true', default=False, help="include extra 4 CBO terms if True in the fitting")
+arg_parser.add_argument("--scan", action='store_true', default=False, help="if run externally for iterative scans - dump 𝝌2 and fitted pars to a file for summary plots") 
 args=arg_parser.parse_args()
 
 ### Constants 
@@ -55,10 +55,15 @@ f_cbo_P_a = f_cbo + f_a
 
 ### (2) Deal with weather we are doing 5 or 9 parameter fit 
 p0=[1e5, 64.0, 0.33, 1.0, 2.0]
+func = cu.blinded_wiggle_function # standard blinded function from CommonUtils
+func_label="5par"
 
-# for CBO pars see Joe's DocDB TODO 
-if (args.cbo): p0.append(1.0, 1.0, 1.0, 1.0)
-
+# for CBO pars see Joe's DocDB:12933 
+if (args.cbo): 
+    # p0.extend([1.0, 1.0, 1.0, 1.0])
+    p0.extend([12.0, 3.0, 3.0, 2.0])
+    func=cu.blinded_wiggle_function_cbo
+    func_label="9par"
 
 #define modulation and limits (more can be made as arguments) 
 bin_w = 150*1e-3 # 150 ns 
@@ -69,6 +74,10 @@ t_mod=100 # us; fold plot every N us
 ### Global storage 
 residuals=[[],[]] 
 times_binned=[[],[]] 
+
+# form a string to distinguish files (this still a list[i_station])
+global_label=ds_name+"_"+func_label
+file_label=["_S"+str(s)+"_"+global_label for s in stations]
 
 def main():
 
@@ -118,11 +127,11 @@ def fit(scan=False):
 
         print("Fitting...")
         # Levenberg-Marquardt algorithm as implemented in MINPACK
-        par, pcov = optimize.curve_fit(f=cu.blinded_wiggle_function, xdata=x, ydata=y, sigma=y_err, p0=p0, absolute_sigma=False, method='lm')
+        par, pcov = optimize.curve_fit(f=func, xdata=x, ydata=y, sigma=y_err, p0=p0, absolute_sigma=False, method='lm')
         par_e = np.sqrt(np.diag(pcov))
         print("Pars  :", np.array(par))
         print("Pars e:",np.array(par_e))
-        chi2_ndf, chi2, ndf=cu.chi2_ndf(x, y, y_err, cu.blinded_wiggle_function, par)
+        chi2_ndf, chi2, ndf=cu.chi2_ndf(x, y, y_err, func, par)
         print("Fit 𝝌2/DoF="+str(round(chi2_ndf,1)) )
 
         print("Plotting fit and data!\n")
@@ -130,25 +139,25 @@ def fit(scan=False):
         data_type = re.findall('[A-Z][^A-Z]*', args.key) # should break into "Quality" and "Tracks"/"Vertices"
 
         #use pre-define module wiggle function from CommonUtils
-        fig,ax = cu.modulo_wiggle_fit_plot(x, y, t_mod, max_x, min_x, N, par, par_e, chi2_ndf, bin_w,
+        fig,ax = cu.modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, t_mod, max_x, min_x, bin_w,  N,
                                                 prec=3,
                                                 key=data_type[0]+" "+data_type[1], 
                                                 legend_data="Run-1: "+ds_name+" dataset S"+str(station) 
                                                 )
         plt.legend(fontsize=font_size-3, loc='upper center', bbox_to_anchor=(0.5, 1.1) )
-        plt.savefig("../fig/wiggle_S"+str(station)+"_"+ds_name+".png", dpi=300)
+        plt.savefig("../fig/wiggle/wiggle"+file_label[i_station]+".png", dpi=300)
         
         # Get residuals for next set of plots  
-        residuals[i_station] = cu.residuals(x, y, cu.blinded_wiggle_function, par)
+        residuals[i_station] = cu.residuals(x, y, func, par)
         times_binned[i_station] = x
 
         # if running externally, via a different module and passing scan==True as an argument
         # dump the parameters to a unique file for summary plots 
         if(scan==True):
             par_dump=np.array(chi2_ndf, par) 
-            file_label=ds_name+"_S"+str(station)+"_"+str(args.min)+"_"+str(args.max)
-            np.save("../DATA/misc/scans/data_"+file_label+".npy", par_dump)
-            plt.savefig("../DATA/misc/scans/wiggle_"+file_label+".png", dpi=300) 
+            scan_label="_"+str(args.min)+"_"+str(args.max)
+            np.save("../DATA/misc/scans/data"+file_label[i_station]+scan_label+".npy", par_dump)
+            plt.savefig("../DATA/misc/scans/wiggle"+file_label[i_station]+scan_label+".png", dpi=300) 
     
     return times_binned, residuals
 
@@ -162,7 +171,7 @@ def residual_plots(times_binned, residuals):
         ax.set_ylabel(r"Fit residuals (counts, $N$)", fontsize=font_size);
         ax.set_xlabel(r"Time [$\mathrm{\mu}$s]", fontsize=font_size)
         ax.legend(fontsize=font_size)
-        plt.savefig("../fig/res_S"+str(stations[i_station])+"_"+ds_name+".png", dpi=300)
+        plt.savefig("../fig/res/res"+file_label[i_station]+".png", dpi=300)
 
 
 def fft(residuals, scan=False):
@@ -175,7 +184,7 @@ def fft(residuals, scan=False):
         print("S"+str(stations[i_station]),":")
         fig, ax = plt.subplots(figsize=(8, 5))
         
-        # detrend data (trying to remove the peak at 0 Hza)
+        # de-trend data (trying to remove the peak at 0 Hz)
         res_detrend = np.subtract(residual, np.average(residuals))
         
         # Now to the FFT: 
@@ -193,7 +202,7 @@ def fft(residuals, scan=False):
         nyquist_freq = 0.5 * sample_rate
         print("bin width:", round(bin_w*1e3,3), " ns")
         print("sample rate:", round(sample_rate,3), "MHz")
-        print("Nyquist freq:", nyquist_freq, "MHz\n")
+        print("Nyquist freq:", round(nyquist_freq,3), "MHz\n")
 
         # set plot limits
         x_min, x_max, y_min, y_max = 0.02, nyquist_freq, 0,  1.2
@@ -206,7 +215,7 @@ def fft(residuals, scan=False):
         # arbitrary: scale by max value in range of largest non-zero peak
         norm = 1./max(res_fft[index:-1])
         res_fft=res_fft*norm
-        ax.plot(freq, res_fft, label="Run-1: "+ds_name+" dataset S"+str(stations[i_station])+": FFT", lw=2, c="g")
+        ax.plot(freq, res_fft, label="Run-1: "+ds_name+" dataset S"+str(stations[i_station])+r": FFT, $n$={0:.3f}".format(n_tune), lw=2, c="g")
        
         #plot expected frequencies
         ax.plot( (f_cbo, f_cbo), (y_min, y_max), c="r", ls="--", label="CBO")
@@ -219,13 +228,13 @@ def fft(residuals, scan=False):
         ax.legend(fontsize=font_size, loc="best")
         ax.set_ylabel("FFT magnitude (normalised)", fontsize=font_size)
         ax.set_xlabel("Frequency [MHz]", fontsize=font_size)
-        plt.savefig("../fig/fft_S"+str(stations[i_station])+"_"+ds_name+".png", dpi=300)
+        plt.savefig("../fig/fft/fft"+file_label[i_station]+".png", dpi=300)
 
 
 def canvas():
-    subprocess.call(["convert" , "+append", "../fig/wiggle_S"+str(stations[0])+"_"+ds_name+".png" , "../fig/wiggle_S"+str(stations[1])+"_"+ds_name+".png", "../fig/wiggle_"+ds_name+".png"])
-    subprocess.call(["convert" , "+append", "../fig/fft_S"+str(stations[0])+"_"+ds_name+".png" , "../fig/fft_S"+str(stations[1])+"_"+ds_name+".png", "../fig/fft_"+ds_name+".png"])
-    subprocess.call(["convert" , "-append", "../fig/wiggle_"+ds_name+".png" , "../fig/fft_"+ds_name+".png", "../fig/"+ds_name+".png"])
+    subprocess.call(["convert" , "+append", "../fig/wiggle/wiggle"+file_label[0]+".png" , "../fig/wiggle/wiggle"+file_label[1]+".png", "../fig/wiggle/wiggle"+global_label+".png"])
+    subprocess.call(["convert" , "+append", "../fig/fft/fft"+file_label[0]+".png" , "../fig/fft/fft"+file_label[1]+".png", "../fig/fft/fft"+global_label+".png"])
+    subprocess.call(["convert" , "-append", "../fig/wiggle/wiggle"+global_label+".png" , "../fig/fft/fft"+global_label+".png", "../fig/"+global_label+".png"])
     print("Final plot: ", "../fig/"+ds_name+".png")
 
 if __name__ == "__main__":
