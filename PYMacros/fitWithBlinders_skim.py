@@ -83,22 +83,23 @@ times_binned=[[],[]]
 # form a string to distinguish files (this still a list[i_station])
 global_label=ds_name+"_"+func_label
 file_label=["_S"+str(s)+"_"+global_label for s in stations]
+scan_label="_"+str(args.min)+"_"+str(args.max)
 
 def main():
 
     #open the hdf file and fit! 
-    times_binned, residuals=fit(scan=args.scan)
+    times_binned, residuals=fit()
 
     #now plot the (data - fit)
     residual_plots(times_binned, residuals)
 
     #FFTs
-    fft(residuals, scan=args.scan)
+    fft(residuals)
 
     #finally add plots into single canvas
     canvas()
 
-def fit(scan=False):
+def fit():
     '''
     Open HDF5, chose the station
     apply further time cuts
@@ -111,6 +112,7 @@ def fit(scan=False):
     print("Opening", args.key, "in", args.hdf, "...")
     data = pd.read_hdf(args.hdf, args.key)
     print("Found", data.shape[0], "entries\n")
+    print("Fitting from", args.min, "to", args.max,"[μs]\n")
     
     #define station cuts to loop over 
     s12_cut = (data['station'] == stations[0])
@@ -138,7 +140,7 @@ def fit(scan=False):
         print("Pars  :", np.array(par))
         print("Pars e:",np.array(par_e))
         chi2_ndf, chi2, ndf=cu.chi2_ndf(x, y, y_err, func, par)
-        print("Fit 𝝌2/DoF="+str(round(chi2_ndf,1)) )
+        print("Fit 𝝌2/DoF="+str(round(chi2_ndf,2)) )
 
         print("Plotting fit and data!\n")
         #make more automated things for "plot prettiness"
@@ -153,7 +155,7 @@ def fit(scan=False):
                                                 legend_data="Run-1: "+ds_name+" dataset S"+str(station) 
                                                 )
         plt.legend(fontsize=font_size-3, loc='upper center', bbox_to_anchor=(0.5, 1.1) )
-        plt.savefig("../fig/wiggle/wiggle"+file_label[i_station]+".png", dpi=300)
+        if(args.scan==False): plt.savefig("../fig/wiggle/wiggle"+file_label[i_station]+".png", dpi=300)
         
         # Get residuals for next set of plots  
         residuals[i_station] = cu.residuals(x, y, func, par)
@@ -161,11 +163,10 @@ def fit(scan=False):
 
         # if running externally, via a different module and passing scan==True as an argument
         # dump the parameters to a unique file for summary plots 
-        if(scan==True):
-            par_dump=np.array(chi2_ndf, par) 
-            scan_label="_"+str(args.min)+"_"+str(args.max)
+        if(args.scan==True):
+            par_dump=np.array([args.min, args.max, chi2_ndf, N, par, par_e]) 
             np.save("../DATA/misc/scans/data"+file_label[i_station]+scan_label+".npy", par_dump)
-            plt.savefig("../DATA/misc/scans/wiggle"+file_label[i_station]+scan_label+".png", dpi=300) 
+            plt.savefig("../fig/scans/wiggle"+file_label[i_station]+scan_label+".png", dpi=300) 
     
     return times_binned, residuals
 
@@ -179,10 +180,10 @@ def residual_plots(times_binned, residuals):
         ax.set_ylabel(r"Fit residuals (counts, $N$)", fontsize=font_size);
         ax.set_xlabel(r"Time [$\mathrm{\mu}$s]", fontsize=font_size)
         ax.legend(fontsize=font_size)
-        plt.savefig("../fig/res/res"+file_label[i_station]+".png", dpi=300)
+        if(args.scan==False): plt.savefig("../fig/res/res"+file_label[i_station]+".png", dpi=300)
+        if(args.scan==True):  plt.savefig("../fig/scans/res"+file_label[i_station]+scan_label+".png", dpi=300)
 
-
-def fft(residuals, scan=False):
+def fft(residuals):
     '''
     perform the FFT analysis on the fit residuals 
     '''
@@ -222,6 +223,7 @@ def fft(residuals, scan=False):
         index=next(i for i,v in enumerate(freq) if v > x_min) 
         # arbitrary: scale by max value in range of largest non-zero peak
         norm = 1./max(res_fft[index:-1])
+        if(args.cbo): norm=norm*0.25 # scale by 4 if cbo is used 
         res_fft=res_fft*norm
         ax.plot(freq, res_fft, label="Run-1: "+ds_name+" dataset S"+str(stations[i_station])+r": FFT, $n$={0:.3f}".format(n_tune), lw=2, c="g")
        
@@ -236,14 +238,16 @@ def fft(residuals, scan=False):
         ax.legend(fontsize=font_size, loc="best")
         ax.set_ylabel("FFT magnitude (normalised)", fontsize=font_size)
         ax.set_xlabel("Frequency [MHz]", fontsize=font_size)
-        plt.savefig("../fig/fft/fft"+file_label[i_station]+".png", dpi=300)
+        if(args.scan==False): plt.savefig("../fig/fft/fft"+file_label[i_station]+".png", dpi=300)
+        if(args.scan==True):  plt.savefig("../fig/scans/fft"+file_label[i_station]+scan_label+".png", dpi=300)
 
 
 def canvas():
-    subprocess.call(["convert" , "+append", "../fig/wiggle/wiggle"+file_label[0]+".png" , "../fig/wiggle/wiggle"+file_label[1]+".png", "../fig/wiggle/wiggle"+global_label+".png"])
-    subprocess.call(["convert" , "+append", "../fig/fft/fft"+file_label[0]+".png" , "../fig/fft/fft"+file_label[1]+".png", "../fig/fft/fft"+global_label+".png"])
-    subprocess.call(["convert" , "-append", "../fig/wiggle/wiggle"+global_label+".png" , "../fig/fft/fft"+global_label+".png", "../fig/"+global_label+".png"])
-    print("Final plot: ", "../fig/"+global_label+".png")
+    if (args.scan==False):
+        subprocess.call(["convert" , "+append", "../fig/wiggle/wiggle"+file_label[0]+".png" , "../fig/wiggle/wiggle"+file_label[1]+".png", "../fig/wiggle/wiggle"+global_label+".png"])
+        subprocess.call(["convert" , "+append", "../fig/fft/fft"+file_label[0]+".png" , "../fig/fft/fft"+file_label[1]+".png", "../fig/fft/fft"+global_label+".png"])
+        subprocess.call(["convert" , "-append", "../fig/wiggle/wiggle"+global_label+".png" , "../fig/fft/fft"+global_label+".png", "../fig/"+global_label+".png"])
+        print("Final plot: ", "../fig/"+global_label+".png")
 
 if __name__ == "__main__":
     main()
