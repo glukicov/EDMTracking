@@ -170,7 +170,7 @@ def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, t_mod, t_max, t_min
     legned_par=legend_par(legned_par,  parNames, par, par_e, units, prec=prec)
     textL(ax, 0.17, 0.73, "Fit: "+legned_par, font_size=font_size-2, color="red", weight="normal")
     if(show_cbo_terms):
-        parNames=[r"$\rm{A_{CBO}}$", r"$\omega_{\rm{CBO}}$", r"$\phi_{\rm{CBO}}$", r"$\rm{T_{CBO}}$"]
+        parNames=[r"$\rm{A_{CBO}}$", r"$\omega_{\rm{CBO}}$", r"$\phi_{\rm{CBO}}$", r"$\rm{\tau_{CBO}}$"]
         units=[" ", r"$\rm{\mu}$s", "rad", r"$\rm{\mu}$s"]
         legned_cbo=legend_par("",  parNames, par[5:], par_e[5:], units, prec=prec)
         textL(ax, 0.48, 0.75, r"CBO, $C(t)$"+":\n "+legned_cbo, font_size=font_size-3, color="red", weight="normal")

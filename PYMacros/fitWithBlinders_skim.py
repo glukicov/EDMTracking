@@ -34,6 +34,8 @@ stations=(12, 18)
 expected_DSs = ("60h", "9D", "HK", "EG")
 f_a = 0.23 # MHz "g-2" frequency
 f_c = 6.71 # MHz cyclotron frequency
+par_names= ["N", "tau", "A", "R", "phi"] 
+
 
 ### Get ds_name from filename 
 ds_name=args.hdf.replace(".","/").split("/")[-2] # if all special chars are "/" the DS name is just after extension
@@ -65,6 +67,7 @@ if (args.cbo):
     # p0.extend([1.0, 1.0, 1.0, 1.0])
     # p0.extend([-0.05, 2.3, 2.0, 200.0]) #good
     p0.extend([-0.05, 2.3, 2.0, 100.0])
+    par_names.extend(["A_cbo", "w_cbo", "phi_cbo", "tau_cbo"])
     func=cu.blinded_wiggle_function_cbo
     func_label="9par"
     legend_fit=legend_fit+r"$\cdot C(t)$"
@@ -84,6 +87,7 @@ times_binned=[[],[]]
 global_label=ds_name+"_"+func_label
 file_label=["_S"+str(s)+"_"+global_label for s in stations]
 scan_label="_"+str(args.min)+"_"+str(args.max)
+par_e_names=[str(par)+"_e" for par in par_names]
 
 def main():
 
@@ -164,10 +168,16 @@ def fit():
         # if running externally, via a different module and passing scan==True as an argument
         # dump the parameters to a unique file for summary plots 
         if(args.scan==True):
-            par_dump=np.array([args.min, args.max, chi2_ndf, N, par, par_e]) 
-            np.save("../DATA/misc/scans/data"+file_label[i_station]+scan_label+".npy", par_dump)
+            par_dump=np.array([[args.min], args.max, chi2_ndf, N, *par, *par_e]) 
+            par_dump_keys = ["start", "stop", "chi2", "n"]
+            par_dump_keys.extend(par_names)
+            par_dump_keys.extend(par_e_names)
+            dict_dump = dict(zip(par_dump_keys,par_dump))
+            df = pd.DataFrame.from_records(dict_dump, index='start')
+            with open("../DATA/misc/scans/scan.csv", 'a') as f:
+                df.to_csv(f, mode='a', header=f.tell()==0)
             plt.savefig("../fig/scans/wiggle"+file_label[i_station]+scan_label+".png", dpi=300) 
-    
+
     return times_binned, residuals
 
 def residual_plots(times_binned, residuals):

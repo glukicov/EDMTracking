@@ -23,7 +23,7 @@ args=arg_parser.parse_args()
 
 ### Constants 
 DS_path = ("../DATA/HDF/MMA/60h.h5", "../DATA/HDF/MMA/9D.h5", "../DATA/HDF/MMA/HK.h5", "../DATA/HDF/MMA/EG.h5")
-start_times = np.linspace(30, 100, 70)
+start_times = np.linspace(30, 100, 35, dtype=int)
 
 def main():
     '''
