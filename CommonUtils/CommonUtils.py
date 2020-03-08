@@ -13,7 +13,7 @@ from copy import copy
 from math import floor, log10
 
 # Import blinding libraries 
-sys.path.append(os.environ['Blind_Path']) # path to Blinding libs from profile 
+sys.path.append(os.environ['../Blinding/']) # path to Blinding libs from profile 
 from BlindersPy3 import Blinders
 from BlindersPy3 import FitType
 getBlinded = Blinders(FitType.Omega_a, "EDM all day") 
