@@ -1,6 +1,7 @@
 '''
 Define some unit test and integration tests
 '''
+import numpy as np
 
 def main():
     print("tests.py::Starting unit tests")
@@ -10,11 +11,6 @@ def main():
     print("tests.py::Everything passed")
 
 def test_res():
-    import os, sys
-    sys.path.append('CommonUtils/')
-    from CommonUtils import residuals
-
-    import numpy as np
     n_points=10
     x=np.linspace(1, n_points, num=n_points, dtype=int)
     
@@ -42,6 +38,11 @@ def test_res():
     #Check we got the same data 
     print(np.allclose(res_explicit, res_implicit, rtol=1e-4, atol=1e-2))
 
+def residuals(x, y, func, pars):
+    '''
+    Calcualte fit residuals
+    '''
+    return np.array(y -func(x, *pars))
 
 if __name__ == "__main__":
     main()
