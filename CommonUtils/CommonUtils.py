@@ -7,13 +7,12 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import pandas as pd
 from pandas import Series, DataFrame
-import sys,os
+import sys, os
 import re
-from copy import copy
 from math import floor, log10
 
 # Import blinding libraries 
-sys.path.append(os.environ['../Blinding/']) # path to Blinding libs from profile 
+sys.path.append("Blinding") # path to Blinding libs
 from BlindersPy3 import Blinders
 from BlindersPy3 import FitType
 getBlinded = Blinders(FitType.Omega_a, "EDM all day") 

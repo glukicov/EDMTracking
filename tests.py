@@ -11,7 +11,7 @@ def main():
 
 def test_res():
     import os, sys
-    sys.path.append('./CommonUtils/')
+    sys.path.append('CommonUtils/')
     from CommonUtils import residuals
 
     import numpy as np
