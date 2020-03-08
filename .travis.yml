@@ -3,6 +3,6 @@ python:
   - "3.6"      # current default Python on Travis CI
 cache: pip
 install:
-  - pip install -r requirements.txt
+  - pip --version
 script:
   - python tests.py
