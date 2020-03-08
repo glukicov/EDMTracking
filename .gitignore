@@ -8,6 +8,8 @@
 *.npy
 *.csv
 
+.idea/
+
 !requirements.txt
 
 test/
@@ -117,4 +119,15 @@ venv.bak/
 /site
 
 # mypy
-.mypy_cache/
+.mypy_cache/EDMTracking.iml
+inspectionProfiles
+misc.xml
+modules.xml
+vcs.xml
+workspace.xml
+EDMTracking.iml
+inspectionProfiles
+misc.xml
+modules.xml
+vcs.xml
+workspace.xml
