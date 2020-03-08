@@ -1,13 +1,23 @@
-# Some common tools to go from ROOT Histogram to array-type structure 
-# Gleb Lukicov (11 Jan 2020)  
+'''
+Some common tools to go from ROOT Histogram to array-type structure 
+Gleb Lukicov (11 Jan 2020)  
+
+(!!!) This is Cython module, and needs to be compiled to be used with Python
+ python3 setup.py build_ext --inplace
+the subsequent import into Python code/Jupyter cell is just as for a normal Py module
+e.g. 
+
+   import sys
+   sys.path.append("../CommonUtils/")
+   import RUtils as ru
+'''
 
 from ROOT import TH1, TH2, TFile
 import numpy as np
 from root_numpy import hist2array # http://scikit-hep.org/root_numpy/
-import root_numpy
-import sys
+cimport cython  
 
-def hist2np(file_path="data/data.root", hist_path="Tracks/pvalue", cp=True, overflow=False, edges=True):
+def hist2np(str file_path="data/data.root", str hist_path="Tracks/pvalue", bint cp=True,  bint overflow=False,  bint edges_bool=True):
     '''
     Extension of the hist2array to return 1D or 2D histos data as an array 
     Returns: 1D: dataX[], n_binsX, dBinX  2D: dataXY[][], n_binsXY[], dBinXY[]
@@ -17,24 +27,23 @@ def hist2np(file_path="data/data.root", hist_path="Tracks/pvalue", cp=True, over
     #Example of getting some data, bins and bind width from ROOT 1D or 2D Histogram
     # dataXY, binsXY, dBinXY = ru.hist2np(file_path="DATA/noEDM.root", hist_path="AllStationsNoTQ/VertexExtap/t>0/0<p<3600/radialPos")
     '''
-    print("RUtils::hist2np Opening",hist_path,"in",file_path)
+    print("!RUtils::hist2np Opening",hist_path,"in",file_path)
     tfile=TFile.Open(file_path)
     thist=tfile.Get(hist_path)
-    exp_total = int(thist.Integral()) # total number of entries (not counting over/underflows)
-    print("RUtils::hist2np Opened", thist, type(thist[0]), "with", exp_total, "entries (exc. over/underflows)")
+    cdef int exp_total = int(thist.Integral()) # total number of entries (not counting over/underflows)
+    print("!RUtils::hist2np Opened", thist, type(thist[0]), "with", exp_total, "entries (exc. over/underflows)")
 
     #now call the the default root_numpy function to get frequencies and bin edges 
     # # http://scikit-hep.org/root_numpy/reference/generated/root_numpy.hist2array.html
-    freq, edges = hist2array(thist, include_overflow=overflow, copy=cp, return_edges=edges)
+    freq, edges = hist2array(thist, include_overflow=overflow, copy=cp, return_edges=edges_bool)
     
-    D=len(freq.shape)
+    cdef int D=len(freq.shape)
     if(D!=1 and D!=2):
         raise Exception("RUtils::hist2np Implementation for 1D or 2D, got dimensions of", D)
 
-    #ensure int frequency count
-    freq=freq.astype(int)
+    #ensure int frequency count (in place copy)
+    freq=freq.astype(int, copy=False)
     
-    #TH1 
     if (D == 1):
         
         #extract the edges from the array of arrays
@@ -58,7 +67,6 @@ def hist2np(file_path="data/data.root", hist_path="Tracks/pvalue", cp=True, over
 
         if (len(data) != exp_total):
             raise Exception("RUtils::hist2np Did not get expected entries! Got", len(data), "expected", exp_total)
-            sys.exit()
     #D1 end
     
     # TH2 
@@ -100,7 +108,6 @@ def hist2np(file_path="data/data.root", hist_path="Tracks/pvalue", cp=True, over
         for i_dim in range(D):
             if (len(data[i_dim]) != exp_total):
                 raise Exception("Did not get expected entries! Got ", len(data[i_dim]), "for D:", i_dim, "expected", exp_total)            
-                sys.exit()
     # D2 end
 
     return np.array(data), n_bins, dBin
