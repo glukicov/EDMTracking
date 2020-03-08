@@ -97,13 +97,15 @@ def plotHist2D(x, y, n_binsXY=(100, 100), prec=2, font_size=14, units="units", f
     # axes can be accessed with cb.ax, jt.
     return jg, cb, legendX, legendY
 
-def plotScatter(x, y, font_size=14, input_color="green", figsize=(12,5), label=None, lw=1, lc='g', ls="-", tight=True, step=False):
+def plotScatter(x, y, font_size=14, input_color="green", figsize=(12,5), label=None, lw=1, lc='g', ls="-", tight=True, step=False, scatter=True):
     
     fig, ax = plt.subplots(figsize=figsize)
     if (not step):
         ax.plot(x, y, c=input_color, label=label, lw=lw, ls=ls)
     if (step):
-        ax.step(x, y, where="post", c=input_color, llabel=label, lw=lw)
+        ax.step(x, y, where="post", c=input_color, label=label, lw=lw)
+    if (scatter):
+        ax.scatter(x, y, c=input_color, label=label, lw=lw, ls=ls)
     
     # make a nice looking plot as default 
     ax.set_xlabel(xlabel="", fontsize=font_size)
@@ -202,22 +204,16 @@ def residuals(x, y, func, pars):
     '''
     Calcualte fit residuals
     '''
-    residuals=[]
-    for i in range(0, len(x)): 
-        r = y[i] - func(x[i], *pars)  
-        residuals.append(r)
-    return np.array(residuals)
+    return np.array(y -func(x, *pars))
 
 def chi2_ndf(x, y, y_err, func, pars):
     '''
     Calcualte chi2
     '''    
-    chi2=0
-    for i in range(0, len(x)): 
-    # for i in range(0, len(x)):
-        r = y[i] - func(x[i], *pars)  
-        chi2+=(r)**2/y_err[i]**2
-    ndf = len(x) - len(pars)
+    ndf = len(x) - len(pars) # total N - fitting pars 
+    chi2_i=residuals(x, y, func, pars)**2/y_err**2 # (res**2)/(error**2)
+    chi2=chi2_i.sum() # np sum 
+    
     return chi2/ndf, chi2, ndf 
 
 

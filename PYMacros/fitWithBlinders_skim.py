@@ -168,8 +168,8 @@ def fit():
         # if running externally, via a different module and passing scan==True as an argument
         # dump the parameters to a unique file for summary plots 
         if(args.scan==True):
-            par_dump=np.array([[args.min], args.max, chi2_ndf, N, *par, *par_e]) 
-            par_dump_keys = ["start", "stop", "chi2", "n"]
+            par_dump=np.array([[args.min], args.max, chi2_ndf, N, station, ds_name, *par, *par_e]) 
+            par_dump_keys = ["start", "stop", "chi2", "n", "station", "ds"]
             par_dump_keys.extend(par_names)
             par_dump_keys.extend(par_e_names)
             dict_dump = dict(zip(par_dump_keys,par_dump))
