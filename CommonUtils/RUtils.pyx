@@ -27,11 +27,11 @@ def hist2np(str file_path="data/data.root", str hist_path="Tracks/pvalue", bint 
     #Example of getting some data, bins and bind width from ROOT 1D or 2D Histogram
     # dataXY, binsXY, dBinXY = ru.hist2np(file_path="DATA/noEDM.root", hist_path="AllStationsNoTQ/VertexExtap/t>0/0<p<3600/radialPos")
     '''
-    print("!RUtils::hist2np Opening",hist_path,"in",file_path)
+    print("RUtils::hist2np Opening",hist_path,"in",file_path)
     tfile=TFile.Open(file_path)
     thist=tfile.Get(hist_path)
     cdef int exp_total = int(thist.Integral()) # total number of entries (not counting over/underflows)
-    print("!RUtils::hist2np Opened", thist, type(thist[0]), "with", exp_total, "entries (exc. over/underflows)")
+    print("RUtils::hist2np Opened", thist, type(thist[0]), "with", exp_total, "entries (exc. over/underflows)")
 
     #now call the the default root_numpy function to get frequencies and bin edges 
     # # http://scikit-hep.org/root_numpy/reference/generated/root_numpy.hist2array.html
