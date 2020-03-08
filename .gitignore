@@ -8,6 +8,8 @@
 *.npy
 *.csv
 
+!requirements.txt
+
 test/
 DATA/
 fig/
