@@ -1,6 +1,9 @@
 # EDMTracking
 #### This project contains analysis code to place a new limit on the Electric Dipole Moment (EDM) of the muon using the g-2 tracking detectors
+[![Build Status](https://travis-ci.org/glukicov/EDMTracking.svg?branch=master)](https://travis-ci.org/glukicov/EDMTracking)
+[![Build status](https://ci.appveyor.com/api/projects/status/9g56so2i3v75cblj?svg=true)](https://ci.appveyor.com/project/glukicov/edmtracking)
 [![DOI](https://zenodo.org/badge/214927605.svg)](https://zenodo.org/badge/latestdoi/214927605)
+[![Coverage Status](https://coveralls.io/repos/github/glukicov/EDMTracking/badge.svg?branch=master)](https://coveralls.io/github/glukicov/EDMTracking?branch=master)
 
 <div style="text-align:center"><a href=http://www.hep.ucl.ac.uk/~lukicov target="_blank"><img src="docs/edm_1.png" height="280"></a></div>
 
