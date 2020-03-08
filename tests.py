@@ -36,7 +36,8 @@ def test_res():
     print("Implicit residuals:", res_explicit)
 
     #Check we got the same data 
-    print(np.allclose(res_explicit, res_implicit, rtol=1e-4, atol=1e-2))
+    print("Expected results:", np.allclose(res_explicit, res_implicit, rtol=1e-4, atol=1e-2))
+    assert(np.allclose(res_explicit, res_implicit, rtol=1e-4, atol=1e-2))
 
 def residuals(x, y, func, pars):
     '''
