@@ -12,10 +12,14 @@ import re
 from math import floor, log10
 
 # Import blinding libraries 
-sys.path.append("Blinding") # path to Blinding libs
+sys.path.append("../Blinding") # path to Blinding libs
 from BlindersPy3 import Blinders
 from BlindersPy3 import FitType
 getBlinded = Blinders(FitType.Omega_a, "EDM all day") 
+
+#fix the random seed
+def get_random_engine(init_seed=123456789):
+    return np.random.RandomState(seed=init_seed)
 
 #define common constants
 meanS=r"$\mathrm{\mu}$"
@@ -96,15 +100,15 @@ def plotHist2D(x, y, n_binsXY=(100, 100), prec=2, font_size=14, units="units", f
     # axes can be accessed with cb.ax, jt.
     return jg, cb, legendX, legendY
 
-def plotScatter(x, y, font_size=14, input_color="green", figsize=(12,5), label=None, lw=1, lc='g', ls="-", tight=True, step=False, scatter=True):
+def plot(x, y, font_size=14, input_color="green", figsize=(12,5), label=None, lw=1, lc='g', ls="-", tight=True, step=False, scatter=True):
     
     fig, ax = plt.subplots(figsize=figsize)
-    if (not step):
-        ax.plot(x, y, c=input_color, label=label, lw=lw, ls=ls)
     if (step):
         ax.step(x, y, where="post", c=input_color, label=label, lw=lw)
-    if (scatter):
+    elif (scatter):
         ax.scatter(x, y, c=input_color, label=label, lw=lw, ls=ls)
+    else:
+        ax.plot(x, y, c=input_color, label=label, lw=lw, ls=ls)
     
     # make a nice looking plot as default 
     ax.set_xlabel(xlabel="", fontsize=font_size)
@@ -198,6 +202,17 @@ def get_freq_bin_c_from_data(data, bin_w, bin_range):
     bin_c=np.linspace(bin_edges[0]+bin_w/2, bin_edges[-1]-bin_w/2, len(freq))
     assert( len(freq) == len(bin_c) ==  bin_n)
     return bin_c, freq 
+
+def get_g2_mod_time(times, omega_a_magic=1.44):
+    '''
+    modulate time data by the gm2 period
+    '''
+    g2_period=np.pi*2/omega_a_magic # 2pi/rad/s -> 1/Mhz
+    g2_frac_time = times / g2_period
+    g2_frac_time_int = g2_frac_time.astype(int)
+    mod_g2_time = (g2_frac_time - g2_frac_time_int) * g2_period
+
+    return mod_g2_time
 
 def residuals(x, y, func, pars):
     '''

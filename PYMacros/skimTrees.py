@@ -20,6 +20,7 @@ arg_parser.add_argument("--p_cut", type=int, default=-1) # MeV
 arg_parser.add_argument("--add", action='store_true', default=False)  # default is to skim files 
 arg_parser.add_argument("--add_label", type=str, default=None) # file label name
 arg_parser.add_argument("--add_dir", type=str, default=None) # dir with many .h5 files to add 
+arg_parser.add_argument("--sim_skim", action='store_true', default=False) 
 args=arg_parser.parse_args() 
 
 #read both track and vertices
@@ -29,6 +30,9 @@ keys=('QualityTracks', 'QualityVertices')
 total_tv, total_tv_skim = [0, 0], [0, 0]
     
 def main():
+
+    if(args.sim_skim==True):
+        sim_skim()
 
     #default is to skim many Tree
     if(args.add==False):
@@ -88,6 +92,20 @@ def skim():
 
     print("Grand total of (M)", total_tv[0]/1e6, "tracks,", total_tv[1]/1e6, "vertices")
     print("After the cuts (M)", total_tv_skim[0]/1e6, "tracks,", total_tv_skim[1]/1e6, "vertices")
+
+def sim_skim():
+    key='trackerNTup/tracker'
+    for i_file, file in enumerate(sorted(os.listdir(args.trees))):
+        print("Opening root file...", file)
+        data_all = read_root(args.trees+"/"+file, key)
+        data_all['trackT0']=data_all['trackT0']*1e-3   # ns -> us
+        print("Total of", data_all.shape[0], "entries")
+        data_all.to_hdf(args.df+"_"+str(i_file)+".h5", key="sim", mode='a', complevel=9, complib="zlib", format="table", data_columns=True)
+        print("Skimmed dataframe saved to disk", args.df, "\n")
+
+    print("Exiting...")
+    sys.exit()
+
 
 if __name__ == "__main__":
     main()

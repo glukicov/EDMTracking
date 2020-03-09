@@ -6,15 +6,16 @@ void longitudinalTest() {
   TFile f("longitudinalTest.root", "recreate");
   f.cd();
 
-  double startTime = 30;
-  double lifetime = 6.4;
-  double phase = 2;
+  double start_time = 30; // us 
+  double end_time = 600; //  us 
+  double lifetime = 64; // us 
+  double phase = 2.05; // rad 
 
-  TF1* fWiggle = new TF1("fWiggle", "[0]*exp(-x/[1])*(1+[2]*cos([3]*x-[4]))", startTime, 600);
+  TF1* fWiggle = new TF1("fWiggle", "[0]*exp(-x/[1])*(1+[2]*cos([3]*x-[4]))", start_time, end_time);
   fWiggle->SetParameters(1, lifetime, 0.45, 1.434, phase);
   fWiggle->SetNpx(10000);
 
-  TF1* fVertical = new TF1("fVertical", "[0]*([1]*cos([2]*x-[3]) + [4]*sin([2]*x-[3]))", 0, 600);
+  TF1* fVertical = new TF1("fVertical", "[0]*([1]*cos([2]*x-[3]) + [4]*sin([2]*x-[3]))", 0, end_time);
   double angAmp = 1.0;
   double cosAmp = 1. / sqrt(2);
   double sinAmp = sqrt(1 - pow(cosAmp, 2));
@@ -29,7 +30,7 @@ void longitudinalTest() {
     double t = fWiggle->GetRandom();
     hitTimes->Fill(t);
   }
-  TF1* fitFunc = new TF1("fitFunc", "[0]*exp(-x/[1])*(1+[2]*cos([3]*x-[4]))", startTime, 600);
+  TF1* fitFunc = new TF1("fitFunc", "[0]*exp(-x/[1])*(1+[2]*cos([3]*x-[4]))", start_time, end_time);
   fitFunc->SetParameters(nPts * 0.149 / lifetime, lifetime, 0.45, 1.434, phase);
   hitTimes->Fit(fitFunc, "RL");
   double period = TMath::TwoPi() / fitFunc->GetParameter(3);
