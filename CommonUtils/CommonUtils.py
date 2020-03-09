@@ -1,6 +1,6 @@
 # Define some commonly used functions here   \
 # Gleb Lukicov (11 Jan 2020)  
-from scipy import stats
+from scipy import stats, optimize
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -20,6 +20,9 @@ getBlinded = Blinders(FitType.Omega_a, "EDM all day")
 #fix the random seed
 def get_random_engine(init_seed=123456789):
     return np.random.RandomState(seed=init_seed)
+
+#set printout precision of arrays
+np.set_printoptions(precision=3)
 
 #define common constants
 meanS=r"$\mathrm{\mu}$"
@@ -100,19 +103,24 @@ def plotHist2D(x, y, n_binsXY=(100, 100), prec=2, font_size=14, units="units", f
     # axes can be accessed with cb.ax, jt.
     return jg, cb, legendX, legendY
 
-def plot(x, y, font_size=14, input_color="green", figsize=(12,5), label=None, lw=1, lc='g', ls="-", tight=True, step=False, scatter=True):
+def plot(x, y, x_err=None, y_err=None, font_size=14, input_color="green", 
+         figsize=(7,5), label=None, lw=1, elw=2, lc='g', ls="-", 
+         tight=True, step=False, scatter=False, error=False,
+         xlabel=None, ylabel=None):
     
     fig, ax = plt.subplots(figsize=figsize)
     if (step):
         ax.step(x, y, where="post", c=input_color, label=label, lw=lw)
     elif (scatter):
         ax.scatter(x, y, c=input_color, label=label, lw=lw, ls=ls)
+    elif (error):
+        ax.errorbar(x, y, xerr=x_err, yerr=y_err, linewidth=0, elinewidth=elw, color=input_color, marker=None, label=label)
     else:
         ax.plot(x, y, c=input_color, label=label, lw=lw, ls=ls)
     
     # make a nice looking plot as default 
-    ax.set_xlabel(xlabel="", fontsize=font_size)
-    ax.set_ylabel(ylabel="", fontsize=font_size)
+    ax.set_xlabel(xlabel=xlabel, fontsize=font_size)
+    ax.set_ylabel(ylabel=ylabel, fontsize=font_size)
     ax.tick_params(axis='x', which='both', bottom=True, top=True, direction='inout')
     ax.tick_params(axis='y', which='both', left=True, right=True, direction='inout')
     ax.minorticks_on()
@@ -122,6 +130,41 @@ def plot(x, y, font_size=14, input_color="green", figsize=(12,5), label=None, lw
         fig.tight_layout()
 
     return fig, ax
+
+
+def profile_plot(x, y, x_err, y_err, func, par, par_e, chi2_ndf, N,
+                 font_size=18, y_label=r"$\langle\theta_y\rangle$ [mrad]", x_label=r"$t^{mod}_{g-2} \ \mathrm{[\mu}$s]",
+                 data_type="Sim. tracks",  p_cut=r"1800<$p$<3600"):
+
+    fig, ax = plt.subplots()
+    ax.errorbar(x, y, xerr=x_err, yerr=y_err, linewidth=0, elinewidth=2, color="g", marker="o", label="Data")
+    ax.plot(x, func(x, *par), color="red", label='Fit')
+    ax.legend(loc='best')
+
+    # deal with fitter parameters
+    parNames=[r"$ A_{B_z}$", r"$ A_{\rm{EDM}}$", "c", r"$\omega$"]
+    units=["mrad", "mrad", "mrad", "MhZ"]
+    prec=2
+    #form complex legends 
+    legend1_chi2=legend1_fit(chi2_ndf)
+    legned1_par=""
+    legned1_par=legend_par(legned1_par,  parNames, par, par_e, units)
+    legend1=legend1_chi2+"\n"+legned1_par
+    print(legend1)
+    legend2=data_type+"\n"+p_cut+"\n N="+sci_notation(N)
+
+    #place on the plot and save 
+    y1,y2,x1,x2=0.2,0.85,0.25,0.70
+    textL(ax, x1, y1, legend1, font_size=font_size-5, color="red")    
+    textL(ax, x2, y2, legend2, font_size=font_size-4)
+    ax.legend(loc='center right', fontsize=font_size-4)
+    ax.set_ylabel(y_label, fontsize=font_size)
+    ax.set_xlabel(x_label, fontsize=font_size)
+    plt.tight_layout()
+
+    return fig, ax
+
+
 
 def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, t_mod, t_max, t_min, binW, N,
                                 prec=3, # set custom precision 
@@ -227,8 +270,21 @@ def chi2_ndf(x, y, y_err, func, pars):
     ndf = len(x) - len(pars) # total N - fitting pars 
     chi2_i=residuals(x, y, func, pars)**2/y_err**2 # (res**2)/(error**2)
     chi2=chi2_i.sum() # np sum 
-    
     return chi2/ndf, chi2, ndf 
+
+
+def fit_and_chi2(x, y, y_err, func, p0):
+    '''
+    fit and calculate chi2
+    '''
+    # Levenberg-Marquardt algorithm as implemented in MINPACK
+    par, pcov = optimize.curve_fit(func, x, y, sigma=y_err, p0=p0, absolute_sigma=False, method='lm')
+    par_e = np.sqrt(np.diag(pcov))
+    print("Params:", par)
+    print("Errors:", par_e)
+    chi2ndf, chi2, ndf=chi2_ndf(x, y, y_err, func, par)
+    print("𝝌2/dof="+str(round(chi2ndf, 2)) )
+    return par, par_e, chi2ndf
 
 
 def blinded_wiggle_function(x, *pars):
@@ -251,6 +307,38 @@ def blinded_wiggle_function(x, *pars):
     omega = getBlinded.paramToFreq(R)
     
     return norm * np.exp(-time/life) * (1 + asym*np.cos(omega*time + phi))
+
+def unblinded_wiggle_function(x, *pars):
+    '''
+    ### Define blinded fit function $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]$,
+    where  
+    [0] $N$ is the overall normalisation  
+    [1] $\tau$ is the boosted muon lifetime $\tau = \gamma \cdot \tau_0 = 29.3\cdot2.2=66.44 \, \mu$s  
+    [2] $A$ is the asymmetry  
+    [3] $\omega_a$ is the anomalous precision frequency (blinded)  
+    [4] $\phi$ is the initial phase  
+    '''
+    time  = x
+    norm  = pars[0]
+    life  = pars[1]
+    asym  = pars[2]
+    omega = pars[3]
+    phi   = pars[4]
+    
+    return norm * np.exp(-time/life) * (1 + asym*np.cos(omega*time + phi))
+
+def unblinded_bnl_function(x, *pars):
+    
+    time  = x
+    
+    N  = pars[0]
+    life  = pars[1]
+    W  = pars[2]
+    omega = pars[3]
+    phi   = pars[4]
+    
+    return np.exp(-time/life) * ( N + W *  np.cos( omega*time + phi ) )
+    # return norm * np.exp(-time/life) * (1 + asym*np.cos(omega*time + phi))
 
 def blinded_wiggle_function_cbo(x, *pars):
     '''
@@ -296,6 +384,9 @@ def thetaY_unblinded_phase(t, *pars, phi=6.240):
 
 def sin_unblinded(t, A, b, c):
     return A * np.sin(b * t)+c
+
+def cos_unblinded(t, A, b, c):
+    return A * np.cos_unblinded(b * t)+c
 
 def gauss(x, *p): 
     A, mu, sigma = p
@@ -389,6 +480,7 @@ def sci_notation(num, decimal_digits=1, precision=None, exponent=None):
         precision = decimal_digits
 
     return r"${0:.{2}f}\cdot10^{{{1:d}}}$".format(coeff, exponent, precision)
+
 
 
 def Profile(x, y, ax, nbins=10, xmin=0, xmax=4, mean=False, sd=False, full_y=False, font_size=14, color="green", only_binned=False):
