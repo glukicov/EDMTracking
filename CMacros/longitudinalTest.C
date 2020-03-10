@@ -43,10 +43,6 @@ void longitudinalTest() {
   TF1* fWiggle = new TF1("fWiggle", "[0]*exp(-x/[1])*(1+[2]*cos([3]*x+[4]))", start_time, end_time);
   fWiggle->SetParameters(1, lifetime_magic, asym_magic, omega_magic, phase_magic); 
 
-   //fit for the wiggle (so we can set different parameters)
-  TF1* fitFunc = new TF1("fitFunc", "[0]*exp(-x/[1])*(1+[2]*cos([3]*x+[4]))", start_time, end_time);
-  fitFunc->SetParameters(n_inject * bin_w / lifetime_magic, lifetime_magic, asym_magic, omega_magic, phase_magic);
-  
   // B_z with magic parameters 
   TF1* f_bz = new TF1("f_bz", "[0]*cos([1]*x+[2])", 0, g2period);
   f_bz->SetParameter(0, A_bz ); f_bz->FixParameter(1, omega_magic); f_bz->FixParameter(2, phase_magic); f_bz->SetLineColor(2); // red 
@@ -76,19 +72,10 @@ void longitudinalTest() {
 
   // -----MAIN-----
 
-  // // Do a pseudo experiment and fit for frequency
-  // TH1F* hitTimes = new TH1F("hitTimes", ";Time [us];Counts", bin_n, start_time, bin_w * bin_n);
-  // for (int i = 0 ; i < n_inject; i++) {
-  //   double t = fWiggle->GetRandom();
-  //   hitTimes->Fill(t);
-  // }
-  // hitTimes->Fit(fitFunc, "RLQ");
-  
- 
   //Re-weighting
   for (int i = 0 ; i < n_inject; i++) {
-    double t = fWiggle->GetRandom();
-    double ang = rng->Gaus(fVertical->Eval(t), angRes);
+    double t = fWiggle->GetRandom(); // can be taken from data TODO
+    double ang = rng->Gaus(fVertical->Eval(t), angRes); // can  be taken from data TODO 
     double tMod = fmod(t - phase_offset, 2 * g2period) - g2period;
     double weight = exp(tMod / lifetime_weight);
     hitTimesMod->Fill(tMod, weight);
@@ -97,6 +84,8 @@ void longitudinalTest() {
     else         hitAngleModRefl->Fill(-tMod, ang, weight);
   }
 
+  
+  //We will use profile for fits of convolution function
   TCanvas* time = new TCanvas("time", "time");
   hitTimesMod->Draw();
 
@@ -118,14 +107,10 @@ void longitudinalTest() {
   hitAngleModReflProf->GetYaxis()->SetRangeUser(-angle_bin_max , angle_bin_max );
   hitAngleModReflProf->Draw("HISTP");
 
-  
-  
-  
+    
+  // Now this is where the fit happens (i.e. IT IS SAFE TO FIT TO THIS PROFILE)
   hitAngleModReflProf->Fit(f_conv, "RN"); // range [0, g2period], N=no_draw 
-  cout << "Input: " << endl;
-  cout << "A_bz = " << A_bz << "\t A_edm= " << A_edm << endl;
-  cout << "Fit: " << endl;
-  cout << "A_bz = " << f_conv->GetParameter(0) << "\t A_edm = " << f_conv->GetParameter(1) << endl;
+  cout << "\nInput: A_bz = " << A_bz << "\t A_edm= " << A_edm << "\nFit  : A_bz = " << f_conv->GetParameter(0) << "\t A_edm = " << f_conv->GetParameter(1) << "\n\n";
 
   TCanvas* cPlot = new TCanvas("cPlot", "cPlot");
   cPlot->SetTopMargin(0);
