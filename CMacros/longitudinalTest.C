@@ -22,6 +22,11 @@ void longitudinalTest() {
   double asym_magic = -0.386;
   double omega_magic = 1.439; // MhZ
 
+  // Data-derived 
+  double g2period = TMath::TwoPi() / omega_magic;  // ~4.365 us 
+  double phase_offset = phase_magic / omega_magic; // adjust by phase us 
+  double lifetime_weight = lifetime_magic; // can also be extracted from the fit to w_a 
+
   // Amplitudes
   double A_edm = 1.0; // large EDM 
   double A_bz  = 0.5*A_edm;  // small B_z/A_u
@@ -52,21 +57,19 @@ void longitudinalTest() {
   TF1* fitFunc = new TF1("fitFunc", "[0]*exp(-x/[1])*(1+[2]*cos([3]*x+[4]))", start_time, end_time);
   fitFunc->SetParameters(n_inject * bin_w / lifetime_magic, lifetime_magic, asym_magic, omega_magic, phase_magic);
   hitTimes->Fit(fitFunc, "RLQ");
-  double period = TMath::TwoPi() / fitFunc->GetParameter(3);
-  double offset = fitFunc->GetParameter(4) / fitFunc->GetParameter(3);
-  double fitLifetime = fitFunc->GetParameter(1);
 
-  // Now remake plots modulo period
-  TH1F* hitTimesMod = new TH1F("hitTimesMod", ";Time % #omega_{a} Period [us];Counts", bin_n, -period, period);
-  TH2F* hitAngleMod = new TH2F("hitAngleMod", ";Time % #omega_{a} Period [us];Angle [arb. units]", bin_n, -period, period, 1000, -angle_bin_max, angle_bin_max);
-  TH2F* hitAngleModRefl = new TH2F("hitAngleModRefl", ";Time % #omega_{a} Period [us];Angle [arb. units]", 2000, 0, period, 1000, -angle_bin_max, angle_bin_max);
+
+  // Now remake plots modulo g2period
+  TH1F* hitTimesMod = new TH1F("hitTimesMod", ";Time % #omega_{a} g2period [us];Counts", bin_n, -g2period, g2period);
+  TH2F* hitAngleMod = new TH2F("hitAngleMod", ";Time % #omega_{a} g2period [us];Angle [arb. units]", bin_n, -g2period, g2period, 1000, -angle_bin_max, angle_bin_max);
+  TH2F* hitAngleModRefl = new TH2F("hitAngleModRefl", ";Time % #omega_{a} g2period [us];Angle [arb. units]", 2000, 0, g2period, 1000, -angle_bin_max, angle_bin_max);
 
   //Re-weighting
   for (int i = 0 ; i < n_inject; i++) {
     double t = fWiggle->GetRandom();
     double ang = rng->Gaus(fVertical->Eval(t), angRes);
-    double tMod = fmod(t - offset, 2 * period) - period;
-    double weight = exp(tMod / fitLifetime);
+    double tMod = fmod(t - phase_offset, 2 * g2period) - g2period;
+    double weight = exp(tMod / lifetime_weight);
     hitTimesMod->Fill(tMod, weight);
     hitAngleMod->Fill(tMod, ang, weight);
     if (tMod > 0) hitAngleModRefl->Fill(tMod, ang, weight);
@@ -94,7 +97,7 @@ void longitudinalTest() {
   hitAngleModReflProf->GetYaxis()->SetRangeUser(-angle_bin_max , angle_bin_max );
   hitAngleModReflProf->Draw("HISTP");
 
-  TF1* fSinCos = new TF1("fSinCos", "[0]*cos([2]*x)+[1]*sin([2]*x)", 0, period);
+  TF1* fSinCos = new TF1("fSinCos", "[0]*cos([2]*x)+[1]*sin([2]*x)", 0, g2period);
   fSinCos->SetParameter(0, 0.5);
   fSinCos->SetParameter(1, 0.5);
   fSinCos->FixParameter(2, omega_magic);
@@ -113,14 +116,14 @@ void longitudinalTest() {
   cPlot->cd(1);
   gPad->SetBottomMargin(0);
   gPad->SetTopMargin(0.17);
-  TF1* fCos = new TF1("fCos", "[0]*cos([1]*x)", 0, period);
+  TF1* fCos = new TF1("fCos", "[0]*cos([1]*x)", 0, g2period);
   fCos->SetParameter(0, A_bz );
-  fCos->FixParameter(1, TMath::TwoPi() / period);
+  fCos->FixParameter(1, TMath::TwoPi() / g2period);
   fCos->SetNpx(10000);
   fCos->SetLineColor(2);
-  TF1* fSin = new TF1("fSin", "[0]*sin([1]*x)", 0, period);
+  TF1* fSin = new TF1("fSin", "[0]*sin([1]*x)", 0, g2period);
   fSin->SetParameter(0, A_edm );
-  fSin->FixParameter(1, TMath::TwoPi() / period);
+  fSin->FixParameter(1, TMath::TwoPi() / g2period);
   fSin->SetNpx(10000);
   fSin->SetLineColor(4);
   fCos->SetTitle(";;Angle [arb. units]");
