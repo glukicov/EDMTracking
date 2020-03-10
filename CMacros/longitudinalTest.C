@@ -89,6 +89,8 @@ void longitudinalTest() {
   hitAngleModReflProf->Fit(f_conv, "RN"); // range [0, g2period], N=no_draw 
   cout << "\nTruth: A_bz = " << A_bz << "\t A_edm= " << A_edm << "\nConv.  : A_bz = " << f_conv->GetParameter(0) << "\t A_edm = " << f_conv->GetParameter(1) << "\n\n";
 
+  //--- end of main 
+
   //save the final canvas
   TCanvas* cPlot = new TCanvas("cPlot", "cPlot"); cPlot->SetTopMargin(0); cPlot->SetBottomMargin(0); cPlot->Divide(1, 2, 0, 0); cPlot->cd(1); gPad->SetBottomMargin(0); gPad->SetTopMargin(0.17);
   //Draw EDM, B_z, theta 
@@ -98,10 +100,6 @@ void longitudinalTest() {
   cPlot->cd(2); gPad->SetTopMargin(0); gPad->SetBottomMargin(0.17); hitAngleModReflProf->GetYaxis()->SetTitle("Angle [mrad]"); hitAngleModReflProf->SetStats(0); hitAngleModReflProf->GetYaxis()->CenterTitle(); hitAngleModReflProf->GetYaxis()->SetTitleSize(0.07); hitAngleModReflProf->GetYaxis()->SetTitleOffset(0.5); hitAngleModReflProf->GetYaxis()->SetLabelSize(0.07); hitAngleModReflProf->GetXaxis()->SetLabelSize(0.07); hitAngleModReflProf->GetXaxis()->SetTitleSize(0.07);
   hitAngleModReflProf->Draw();
   //save final plot 
-  cPlot->SaveAs("../fig/AzimuthalField.png");
-  
-  f.Write();
-  f.Close();
+  cPlot->SaveAs("../fig/AzimuthalField.png"); f.Write(); f.Close();
   cout << "final figure saved!\n";
-
 }
