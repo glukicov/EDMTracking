@@ -29,7 +29,7 @@ void longitudinalTest() {
   // Amplitudes
   double A_edm = 0.14; // large EDM 
   double A_bz  = 0.04;  // small B_z/A_u
-  double angle_bin_max = max(A_edm, A_bz)*1.2; // arbitrary (just for plotting - min/max)
+  double angle_bin_max = max(A_edm, A_bz)*1.3; // arbitrary (just for plotting - min/max)
 
   //smearing 
   double angRes = 0.01;
@@ -61,13 +61,10 @@ void longitudinalTest() {
 
   //-----------end of func
 
-
   //---- plots 
-   //modulo g2period
   TH1F* hitTimesMod = new TH1F("hitTimesMod", ";Time % #omega_{a} g2period [us];Counts", bin_n, -g2period, g2period);
   TH2F* hitAngleMod = new TH2F("hitAngleMod", ";Time % #omega_{a} g2period [us];Angle [arb. units]", bin_n, -g2period, g2period, bin_n/4, -angle_bin_max, angle_bin_max);
   TH2F* hitAngleModRefl = new TH2F("hitAngleModRefl", ";Time % #omega_{a} g2period [us];Angle [arb. units]", bin_n/2, 0, g2period, bin_n/4, -angle_bin_max, angle_bin_max);
-
   //---end of pots 
 
   // -----MAIN-----
@@ -83,61 +80,26 @@ void longitudinalTest() {
     if (tMod > 0) hitAngleModRefl->Fill(tMod, ang, weight);
     else         hitAngleModRefl->Fill(-tMod, ang, weight);
   }
-
   
-  //We will use profile for fits of convolution function
-  TCanvas* time = new TCanvas("time", "time");
-  hitTimesMod->Draw();
-
-  TCanvas* angles = new TCanvas("angles", "angles");
-  hitAngleMod->GetYaxis()->SetRangeUser(-angle_bin_max , angle_bin_max );
-  hitAngleMod->Draw("COLZ");
-
-  TCanvas* anglesRefl = new TCanvas("anglesRefl", "anglesRefl");
-  hitAngleModRefl->GetYaxis()->SetRangeUser(-angle_bin_max , angle_bin_max );
-  hitAngleModRefl->Draw("COLZ");
-
-  TCanvas* anglesProf = new TCanvas("anglesProf", "anglesProf");
+  //We will use profile (hitAngleModReflProf) for fits of convolution function
   TProfile* hitAngleModProf = hitAngleMod->ProfileX("hitAngleModProf");
-  hitAngleModProf->GetYaxis()->SetRangeUser(-angle_bin_max , angle_bin_max );
-  hitAngleModProf->Draw("COLZ");
-
-  TCanvas* anglesProfRefl = new TCanvas("anglesProfRefl", "anglesProfRefl");
   TProfile* hitAngleModReflProf = hitAngleModRefl->ProfileX("hitAngleModReflProf");
-  hitAngleModReflProf->GetYaxis()->SetRangeUser(-angle_bin_max , angle_bin_max );
-  hitAngleModReflProf->Draw("HISTP");
-
     
   // Now this is where the fit happens (i.e. IT IS SAFE TO FIT TO THIS PROFILE)
   hitAngleModReflProf->Fit(f_conv, "RN"); // range [0, g2period], N=no_draw 
-  cout << "\nInput: A_bz = " << A_bz << "\t A_edm= " << A_edm << "\nFit  : A_bz = " << f_conv->GetParameter(0) << "\t A_edm = " << f_conv->GetParameter(1) << "\n\n";
+  cout << "\nTruth: A_bz = " << A_bz << "\t A_edm= " << A_edm << "\nConv.  : A_bz = " << f_conv->GetParameter(0) << "\t A_edm = " << f_conv->GetParameter(1) << "\n\n";
 
-  TCanvas* cPlot = new TCanvas("cPlot", "cPlot");
-  cPlot->SetTopMargin(0);
-  cPlot->SetBottomMargin(0);
-  cPlot->Divide(1, 2, 0, 0);
-  cPlot->cd(1);
-  gPad->SetBottomMargin(0);
-  gPad->SetTopMargin(0.17);
-
+  //save the final canvas
+  TCanvas* cPlot = new TCanvas("cPlot", "cPlot"); cPlot->SetTopMargin(0); cPlot->SetBottomMargin(0); cPlot->Divide(1, 2, 0, 0); cPlot->cd(1); gPad->SetBottomMargin(0); gPad->SetTopMargin(0.17);
   //Draw EDM, B_z, theta 
   f_bz->Draw(); f_edm->Draw("SAME"); fVertical->Draw("SAME");
   f_bz->SetTitle(";;Angle [arb. units]"); f_bz->GetYaxis()->SetRangeUser(-angle_bin_max , angle_bin_max ); f_bz->GetYaxis()->SetTitleSize(0.07); f_bz->GetYaxis()->SetTitleOffset(0.5); f_bz->GetYaxis()->SetLabelSize(0.07); f_bz->GetYaxis()->CenterTitle();
-  
   // the resultant plot 
   cPlot->cd(2); gPad->SetTopMargin(0); gPad->SetBottomMargin(0.17); hitAngleModReflProf->GetYaxis()->SetTitle("Angle [mrad]"); hitAngleModReflProf->SetStats(0); hitAngleModReflProf->GetYaxis()->CenterTitle(); hitAngleModReflProf->GetYaxis()->SetTitleSize(0.07); hitAngleModReflProf->GetYaxis()->SetTitleOffset(0.5); hitAngleModReflProf->GetYaxis()->SetLabelSize(0.07); hitAngleModReflProf->GetXaxis()->SetLabelSize(0.07); hitAngleModReflProf->GetXaxis()->SetTitleSize(0.07);
   hitAngleModReflProf->Draw();
-
   //save final plot 
   cPlot->SaveAs("../fig/AzimuthalField.png");
-
-  // dump to file 
-  time->Write();
-  angles->Write();
-  anglesRefl->Write();
-  anglesProf->Write();
-  anglesProfRefl->Write();
-  cPlot->Write();
+  
   f.Write();
   f.Close();
   cout << "final figure saved!\n";
