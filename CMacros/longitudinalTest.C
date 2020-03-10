@@ -6,16 +6,27 @@ void longitudinalTest() {
   TFile f("longitudinalTest.root", "recreate");
   f.cd();
 
+  // constants 
+  int nPts = 2000000; 
+
   double start_time = 30; // us 
   double end_time = 600; //  us 
-  double lifetime = 64; // us 
-  double phase = 2.05; // rad 
+  double bin_w = 0.150; // 150 ns
+  int bin_n = 4000;  
 
-  TF1* fWiggle = new TF1("fWiggle", "[0]*exp(-x/[1])*(1+[2]*cos([3]*x-[4]))", start_time, end_time);
-  fWiggle->SetParameters(1, lifetime, 0.45, 1.434, phase);
+  // sim-derived parameters 
+  double lifetime = 64.94; // us 
+  double phase =6.295; // rad 
+  double asym = -0.386; 
+  double omega = 1.439; // MhZ  
+
+  //generative functions 
+  TF1* fWiggle = new TF1("fWiggle", "[0]*exp(-x/[1])*(1+[2]*cos([3]*x+[4]))", start_time, end_time);
+  fWiggle->SetParameters(1, lifetime, asym, 1.434, phase);
   fWiggle->SetNpx(10000);
 
-  TF1* fVertical = new TF1("fVertical", "[0]*([1]*cos([2]*x-[3]) + [4]*sin([2]*x-[3]))", 0, end_time);
+  // vertical angle oscillation 
+  TF1* fVertical = new TF1("fVertical", "[0]*([1]*cos([2]*x+[3]) + [4]*sin([2]*x+[3]))", 0, end_time);
   double angAmp = 1.0;
   double cosAmp = 1. / sqrt(2);
   double sinAmp = sqrt(1 - pow(cosAmp, 2));
@@ -24,14 +35,15 @@ void longitudinalTest() {
 
   // Do a pseudo experiment and fit for frequency
   gRandom->SetSeed(12345);
-  TH1F* hitTimes = new TH1F("hitTimes", ";Time [us];Counts", 4000, 0, 0.149 * 4000);
-  int nPts = 2000000;
+  TH1F* hitTimes = new TH1F("hitTimes", ";Time [us];Counts", bin_n, 0, bin_w * bin_n);
   for (int i = 0 ; i < nPts; i++) {
     double t = fWiggle->GetRandom();
     hitTimes->Fill(t);
   }
-  TF1* fitFunc = new TF1("fitFunc", "[0]*exp(-x/[1])*(1+[2]*cos([3]*x-[4]))", start_time, end_time);
-  fitFunc->SetParameters(nPts * 0.149 / lifetime, lifetime, 0.45, 1.434, phase);
+
+  //fit for the wiggle 
+  TF1* fitFunc = new TF1("fitFunc", "[0]*exp(-x/[1])*(1+[2]*cos([3]*x+[4]))", start_time, end_time);
+  fitFunc->SetParameters(nPts * bin_w / lifetime, lifetime, asym, 1.434, phase);
   hitTimes->Fit(fitFunc, "RL");
   double period = TMath::TwoPi() / fitFunc->GetParameter(3);
   double offset = fitFunc->GetParameter(4) / fitFunc->GetParameter(3);
@@ -40,8 +52,8 @@ void longitudinalTest() {
   cout << "hitTimes filled and fitted!\n";
 
   // Now remake plots modulo period
-  TH1F* hitTimesMod = new TH1F("hitTimesMod", ";Time % #omega_{a} Period [us];Counts", 4000, -period, period);
-  TH2F* hitAngleMod = new TH2F("hitAngleMod", ";Time % #omega_{a} Period [us];Angle [arb. units]", 4000, -period, period, 1000, -1.2, 1.2);
+  TH1F* hitTimesMod = new TH1F("hitTimesMod", ";Time % #omega_{a} Period [us];Counts", bin_n, -period, period);
+  TH2F* hitAngleMod = new TH2F("hitAngleMod", ";Time % #omega_{a} Period [us];Angle [arb. units]", bin_n, -period, period, 1000, -1.2, 1.2);
   TH2F* hitAngleModRefl = new TH2F("hitAngleModRefl", ";Time % #omega_{a} Period [us];Angle [arb. units]", 2000, 0, period, 1000, -1.2, 1.2);
   TRandom3* rng = new TRandom3(12345);
   gRandom->SetSeed(12345);
@@ -59,23 +71,23 @@ void longitudinalTest() {
 
   cout << "hitTimes mod filled and fitted!\n";
 
-  TCanvas* time = new TCanvas();
+  TCanvas* time = new TCanvas("time", "time");
   hitTimesMod->Draw();
   // return;
-  TCanvas* angles = new TCanvas();
+  TCanvas* angles = new TCanvas("angles", "angles");
   hitAngleMod->GetYaxis()->SetRangeUser(-1.1 * angAmp, 1.1 * angAmp);
   hitAngleMod->Draw("COLZ");
 
-  TCanvas* anglesRefl = new TCanvas();
+  TCanvas* anglesRefl = new TCanvas("anglesRefl", "anglesRefl");
   hitAngleModRefl->GetYaxis()->SetRangeUser(-1.1 * angAmp, 1.1 * angAmp);
   hitAngleModRefl->Draw("COLZ");
 
-  TCanvas* anglesProf = new TCanvas();
+  TCanvas* anglesProf = new TCanvas("anglesProf", "anglesProf");
   TProfile* hitAngleModProf = hitAngleMod->ProfileX("hitAngleModProf");
   hitAngleModProf->GetYaxis()->SetRangeUser(-1.1 * angAmp, 1.1 * angAmp);
   hitAngleModProf->Draw("COLZ");
 
-  TCanvas* anglesProfRefl = new TCanvas();
+  TCanvas* anglesProfRefl = new TCanvas("anglesProfRefl", "anglesProfRefl");
   TProfile* hitAngleModReflProf = hitAngleModRefl->ProfileX("hitAngleModReflProf");
   hitAngleModReflProf->GetYaxis()->SetRangeUser(-1.1 * angAmp, 1.1 * angAmp);
   hitAngleModReflProf->Draw("HISTP");
