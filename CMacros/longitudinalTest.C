@@ -43,11 +43,11 @@ void longitudinalTest() {
   fWiggle->SetParameters(1, lifetime_magic, asym_magic, omega_magic, phase_magic); fWiggle->SetNpx(10000);
 
   // vertical angle oscillation
-  TF1* fVertical = new TF1("fVertical", "[0]*cos([2]*x+[3]) + [1]*sin([2]*x+[3])", 0, end_time);
+  TF1* fVertical = new TF1("fVertical", "[0]*cos([2]*x+[3]) + [1]*sin([2]*x+[3])", start_time, end_time);
   fVertical->SetParameters(A_bz, A_edm, omega_magic, phase_magic); fVertical->SetNpx(10000);
 
   // Do a pseudo experiment and fit for frequency
-  TH1F* hitTimes = new TH1F("hitTimes", ";Time [us];Counts", bin_n, 0, bin_w * bin_n);
+  TH1F* hitTimes = new TH1F("hitTimes", ";Time [us];Counts", bin_n, start_time, bin_w * bin_n);
   for (int i = 0 ; i < n_inject; i++) {
     double t = fWiggle->GetRandom();
     hitTimes->Fill(t);
@@ -61,8 +61,8 @@ void longitudinalTest() {
 
   // Now remake plots modulo g2period
   TH1F* hitTimesMod = new TH1F("hitTimesMod", ";Time % #omega_{a} g2period [us];Counts", bin_n, -g2period, g2period);
-  TH2F* hitAngleMod = new TH2F("hitAngleMod", ";Time % #omega_{a} g2period [us];Angle [arb. units]", bin_n, -g2period, g2period, 1000, -angle_bin_max, angle_bin_max);
-  TH2F* hitAngleModRefl = new TH2F("hitAngleModRefl", ";Time % #omega_{a} g2period [us];Angle [arb. units]", 2000, 0, g2period, 1000, -angle_bin_max, angle_bin_max);
+  TH2F* hitAngleMod = new TH2F("hitAngleMod", ";Time % #omega_{a} g2period [us];Angle [arb. units]", bin_n, -g2period, g2period, bin_n/4, -angle_bin_max, angle_bin_max);
+  TH2F* hitAngleModRefl = new TH2F("hitAngleModRefl", ";Time % #omega_{a} g2period [us];Angle [arb. units]", bin_n/2, 0, g2period, bin_n/4, -angle_bin_max, angle_bin_max);
 
   //Re-weighting
   for (int i = 0 ; i < n_inject; i++) {
