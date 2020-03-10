@@ -24,8 +24,9 @@ def get_random_engine(init_seed=123456789):
 #set printout precision of arrays
 np.set_printoptions(precision=3)
 
-#Set constant phase (cu._phi=x)
+#Set constant phase (e.g. cu._phi=x)
 _phi=-1
+_omega=-1
 
 #define common constants
 meanS=r"$\mathrm{\mu}$"
@@ -296,6 +297,29 @@ def unblinded_wiggle_function(x, *pars):
     
     return norm * np.exp(-time/life) * (1 + asym*np.cos(omega*time + phi))
 
+def unblinded_wiggle_fixed(x, *pars):
+    '''
+    ### Define blinded fit function $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]$,
+    where  
+    [0] $N$ is the overall normalisation  
+    [1] $\tau$ is the boosted muon lifetime $\tau = \gamma \cdot \tau_0 = 29.3\cdot2.2=66.44 \, \mu$s  
+    [2] $A$ is the asymmetry  
+    [3] $\omega_a$ is the anomalous precision frequency (blinded)  
+    [4] $\phi$ is the initial phase  
+    '''
+
+    omega=_omega
+    if(omega==-1): raise Exception("Set omega_a via cu._omega=x")
+
+    time  = x
+    norm  = pars[0]
+    life  = pars[1]
+    asym  = pars[2]
+    phi   = pars[3]
+
+    
+    return norm * np.exp(-time/life) * (1 + asym*np.cos(omega*time + phi))
+
 def unblinded_bnl_function(x, *pars):
     
     time  = x
@@ -347,11 +371,12 @@ def thetaY_unblinded_phase(t, *pars):
     '''  
     phi=_phi
     if (phi == -1): raise Exception("Set constants phase via cu._phi=x")
+    omega=_omega
+    if(omega==-1): raise Exception("Set omega_a via cu._omega=x")
 
     A_bz  = pars[0]      
     A_edm = pars[1]    
     c     = pars[2]    
-    omega = pars[3]
     
     return A_bz * np.cos(omega * t + phi) + A_edm * np.sin(omega * t + phi) + c
 
