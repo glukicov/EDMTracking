@@ -7,7 +7,7 @@ void longitudinalTest() {
   f.cd();
 
   //------ constants
-  int n_inject = 2000000;
+  int n_inject = int(1e7);
 
   // plots limits
   double start_time = 0; // us
@@ -29,56 +29,62 @@ void longitudinalTest() {
   // Amplitudes
   double A_edm = 0.14; // large EDM 
   double A_bz  = 0.04;  // small B_z/A_u
-  double angle_bin_max = max(A_edm, A_bz)*1.2; // arbitrary (just for plotting)
+  double angle_bin_max = max(A_edm, A_bz)*1.2; // arbitrary (just for plotting - min/max)
 
   //smearing 
   double angRes = 0.01;
   TRandom3* rng = new TRandom3(12345);
   gRandom->SetSeed(12345);
+  //---------end of const
 
-  //---------
+  //----functions 
 
   //generative function (can be taken from data )
   TF1* fWiggle = new TF1("fWiggle", "[0]*exp(-x/[1])*(1+[2]*cos([3]*x+[4]))", start_time, end_time);
-  fWiggle->SetParameters(1, lifetime_magic, asym_magic, omega_magic, phase_magic); fWiggle->SetNpx(10000);
+  fWiggle->SetParameters(1, lifetime_magic, asym_magic, omega_magic, phase_magic); 
 
+   //fit for the wiggle (so we can set different parameters)
+  TF1* fitFunc = new TF1("fitFunc", "[0]*exp(-x/[1])*(1+[2]*cos([3]*x+[4]))", start_time, end_time);
+  fitFunc->SetParameters(n_inject * bin_w / lifetime_magic, lifetime_magic, asym_magic, omega_magic, phase_magic);
+  
   // B_z with magic parameters 
   TF1* f_bz = new TF1("f_bz", "[0]*cos([1]*x+[2])", 0, g2period);
-  f_bz->SetParameter(0, A_bz ); f_bz->FixParameter(1, omega_magic); f_bz->FixParameter(2, phase_magic); f_bz->SetLineColor(2); 
+  f_bz->SetParameter(0, A_bz ); f_bz->FixParameter(1, omega_magic); f_bz->FixParameter(2, phase_magic); f_bz->SetLineColor(2); // red 
   
   // EDM with magic parameters 
-  TF1* fSin = new TF1("fSin", "[0]*sin([1]*x+[2])", 0, g2period);
-  fSin->SetParameter(0, A_edm );  fSin->FixParameter(1, omega_magic);fSin->FixParameter(2, phase_magic); fSin->SetLineColor(4);
+  TF1* f_edm = new TF1("f_edm", "[0]*sin([1]*x+[2])", 0, g2period);
+  f_edm->SetParameter(0, A_edm );  f_edm->FixParameter(1, omega_magic);f_edm->FixParameter(2, phase_magic); f_edm->SetLineColor(4); // blue
 
   // vertical angle oscillation
   TF1* fVertical = new TF1("fVertical", "[0]*cos([2]*x+[3]) + [1]*sin([2]*x+[3])", start_time, end_time);
-  fVertical->SetParameters(A_bz, A_edm, omega_magic, phase_magic); fVertical->SetNpx(10000);
+  fVertical->SetParameters(A_bz, A_edm, omega_magic, phase_magic); fVertical->SetLineColor(1);  fVertical->SetLineStyle(3);  // greed-dashed
 
   // The convolution function 
   TF1* f_conv = new TF1("f_conv", "[0]*cos([2]*x)+[1]*sin([2]*x)", 0, g2period);
   f_conv->SetParameter(0, 0.5); f_conv->SetParameter(1, 0.5); f_conv->FixParameter(2, omega_magic); f_conv->SetLineColor(6); // purple 
 
-
-  // Do a pseudo experiment and fit for frequency
-  TH1F* hitTimes = new TH1F("hitTimes", ";Time [us];Counts", bin_n, start_time, bin_w * bin_n);
-  for (int i = 0 ; i < n_inject; i++) {
-    double t = fWiggle->GetRandom();
-    hitTimes->Fill(t);
-  }
-
-  //fit for the wiggle
-  TF1* fitFunc = new TF1("fitFunc", "[0]*exp(-x/[1])*(1+[2]*cos([3]*x+[4]))", start_time, end_time);
-  fitFunc->SetParameters(n_inject * bin_w / lifetime_magic, lifetime_magic, asym_magic, omega_magic, phase_magic);
-  hitTimes->Fit(fitFunc, "RLQ");
+  //-----------end of func
 
 
-  // delete staff above 
-
-  // Now remake plots modulo g2period
+  //---- plots 
+   //modulo g2period
   TH1F* hitTimesMod = new TH1F("hitTimesMod", ";Time % #omega_{a} g2period [us];Counts", bin_n, -g2period, g2period);
   TH2F* hitAngleMod = new TH2F("hitAngleMod", ";Time % #omega_{a} g2period [us];Angle [arb. units]", bin_n, -g2period, g2period, bin_n/4, -angle_bin_max, angle_bin_max);
   TH2F* hitAngleModRefl = new TH2F("hitAngleModRefl", ";Time % #omega_{a} g2period [us];Angle [arb. units]", bin_n/2, 0, g2period, bin_n/4, -angle_bin_max, angle_bin_max);
 
+  //---end of pots 
+
+  // -----MAIN-----
+
+  // // Do a pseudo experiment and fit for frequency
+  // TH1F* hitTimes = new TH1F("hitTimes", ";Time [us];Counts", bin_n, start_time, bin_w * bin_n);
+  // for (int i = 0 ; i < n_inject; i++) {
+  //   double t = fWiggle->GetRandom();
+  //   hitTimes->Fill(t);
+  // }
+  // hitTimes->Fit(fitFunc, "RLQ");
+  
+ 
   //Re-weighting
   for (int i = 0 ; i < n_inject; i++) {
     double t = fWiggle->GetRandom();
@@ -130,8 +136,8 @@ void longitudinalTest() {
   gPad->SetTopMargin(0.17);
 
   //Draw EDM, B_z, theta 
-  f_bz->Draw(); fSin->Draw("SAME"); fVertical->Draw("SAME");
-  fVertical->SetLineColor(1);  fVertical->SetLineStyle(3); f_bz->SetTitle(";;Angle [arb. units]"); f_bz->GetYaxis()->SetRangeUser(-angle_bin_max , angle_bin_max ); f_bz->GetYaxis()->SetTitleSize(0.07); f_bz->GetYaxis()->SetTitleOffset(0.5); f_bz->GetYaxis()->SetLabelSize(0.07); f_bz->GetYaxis()->CenterTitle();
+  f_bz->Draw(); f_edm->Draw("SAME"); fVertical->Draw("SAME");
+  f_bz->SetTitle(";;Angle [arb. units]"); f_bz->GetYaxis()->SetRangeUser(-angle_bin_max , angle_bin_max ); f_bz->GetYaxis()->SetTitleSize(0.07); f_bz->GetYaxis()->SetTitleOffset(0.5); f_bz->GetYaxis()->SetLabelSize(0.07); f_bz->GetYaxis()->CenterTitle();
   
   // the resultant plot 
   cPlot->cd(2); gPad->SetTopMargin(0); gPad->SetBottomMargin(0.17); hitAngleModReflProf->GetYaxis()->SetTitle("Angle [mrad]"); hitAngleModReflProf->SetStats(0); hitAngleModReflProf->GetYaxis()->CenterTitle(); hitAngleModReflProf->GetYaxis()->SetTitleSize(0.07); hitAngleModReflProf->GetYaxis()->SetTitleOffset(0.5); hitAngleModReflProf->GetYaxis()->SetLabelSize(0.07); hitAngleModReflProf->GetXaxis()->SetLabelSize(0.07); hitAngleModReflProf->GetXaxis()->SetTitleSize(0.07);
