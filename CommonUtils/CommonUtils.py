@@ -30,13 +30,13 @@ sigmaS=r"$\sigma$"
 chi2ndfS=r"$\frac{\chi^2}{DoF}$"
 
 
-def plotHist(data, n_bins=100, prec=2, font_size=14, units="units", input_color="green", alpha=0.7):
+def plotHist(data, n_bins=100, prec=2, fs=14, units="units", c="green", alpha=0.7):
     '''
     Input is a 1D array
 
     # Example of plotting 1D histo from data with automatic binning
     # ax, legend = cu.plotHist(dataX, n_bins=None)
-    # cu.textL(ax, 0.8, 0.85, str(legend), font_size=14)
+    # cu.textL(ax, 0.8, 0.85, str(legend), fs=14)
     # plt.show()
     '''
     # 5 DoF stats 
@@ -44,22 +44,22 @@ def plotHist(data, n_bins=100, prec=2, font_size=14, units="units", input_color=
     legend = legend5(N, mean, meanE, sd, sdE, units, prec=prec) # return legend string 
 
     # seaborn hist plot with input pars
-    ax = sns.distplot(data, bins=n_bins, hist=True, kde=False, color=input_color, hist_kws={"alpha": alpha})
+    ax = sns.distplot(data, bins=n_bins, hist=True, kde=False, color=c, hist_kws={"alpha": alpha})
    
     # make a nice looking plot as default 
-    ax.set_xlabel(xlabel="", fontsize=font_size)
-    ax.set_ylabel(ylabel="", fontsize=font_size)
+    ax.set_xlabel(xlabel="", fontsize=fs)
+    ax.set_ylabel(ylabel="", fontsize=fs)
     ax.tick_params(axis='x', which='both', bottom=True, top=True, direction='inout')
     ax.tick_params(axis='y', which='both', left=True, right=True, direction='inout')
     ax.minorticks_on()
-    plt.xticks(fontsize=font_size-1)
-    plt.yticks(fontsize=font_size-1)
+    plt.xticks(fontsize=fs-1)
+    plt.yticks(fontsize=fs-1)
     # plt.tight_layout()
 
     return ax, legend
 
 
-def plotHist2D(x, y, n_binsXY=(100, 100), prec=2, font_size=14, units="units", figsize=(10, 10), cmap=plt.cm.jet, cmin=1):
+def plotHist2D(x, y, n_binsXY=(100, 100), prec=2, fs=14, units="units", figsize=(10, 10), cmap=plt.cm.jet, cmin=1):
     '''
     Inputs are two 1D arrays
 
@@ -86,13 +86,13 @@ def plotHist2D(x, y, n_binsXY=(100, 100), prec=2, font_size=14, units="units", f
 
     #add color bar
     cb = plt.colorbar(use_gridspec=False, orientation="vertical", shrink=0.65, anchor=(1.9, 0.3))
-    cb.set_label("Frequency", fontsize=font_size)
-    cb.ax.tick_params(labelsize=font_size-1)
+    cb.set_label("Frequency", fontsize=fs)
+    cb.ax.tick_params(labelsize=fs-1)
 
     #Make pretty plot as default
-    jg.ax_joint.tick_params(labelsize=font_size)
-    jg.ax_joint.set_ylabel("Y",fontsize=font_size)
-    jg.ax_joint.set_xlabel("X",fontsize=font_size)
+    jg.ax_joint.tick_params(labelsize=fs)
+    jg.ax_joint.set_ylabel("Y",fontsize=fs)
+    jg.ax_joint.set_xlabel("X",fontsize=fs)
     jg.ax_joint.tick_params(axis='x', which='both', bottom=True, top=False, direction='inout')
     jg.ax_joint.tick_params(axis='y', which='both', left=True, right=False, direction='inout')
     jg.ax_joint.minorticks_on()
@@ -103,67 +103,33 @@ def plotHist2D(x, y, n_binsXY=(100, 100), prec=2, font_size=14, units="units", f
     # axes can be accessed with cb.ax, jt.
     return jg, cb, legendX, legendY
 
-def plot(x, y, x_err=None, y_err=None, font_size=14, input_color="green", 
+def plot(x, y, x_err=None, y_err=None, fs=14, c="green", 
          figsize=(7,5), label=None, lw=1, elw=2, lc='g', ls="-", 
          tight=True, step=False, scatter=False, error=False,
          xlabel=None, ylabel=None):
     
     fig, ax = plt.subplots(figsize=figsize)
     if (step):
-        ax.step(x, y, where="post", c=input_color, label=label, lw=lw)
+        ax.step(x, y, where="post", c=c, label=label, lw=lw)
     elif (scatter):
-        ax.scatter(x, y, c=input_color, label=label, lw=lw, ls=ls)
+        ax.scatter(x, y, c=c, label=label, lw=lw, ls=ls)
     elif (error):
-        ax.errorbar(x, y, xerr=x_err, yerr=y_err, linewidth=0, elinewidth=elw, color=input_color, marker=None, label=label)
+        ax.errorbar(x, y, xerr=x_err, yerr=y_err, linewidth=0, elinewidth=elw, color=c, marker=None, label=label)
     else:
-        ax.plot(x, y, c=input_color, label=label, lw=lw, ls=ls)
+        ax.plot(x, y, c=c, label=label, lw=lw, ls=ls)
     
     # make a nice looking plot as default 
-    ax.set_xlabel(xlabel=xlabel, fontsize=font_size)
-    ax.set_ylabel(ylabel=ylabel, fontsize=font_size)
+    ax.set_xlabel(xlabel=xlabel, fontsize=fs)
+    ax.set_ylabel(ylabel=ylabel, fontsize=fs)
     ax.tick_params(axis='x', which='both', bottom=True, top=True, direction='inout')
     ax.tick_params(axis='y', which='both', left=True, right=True, direction='inout')
     ax.minorticks_on()
-    plt.xticks(fontsize=font_size-1)
-    plt.yticks(fontsize=font_size-1)
+    plt.xticks(fontsize=fs-1)
+    plt.yticks(fontsize=fs-1)
     if(tight):
         fig.tight_layout()
 
     return fig, ax
-
-
-def profile_plot(x, y, x_err, y_err, func, par, par_e, chi2_ndf, N,
-                 font_size=18, y_label=r"$\langle\theta_y\rangle$ [mrad]", x_label=r"$t^{mod}_{g-2} \ \mathrm{[\mu}$s]",
-                 data_type="Sim. tracks",  p_cut=r"1800<$p$<3600"):
-
-    fig, ax = plt.subplots()
-    ax.errorbar(x, y, xerr=x_err, yerr=y_err, linewidth=0, elinewidth=2, color="g", marker="o", label="Data")
-    ax.plot(x, func(x, *par), color="red", label='Fit')
-    ax.legend(loc='best')
-
-    # deal with fitter parameters
-    parNames=[r"$ A_{B_z}$", r"$ A_{\rm{EDM}}$", "c", r"$\omega$"]
-    units=["mrad", "mrad", "mrad", "MhZ"]
-    prec=2
-    #form complex legends 
-    legend1_chi2=legend1_fit(chi2_ndf)
-    legned1_par=""
-    legned1_par=legend_par(legned1_par,  parNames, par, par_e, units)
-    legend1=legend1_chi2+"\n"+legned1_par
-    print(legend1)
-    legend2=data_type+"\n"+p_cut+"\n N="+sci_notation(N)
-
-    #place on the plot and save 
-    y1,y2,x1,x2=0.2,0.85,0.25,0.70
-    textL(ax, x1, y1, legend1, font_size=font_size-5, color="red")    
-    textL(ax, x2, y2, legend2, font_size=font_size-4)
-    ax.legend(loc='center right', fontsize=font_size-4)
-    ax.set_ylabel(y_label, fontsize=font_size)
-    ax.set_xlabel(x_label, fontsize=font_size)
-    plt.tight_layout()
-
-    return fig, ax
-
 
 
 def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, t_mod, t_max, t_min, binW, N,
@@ -173,7 +139,7 @@ def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, t_mod, t_max, t_min
                                 legend_fit=r'Fit: $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]$',
                                 legend_data="Run-1 tracker data",
                                 key="Quality Tracks",
-                                font_size=15):
+                                fs=15):
     '''
     Fit and plot folded (modulo wiggle function)
     '''
@@ -210,27 +176,27 @@ def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, t_mod, t_max, t_min
 
     #Put legend and pars values 
     N_str=sci_notation(N)
-    textL(ax, 0.82, 0.78, label_data+ r"$p$"+" > 1.8 GeV \n"+str(t_min)+r" $\rm{\mu}$s < t < "+str(t_max)+r" $\rm{\mu}$s"+"\n N="+N_str, font_size=font_size-2,  weight="normal")
+    textL(ax, 0.82, 0.78, label_data+ r"$p$"+" > 1.8 GeV \n"+str(t_min)+r" $\rm{\mu}$s < t < "+str(t_max)+r" $\rm{\mu}$s"+"\n N="+N_str, fs=fs-2,  weight="normal")
     # deal with fitted parameters (to display nicely)
     parNames=[r"$N$", r"$\tau$", r"$A$", r"$R$", r"$\phi$"]
     units=["", r"$\rm{\mu}$s", "", "ppm",  "rad"]
     legned_par=r"$\frac{\chi^2}{\rm{DoF}}$="+str(round(chi2_ndf,1))+"\n"
     legned_par=legend_par(legned_par,  parNames, par, par_e, units, prec=prec)
-    textL(ax, 0.17, 0.73, "Fit: "+legned_par, font_size=font_size-2, color="red", weight="normal")
+    textL(ax, 0.17, 0.73, "Fit: "+legned_par, fs=fs-2, color="red", weight="normal")
     if(show_cbo_terms):
         parNames=[r"$\rm{A_{CBO}}$", r"$\omega_{\rm{CBO}}$", r"$\phi_{\rm{CBO}}$", r"$\rm{\tau_{CBO}}$"]
         units=[" ", r"$\rm{\mu}$s", "rad", r"$\rm{\mu}$s"]
         legned_cbo=legend_par("",  parNames, par[5:], par_e[5:], units, prec=prec)
-        textL(ax, 0.48, 0.75, r"CBO, $C(t)$"+":\n "+legned_cbo, font_size=font_size-3, color="red", weight="normal")
+        textL(ax, 0.48, 0.75, r"CBO, $C(t)$"+":\n "+legned_cbo, fs=fs-3, color="red", weight="normal")
 
     #axis labels and ticks
-    plt.ylabel(r"Counts ($N$) per "+str(int(binW*1e3))+" ns", fontsize=font_size)
-    plt.xlabel(r"Time [$\mathrm{\mu}$s] (modulo "+str(t_mod)+r" $\mathrm{\mu}$s)", fontsize=font_size)
+    plt.ylabel(r"Counts ($N$) per "+str(int(binW*1e3))+" ns", fontsize=fs)
+    plt.xlabel(r"Time [$\mathrm{\mu}$s] (modulo "+str(t_mod)+r" $\mathrm{\mu}$s)", fontsize=fs)
     ax.tick_params(axis='x', which='both', bottom=True, top=True, direction='inout')
     ax.tick_params(axis='y', which='both', left=True, right=True, direction='inout')
     ax.minorticks_on()
-    plt.xticks(fontsize=font_size-1)
-    plt.yticks(fontsize=font_size-1)
+    plt.xticks(fontsize=fs-1)
+    plt.yticks(fontsize=fs-1)
 
     return fig, ax
 
@@ -372,7 +338,10 @@ def blinded_wiggle_function_cbo(x, *pars):
     return norm * np.exp(-time/life) * (1 + asym*np.cos(omega*time + phi)) * C
 
 
-def thetaY_unblinded_phase(t, *pars, phi=6.240):    
+def thetaY_unblinded_phase(t, *pars, phi=6.240):  
+    '''
+    \langle \theta(t) \rangle =  A_{\mathrm{B_z}}\cos(\omega t + \phi) + A_{\mathrm{EDM}}\sin(\omega t + \phi) + c
+    '''  
     
     A_bz  = pars[0]      
     A_edm = pars[1]    
@@ -392,11 +361,11 @@ def gauss(x, *p):
     A, mu, sigma = p
     return A*np.exp(-(x-mu)**2/(2.*sigma**2))
 
-def textL(ax, x, y, legend, font_size=14, color="green", weight="normal"):
+def textL(ax, x, y, legend, fs=14, c="green", weight="normal"):
     '''
     return a good formatted plot legend
     '''
-    return ax.text(x, y, str(legend),  fontsize=font_size, transform=ax.transAxes, horizontalalignment='center', verticalalignment='center', color=color, weight=weight)
+    return ax.text(x, y, str(legend),  fontsize=fs, transform=ax.transAxes, horizontalalignment='center', verticalalignment='center', color=c, weight=weight)
 
 def legend5(N, mean, meanE, sd, sdE, units, prec=4):
     '''
@@ -439,6 +408,15 @@ def legend_par(legend, parNames, par, par_e, units, prec=2):
             value=i_name+"={0:d}".format(int(round(par[i])))+"({0:d})".format( int(round(par_e[i])))+" "+units[i] 
         legend+=value+"\n"
     return legend
+
+def legend_1par(legend, parName, par, par_e, units, prec=2):
+    if (par_e < 1):
+        value=parName+"={0:+.{prec}f}".format(par, prec=prec)+"({0:d})".format( int(round(par_e*10**prec)), prec=prec)+" "+units
+    else:
+        value=parName+"={0:d}".format(int(round(par)))+"({0:d})".format( int(round(par_e)))+" "+units 
+    legend+=value+"\n"
+    return legend
+
 
 def stats5(data):
     '''
@@ -483,7 +461,7 @@ def sci_notation(num, decimal_digits=1, precision=None, exponent=None):
 
 
 
-def Profile(x, y, ax, nbins=10, xmin=0, xmax=4, mean=False, sd=False, full_y=False, font_size=14, color="green", only_binned=False):
+def Profile(x, y, ax, nbins=10, xmin=0, xmax=4, mean=False, sd=False, full_y=False, fs=14, c="green", only_binned=False):
     '''
     # Return both the plot and DF of binned data 
     '''
@@ -522,17 +500,17 @@ def Profile(x, y, ax, nbins=10, xmin=0, xmax=4, mean=False, sd=False, full_y=Fal
 
     if(not only_binned):
         # make a nice looking plot as default 
-        ax.set_xlabel(xlabel="X", fontsize=font_size)
-        ax.set_ylabel(ylabel="Y", fontsize=font_size)
+        ax.set_xlabel(xlabel="X", fontsize=fs)
+        ax.set_ylabel(ylabel="Y", fontsize=fs)
         ax.tick_params(axis='x', which='both', bottom=True, top=True, direction='inout')
         ax.tick_params(axis='y', which='both', left=True, right=True, direction='inout')
         ax.minorticks_on()
-        plt.xticks(fontsize=font_size-1)
-        plt.yticks(fontsize=font_size-1)
+        plt.xticks(fontsize=fs-1)
+        plt.yticks(fontsize=fs-1)
         if (mean):
-            ax.errorbar(ProfileFrame['bincenters'], ProfileFrame['ymean'], yerr=ProfileFrame['yMeanError'], xerr=(xmax-xmin)/(2*nbins), linewidth=0, elinewidth=2, color=color, marker="o") 
+            ax.errorbar(ProfileFrame['bincenters'], ProfileFrame['ymean'], yerr=ProfileFrame['yMeanError'], xerr=(xmax-xmin)/(2*nbins), linewidth=0, elinewidth=2, color=c, marker=None) 
         elif (sd):
-            ax.errorbar(ProfileFrame['bincenters'], ProfileFrame['ymean'], yerr=ProfileFrame['yStandDev'], xerr=(xmax-xmin)/(2*nbins), linewidth=0, elinewidth=2, color=color, marker="o") 
+            ax.errorbar(ProfileFrame['bincenters'], ProfileFrame['ymean'], yerr=ProfileFrame['yStandDev'], xerr=(xmax-xmin)/(2*nbins), linewidth=0, elinewidth=2, color=c, marker=None) 
         return ax, df_binned, df
     if(only_binned):
         return df_binned
@@ -582,18 +560,18 @@ def profilePlotEqBin(x,y,xmin,xmax,bs,debug=0):
 
 #no data is returned by sns.regplot, just a pretty plot...really, seaborn?! 
 # use Profile instead, plus seaborn is quite slow... 
-def plotProfileSNS(x, y, x_estimator=np.mean, bins=10, fit_bool=False, ci=95, marker="+", color="green", font_size=14):
+def plotProfileSNS(x, y, x_estimator=np.mean, bins=10, fit_bool=False, ci=95, marker="+", color="green", fs=14):
     ''' 
     return axes with a profile plot 
     '''
     fig, ax = plt.subplots(1,1)
     ax = sns.regplot(x=x, y=y, x_estimator=x_estimator, x_bins=bins, fit_reg=fit_bool, marker=marker, color=color, ax=ax)
     # make a nice looking plot as default 
-    ax.set_xlabel(xlabel="X", fontsize=font_size)
-    ax.set_ylabel(ylabel="Y", fontsize=font_size)
+    ax.set_xlabel(xlabel="X", fontsize=fs)
+    ax.set_ylabel(ylabel="Y", fontsize=fs)
     ax.tick_params(axis='x', which='both', bottom=True, top=True, direction='inout')
     ax.tick_params(axis='y', which='both', left=True, right=True, direction='inout')
     ax.minorticks_on()
-    plt.xticks(fontsize=font_size-1)
-    plt.yticks(fontsize=font_size-1)
+    plt.xticks(fontsize=fs-1)
+    plt.yticks(fontsize=fs-1)
     return ax 
