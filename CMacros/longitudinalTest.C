@@ -12,14 +12,14 @@ void longitudinalTest() {
   // plots limits
   double start_time = 0; // us
   double end_time = 100; //  us
-  double bin_w = 0.150; // 150 ns
   int bin_n = 4000;
  
   // expected parameters (magic/simulation)
-  double lifetime_magic = 64.94; // us
+  double lifetime_magic = 64.04; // us
   double phase_magic = 6.295; // rad
   double asym_magic = -0.386;
   double omega_magic = 1.439; // MhZ
+  double c_magic = 0.042; //mrad vertical angle offset 
 
   // Data-derived 
   double g2period = TMath::TwoPi() / omega_magic;  // ~4.365 us 
@@ -28,7 +28,7 @@ void longitudinalTest() {
 
   // Amplitudes
   double A_edm = 0.14; // large EDM 
-  double A_bz  = 0.04;  // small B_z/A_u
+  double A_bz  = -0.04;  // small B_z/A_u
   double angle_bin_max = max(A_edm, A_bz)*1.3; // arbitrary (just for plotting - min/max)
 
   //smearing 

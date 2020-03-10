@@ -27,6 +27,7 @@ np.set_printoptions(precision=3)
 #Set constant phase (e.g. cu._phi=x)
 _phi=-1
 _omega=-1
+_LT=-1
 
 #define common constants
 meanS=r"$\mathrm{\mu}$"
