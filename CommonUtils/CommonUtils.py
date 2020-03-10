@@ -24,6 +24,9 @@ def get_random_engine(init_seed=123456789):
 #set printout precision of arrays
 np.set_printoptions(precision=3)
 
+#Set constant phase (cu._phi=x)
+_phi=-1
+
 #define common constants
 meanS=r"$\mathrm{\mu}$"
 sigmaS=r"$\sigma$"
@@ -338,11 +341,13 @@ def blinded_wiggle_function_cbo(x, *pars):
     return norm * np.exp(-time/life) * (1 + asym*np.cos(omega*time + phi)) * C
 
 
-def thetaY_unblinded_phase(t, *pars, phi=6.240):  
+def thetaY_unblinded_phase(t, *pars):  
     '''
     \langle \theta(t) \rangle =  A_{\mathrm{B_z}}\cos(\omega t + \phi) + A_{\mathrm{EDM}}\sin(\omega t + \phi) + c
     '''  
-    
+    phi=_phi
+    if (phi == -1): raise Exception("Set constants phase via cu._phi=x")
+
     A_bz  = pars[0]      
     A_edm = pars[1]    
     c     = pars[2]    
