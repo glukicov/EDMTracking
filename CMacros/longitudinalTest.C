@@ -14,8 +14,7 @@ void longitudinalTest() {
   double end_time = 100; //  us
   double bin_w = 0.150; // 150 ns
   int bin_n = 4000;
-  double angle_bin_max = 1.2; // arbitrary
-
+ 
   // expected parameters (magic/simulation)
   double lifetime_magic = 64.94; // us
   double phase_magic = 6.295; // rad
@@ -28,8 +27,9 @@ void longitudinalTest() {
   double lifetime_weight = lifetime_magic; // can also be extracted from the fit to w_a 
 
   // Amplitudes
-  double A_edm = 1.0; // large EDM 
-  double A_bz  = 0.5*A_edm;  // small B_z/A_u
+  double A_edm = 0.14; // large EDM 
+  double A_bz  = 0.04;  // small B_z/A_u
+  double angle_bin_max = max(A_edm, A_bz)*1.2; // arbitrary (just for plotting)
 
   //smearing 
   double angRes = 0.01;
@@ -38,13 +38,26 @@ void longitudinalTest() {
 
   //---------
 
-  //generative functions
+  //generative function (can be taken from data )
   TF1* fWiggle = new TF1("fWiggle", "[0]*exp(-x/[1])*(1+[2]*cos([3]*x+[4]))", start_time, end_time);
   fWiggle->SetParameters(1, lifetime_magic, asym_magic, omega_magic, phase_magic); fWiggle->SetNpx(10000);
+
+  // B_z with magic parameters 
+  TF1* f_bz = new TF1("f_bz", "[0]*cos([1]*x+[2])", 0, g2period);
+  f_bz->SetParameter(0, A_bz ); f_bz->FixParameter(1, omega_magic); f_bz->FixParameter(2, phase_magic); f_bz->SetLineColor(2); 
+  
+  // EDM with magic parameters 
+  TF1* fSin = new TF1("fSin", "[0]*sin([1]*x+[2])", 0, g2period);
+  fSin->SetParameter(0, A_edm );  fSin->FixParameter(1, omega_magic);fSin->FixParameter(2, phase_magic); fSin->SetLineColor(4);
 
   // vertical angle oscillation
   TF1* fVertical = new TF1("fVertical", "[0]*cos([2]*x+[3]) + [1]*sin([2]*x+[3])", start_time, end_time);
   fVertical->SetParameters(A_bz, A_edm, omega_magic, phase_magic); fVertical->SetNpx(10000);
+
+  // The convolution function 
+  TF1* f_conv = new TF1("f_conv", "[0]*cos([2]*x)+[1]*sin([2]*x)", 0, g2period);
+  f_conv->SetParameter(0, 0.5); f_conv->SetParameter(1, 0.5); f_conv->FixParameter(2, omega_magic); f_conv->SetLineColor(6); // purple 
+
 
   // Do a pseudo experiment and fit for frequency
   TH1F* hitTimes = new TH1F("hitTimes", ";Time [us];Counts", bin_n, start_time, bin_w * bin_n);
@@ -58,6 +71,8 @@ void longitudinalTest() {
   fitFunc->SetParameters(n_inject * bin_w / lifetime_magic, lifetime_magic, asym_magic, omega_magic, phase_magic);
   hitTimes->Fit(fitFunc, "RLQ");
 
+
+  // delete staff above 
 
   // Now remake plots modulo g2period
   TH1F* hitTimesMod = new TH1F("hitTimesMod", ";Time % #omega_{a} g2period [us];Counts", bin_n, -g2period, g2period);
@@ -97,17 +112,14 @@ void longitudinalTest() {
   hitAngleModReflProf->GetYaxis()->SetRangeUser(-angle_bin_max , angle_bin_max );
   hitAngleModReflProf->Draw("HISTP");
 
-  TF1* fSinCos = new TF1("fSinCos", "[0]*cos([2]*x)+[1]*sin([2]*x)", 0, g2period);
-  fSinCos->SetParameter(0, 0.5);
-  fSinCos->SetParameter(1, 0.5);
-  fSinCos->FixParameter(2, omega_magic);
-  fSinCos->SetNpx(10000);
-  fSinCos->SetLineColor(2);
-  hitAngleModReflProf->Fit(fSinCos, "RN");
+  
+  
+  
+  hitAngleModReflProf->Fit(f_conv, "RN"); // range [0, g2period], N=no_draw 
   cout << "Input: " << endl;
   cout << "A_bz = " << A_bz << "\t A_edm= " << A_edm << endl;
   cout << "Fit: " << endl;
-  cout << "A_bz = " << fSinCos->GetParameter(0) << "\t A_edm = " << fSinCos->GetParameter(1) << endl;
+  cout << "A_bz = " << f_conv->GetParameter(0) << "\t A_edm = " << f_conv->GetParameter(1) << endl;
 
   TCanvas* cPlot = new TCanvas("cPlot", "cPlot");
   cPlot->SetTopMargin(0);
@@ -116,52 +128,27 @@ void longitudinalTest() {
   cPlot->cd(1);
   gPad->SetBottomMargin(0);
   gPad->SetTopMargin(0.17);
-  TF1* fCos = new TF1("fCos", "[0]*cos([1]*x)", 0, g2period);
-  fCos->SetParameter(0, A_bz );
-  fCos->FixParameter(1, TMath::TwoPi() / g2period);
-  fCos->SetNpx(10000);
-  fCos->SetLineColor(2);
-  TF1* fSin = new TF1("fSin", "[0]*sin([1]*x)", 0, g2period);
-  fSin->SetParameter(0, A_edm );
-  fSin->FixParameter(1, TMath::TwoPi() / g2period);
-  fSin->SetNpx(10000);
-  fSin->SetLineColor(4);
-  fCos->SetTitle(";;Angle [arb. units]");
-  fCos->GetYaxis()->SetRangeUser(-angle_bin_max , angle_bin_max );
-  fCos->GetYaxis()->SetTitleSize(0.07);
-  fCos->GetYaxis()->SetTitleOffset(0.5);
-  fCos->GetYaxis()->SetLabelSize(0.07);
-  fCos->GetYaxis()->CenterTitle();
-  fCos->Draw();
-  fSin->Draw("SAME");
-  fVertical->SetParameter(3, 0);
-  fVertical->Draw("SAME");
 
-  cPlot->cd(2);
-  gPad->SetTopMargin(0);
-  gPad->SetBottomMargin(0.17);
-  hitAngleModReflProf->GetYaxis()->SetTitle("Angle [arb. units]");
-  hitAngleModReflProf->SetStats(0);
-  hitAngleModReflProf->GetYaxis()->CenterTitle();
-  hitAngleModReflProf->GetYaxis()->SetTitleSize(0.07);
-  hitAngleModReflProf->GetYaxis()->SetTitleOffset(0.5);
-  hitAngleModReflProf->GetYaxis()->SetLabelSize(0.07);
-  hitAngleModReflProf->GetXaxis()->SetLabelSize(0.07);
-  hitAngleModReflProf->GetXaxis()->SetTitleSize(0.07);
+  //Draw EDM, B_z, theta 
+  f_bz->Draw(); fSin->Draw("SAME"); fVertical->Draw("SAME");
+  fVertical->SetLineColor(1);  fVertical->SetLineStyle(3); f_bz->SetTitle(";;Angle [arb. units]"); f_bz->GetYaxis()->SetRangeUser(-angle_bin_max , angle_bin_max ); f_bz->GetYaxis()->SetTitleSize(0.07); f_bz->GetYaxis()->SetTitleOffset(0.5); f_bz->GetYaxis()->SetLabelSize(0.07); f_bz->GetYaxis()->CenterTitle();
+  
+  // the resultant plot 
+  cPlot->cd(2); gPad->SetTopMargin(0); gPad->SetBottomMargin(0.17); hitAngleModReflProf->GetYaxis()->SetTitle("Angle [mrad]"); hitAngleModReflProf->SetStats(0); hitAngleModReflProf->GetYaxis()->CenterTitle(); hitAngleModReflProf->GetYaxis()->SetTitleSize(0.07); hitAngleModReflProf->GetYaxis()->SetTitleOffset(0.5); hitAngleModReflProf->GetYaxis()->SetLabelSize(0.07); hitAngleModReflProf->GetXaxis()->SetLabelSize(0.07); hitAngleModReflProf->GetXaxis()->SetTitleSize(0.07);
   hitAngleModReflProf->Draw();
 
+  //save final plot 
   cPlot->SaveAs("../fig/AzimuthalField.png");
 
+  // dump to file 
   time->Write();
   angles->Write();
   anglesRefl->Write();
   anglesProf->Write();
   anglesProfRefl->Write();
   cPlot->Write();
-
   f.Write();
   f.Close();
-
   cout << "final figure saved!\n";
 
 }
