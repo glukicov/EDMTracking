@@ -66,6 +66,7 @@ void longitudinal_edm_blind() {
   TFile f("../DATA/misc/toy_blind.root", "recreate"); f.cd();
   TH1F* hitTimesMod = new TH1F("hitTimesMod", ";Time % #omega_{a} g2period [us];Counts", bin_n, -g2period, g2period);
   TH2F* hitAngleMod = new TH2F("hitAngleMod", ";Time % #omega_{a} g2period [us];Angle [mrad]", bin_n, -g2period, g2period, bin_n/4, -angle_bin_max, angle_bin_max);
+  // TH2F* hitAngleModRefl = new TH2F("hitAngleModRefl", ";Time % #omega_{a} g2period [us];Angle [mrad]", bin_n/2, -g2period*2, g2period*2, bin_n/4, -angle_bin_max, angle_bin_max);
   TH2F* hitAngleModRefl = new TH2F("hitAngleModRefl", ";Time % #omega_{a} g2period [us];Angle [mrad]", bin_n/2, 0, g2period, bin_n/4, -angle_bin_max, angle_bin_max);
   //---end of pots 
 
@@ -77,6 +78,7 @@ void longitudinal_edm_blind() {
     double ang = rng->Gaus(fVertical->Eval(t), angRes); // can  be taken from sim  
     double tMod = fmod(t - phase_offset, 2 * g2period) - g2period;
     double weight = exp(tMod / lifetime_weight);
+    // cout << "tMod " << tMod << " weight " << weight << "\n";
     hitTimesMod->Fill(tMod, weight);
     hitAngleMod->Fill(tMod, ang, weight);
     if (tMod > 0) hitAngleModRefl->Fill(tMod, ang, weight);

@@ -538,7 +538,7 @@ def sci_notation(num, decimal_digits=1, precision=None, exponent=None):
 
 
 
-def Profile(x, y, ax, nbins=10, xmin=0, xmax=4, mean=False, sd=False, full_y=False, fs=14, c="green", only_binned=False):
+def Profile(x, y, w=None, ax=None, nbins=10, xmin=0, xmax=4, mean=False, sd=False, full_y=False, fs=14, c="green", only_binned=False):
     '''
     # Return both the plot and DF of binned data 
     '''
