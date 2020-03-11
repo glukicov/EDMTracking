@@ -236,7 +236,7 @@ def get_g2_mod_time(times):
 
     return mod_g2_time
 
-def get_edm_mod_time(times):
+def get_edm_mod_times(times):
     '''
     modulate time data by the gm2 period for edm blinding
     '''
@@ -245,12 +245,34 @@ def get_edm_mod_time(times):
     if (phi == -1): raise Exception("Set constants phase via cu._phi=x")
     if(omega_a_magic==-1): raise Exception("Set omega_a via cu._omega=x")
 
-    g2_period=np.pi*2/omega_a_magic # 2pi/rad/s -> 1/Mhz
-    edm_mod_time = np.fmod(times - phase_offset, 2 * g2_period) - g2_period;
+    g2_period=np.pi*2/omega_a_magic # 2pi/rad/s -> 1/Mhz -> us
+    phase_offset = phi / omega_a_magic # us 
+    edm_mod_times = np.fmod(times - phase_offset, 2 * g2_period) - g2_period
 
-    return edm_mod_time
+    return edm_mod_times
 
-def 
+def get_edm_weights(edm_mod_times):
+    '''
+    associated weights to mod times
+    '''
+
+    lifetime =_LT
+    if (lifetime == -1): raise Exception("Set constants lifetime via cu._LT=x")
+    
+    weights = np.exp(edm_mod_times / lifetime)
+    
+    return weights
+
+def get_abs_times_weights(times):
+    '''
+    Combine the above two functions
+    and return the absolute times
+    '''
+    edm_mod_times = get_edm_mod_times(times)
+    weights = get_edm_weights(edm_mod_times)
+    
+    return np.abs(edm_mod_times), weights
+
 
 def residuals(x, y, func, pars):
     '''

@@ -1,5 +1,10 @@
 // Author: James
-// Modified by Gleb (8 March 2020)
+// Modified by Gleb (8 March 2020) 
+
+// A toy model to blind the EDM signal to do a fit for B_z 
+// See Gleb's DocDB:XXXXX for details (~Mid March 2020)
+// Main implementation is in Python
+// e.g. for simulation see https://github.com/glukicov/EDMTracking/blob/master/JupyterNB/Bz_sim.ipynb
 
 void longitudinalTest() {
 
