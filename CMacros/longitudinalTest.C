@@ -71,8 +71,8 @@ void longitudinalTest() {
 
   //Re-weighting
   for (int i = 0 ; i < n_inject; i++) {
-    double t = fWiggle->GetRandom(); // can be taken from data TODO
-    double ang = rng->Gaus(fVertical->Eval(t), angRes); // can  be taken from data TODO 
+    double t = fWiggle->GetRandom(); // can be taken from sim 
+    double ang = rng->Gaus(fVertical->Eval(t), angRes); // can  be taken from sim  
     double tMod = fmod(t - phase_offset, 2 * g2period) - g2period;
     double weight = exp(tMod / lifetime_weight);
     hitTimesMod->Fill(tMod, weight);

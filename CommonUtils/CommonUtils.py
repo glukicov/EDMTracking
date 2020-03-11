@@ -109,9 +109,13 @@ def plotHist2D(x, y, n_binsXY=(100, 100), prec=2, fs=14, units="units", figsize=
     return jg, cb, legendX, legendY
 
 def plot(x, y, x_err=None, y_err=None, fs=14, c="green", 
-         figsize=(7,5), label=None, lw=1, elw=2, lc='g', ls="-", 
-         tight=True, step=False, scatter=False, error=False,
+         figsize=(7,5), label=None, lw=1, elw=2, lc='g', ls="-", tight=False, 
+         step=False, scatter=False, error=False, plot=False,
          xlabel=None, ylabel=None):
+    '''
+    Return nicely-formatted axes and figures
+    returns empty (formatted) axes if nothing is provided (default)
+    '''
     
     fig, ax = plt.subplots(figsize=figsize)
     if (step):
@@ -120,9 +124,10 @@ def plot(x, y, x_err=None, y_err=None, fs=14, c="green",
         ax.scatter(x, y, c=c, label=label, lw=lw, ls=ls)
     elif (error):
         ax.errorbar(x, y, xerr=x_err, yerr=y_err, linewidth=0, elinewidth=elw, color=c, marker=None, label=label)
-    else:
+    elif (plot):
         ax.plot(x, y, c=c, label=label, lw=lw, ls=ls)
     
+
     # make a nice looking plot as default 
     ax.set_xlabel(xlabel=xlabel, fontsize=fs)
     ax.set_ylabel(ylabel=ylabel, fontsize=fs)
@@ -217,16 +222,35 @@ def get_freq_bin_c_from_data(data, bin_w, bin_range):
     assert( len(freq) == len(bin_c) ==  bin_n)
     return bin_c, freq 
 
-def get_g2_mod_time(times, omega_a_magic=1.44):
+def get_g2_mod_time(times):
     '''
     modulate time data by the gm2 period
     '''
+    omega_a_magic=_omega
+    if(omega_a_magic==-1): raise Exception("Set omega_a via cu._omega=x")
+
     g2_period=np.pi*2/omega_a_magic # 2pi/rad/s -> 1/Mhz
     g2_frac_time = times / g2_period
     g2_frac_time_int = g2_frac_time.astype(int)
     mod_g2_time = (g2_frac_time - g2_frac_time_int) * g2_period
 
     return mod_g2_time
+
+def get_edm_mod_time(times):
+    '''
+    modulate time data by the gm2 period for edm blinding
+    '''
+    omega_a_magic=_omega 
+    phi=_phi
+    if (phi == -1): raise Exception("Set constants phase via cu._phi=x")
+    if(omega_a_magic==-1): raise Exception("Set omega_a via cu._omega=x")
+
+    g2_period=np.pi*2/omega_a_magic # 2pi/rad/s -> 1/Mhz
+    edm_mod_time = np.fmod(times - phase_offset, 2 * g2_period) - g2_period;
+
+    return edm_mod_time
+
+def 
 
 def residuals(x, y, func, pars):
     '''
