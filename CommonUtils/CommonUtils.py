@@ -382,11 +382,11 @@ def thetaY_unblinded_phase(t, *pars):
     return A_bz * np.cos(omega * t + phi) + A_edm * np.sin(omega * t + phi) + c
 
 
-def sin_unblinded(t, A, b, c):
-    return A * np.sin(b * t)+c
+def sin(t, A, b, p, c):
+    return A * np.sin(b * t+p)+c
 
-def cos_unblinded(t, A, b, c):
-    return A * np.cos_unblinded(b * t)+c
+def cos(t, A, b, p, c):
+    return A * np.cos(b * t+p)+c
 
 def gauss(x, *p): 
     A, mu, sigma = p

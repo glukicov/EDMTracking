@@ -29,7 +29,7 @@ void longitudinalTest() {
   // Amplitudes
   double A_edm = 0.14; // large EDM 
   double A_bz  = -0.04;  // small B_z/A_u
-  double angle_bin_max = max(A_edm, A_bz)*1.3; // arbitrary (just for plotting - min/max)
+  double angle_bin_max = max(A_edm, A_bz)*1.6; // arbitrary (just for plotting - min/max)
 
   //smearing 
   double angRes = 0.01;
@@ -39,25 +39,25 @@ void longitudinalTest() {
 
   //----functions 
 
-  //generative function (can be taken from data )
+  //generative function (can be taken from data)
   TF1* fWiggle = new TF1("fWiggle", "[0]*exp(-x/[1])*(1+[2]*cos([3]*x+[4]))", start_time, end_time);
   fWiggle->SetParameters(1, lifetime_magic, asym_magic, omega_magic, phase_magic); 
 
   // B_z with magic parameters 
-  TF1* f_bz = new TF1("f_bz", "[0]*cos([1]*x+[2])", 0, g2period);
-  f_bz->SetParameter(0, A_bz ); f_bz->FixParameter(1, omega_magic); f_bz->FixParameter(2, phase_magic); f_bz->SetLineColor(2); // red 
+  TF1* f_bz = new TF1("f_bz", "[0]*cos([1]*x+[2])+[3]", 0, g2period);
+  f_bz->SetParameter(0, A_bz ); f_bz->FixParameter(1, omega_magic); f_bz->FixParameter(2, phase_magic); f_bz->FixParameter(3, c_magic); f_bz->SetLineColor(2); // red 
   
   // EDM with magic parameters 
-  TF1* f_edm = new TF1("f_edm", "[0]*sin([1]*x+[2])", 0, g2period);
-  f_edm->SetParameter(0, A_edm );  f_edm->FixParameter(1, omega_magic);f_edm->FixParameter(2, phase_magic); f_edm->SetLineColor(4); // blue
+  TF1* f_edm = new TF1("f_edm", "[0]*sin([1]*x+[2])+[3]", 0, g2period);
+  f_edm->SetParameter(0, A_edm );  f_edm->FixParameter(1, omega_magic);f_edm->FixParameter(2, phase_magic); f_edm->FixParameter(3, c_magic); f_edm->SetLineColor(4); // blue
 
-  // vertical angle oscillation
-  TF1* fVertical = new TF1("fVertical", "[0]*cos([2]*x+[3]) + [1]*sin([2]*x+[3])", start_time, end_time);
-  fVertical->SetParameters(A_bz, A_edm, omega_magic, phase_magic); fVertical->SetLineColor(1);  fVertical->SetLineStyle(3);  // greed-dashed
+  // vertical angle oscillation (generative function!/can be taken from data, also used for visualisation)
+  TF1* fVertical = new TF1("fVertical", "[0]*cos([2]*x+[3]) + [1]*sin([2]*x+[3])+[4]", start_time, end_time);
+  fVertical->SetParameters(A_bz, A_edm, omega_magic, phase_magic, c_magic);  fVertical->SetLineColor(1);  fVertical->SetLineStyle(3);  // greed-dashed
 
-  // The convolution function 
-  TF1* f_conv = new TF1("f_conv", "[0]*cos([2]*x)+[1]*sin([2]*x)", 0, g2period);
-  f_conv->SetParameter(0, 0.5); f_conv->SetParameter(1, 0.5); f_conv->FixParameter(2, omega_magic); f_conv->SetLineColor(6); // purple 
+  // The convolution function (we fix omega and phase and fit for A_bz, c, and A_edm_BLINDED - safe to show)
+  TF1* f_conv = new TF1("f_conv", "[0]*cos([2]*x+[3])+[1]*sin([2]*x+[3])+[4]", 0, g2period);
+  f_conv->FixParameter(2, omega_magic); f_conv->FixParameter(3, phase_magic); f_conv->SetLineColor(6); // purple 
 
   //-----------end of func
 
