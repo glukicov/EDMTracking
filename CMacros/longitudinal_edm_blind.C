@@ -1,15 +1,12 @@
-// Author: James
+// Author: James Mott 
 // Modified by Gleb (8 March 2020) 
 
 // A toy model to blind the EDM signal to do a fit for B_z 
-// See Gleb's DocDB:XXXXX for details (~Mid March 2020)
+// See Gleb's DocDB:XXXXX for details (to be uploaded ~Mid March 2020)
 // Main implementation is in Python
 // e.g. for simulation see https://github.com/glukicov/EDMTracking/blob/master/JupyterNB/Bz_sim.ipynb
 
-void longitudinalTest() {
-
-  TFile f("longitudinalTest.root", "recreate");
-  f.cd();
+void longitudinal_edm_blind() {
 
   //------ constants
   int n_inject = int(1e7);
@@ -63,10 +60,10 @@ void longitudinalTest() {
   // The convolution function (we fix omega and phase and fit for A_bz, c, and A_edm_BLINDED - safe to show)
   TF1* f_conv = new TF1("f_conv", "[0]*cos([2]*x+[3])+[1]*sin([2]*x+[3])+[4]", 0, g2period);
   f_conv->FixParameter(2, omega_magic); f_conv->FixParameter(3, phase_magic); f_conv->SetLineColor(6); // purple 
-
   //-----------end of func
 
   //---- plots 
+  TFile f("../DATA/misc/toy_blind.root", "recreate"); f.cd();
   TH1F* hitTimesMod = new TH1F("hitTimesMod", ";Time % #omega_{a} g2period [us];Counts", bin_n, -g2period, g2period);
   TH2F* hitAngleMod = new TH2F("hitAngleMod", ";Time % #omega_{a} g2period [us];Angle [arb. units]", bin_n, -g2period, g2period, bin_n/4, -angle_bin_max, angle_bin_max);
   TH2F* hitAngleModRefl = new TH2F("hitAngleModRefl", ";Time % #omega_{a} g2period [us];Angle [arb. units]", bin_n/2, 0, g2period, bin_n/4, -angle_bin_max, angle_bin_max);
@@ -105,6 +102,7 @@ void longitudinalTest() {
   cPlot->cd(2); gPad->SetTopMargin(0); gPad->SetBottomMargin(0.17); hitAngleModReflProf->GetYaxis()->SetTitle("Angle [mrad]"); hitAngleModReflProf->SetStats(0); hitAngleModReflProf->GetYaxis()->CenterTitle(); hitAngleModReflProf->GetYaxis()->SetTitleSize(0.07); hitAngleModReflProf->GetYaxis()->SetTitleOffset(0.5); hitAngleModReflProf->GetYaxis()->SetLabelSize(0.07); hitAngleModReflProf->GetXaxis()->SetLabelSize(0.07); hitAngleModReflProf->GetXaxis()->SetTitleSize(0.07);
   hitAngleModReflProf->Draw();
   //save final plot 
-  cPlot->SaveAs("../fig/AzimuthalField.png"); f.Write(); f.Close();
-  cout << "final figure saved!\n";
+  cPlot->SaveAs("../fig/toy_blind.png"); f.Write(); f.Close();
+  cout << "final figure saved, done!\n";
+
 }
