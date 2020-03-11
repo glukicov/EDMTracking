@@ -31,7 +31,7 @@ void longitudinal_edm_blind() {
   // Amplitudes
   double A_edm = 0.14; // large EDM 
   double A_bz  = -0.04;  // small B_z/A_u
-  double angle_bin_max = max(A_edm, A_bz)*1.6; // arbitrary (just for plotting - min/max)
+  double angle_bin_max = max(A_edm, A_bz)*1.6; //just for plotting - min/max
 
   //smearing 
   double angRes = 0.01;
@@ -65,8 +65,8 @@ void longitudinal_edm_blind() {
   //---- plots 
   TFile f("../DATA/misc/toy_blind.root", "recreate"); f.cd();
   TH1F* hitTimesMod = new TH1F("hitTimesMod", ";Time % #omega_{a} g2period [us];Counts", bin_n, -g2period, g2period);
-  TH2F* hitAngleMod = new TH2F("hitAngleMod", ";Time % #omega_{a} g2period [us];Angle [arb. units]", bin_n, -g2period, g2period, bin_n/4, -angle_bin_max, angle_bin_max);
-  TH2F* hitAngleModRefl = new TH2F("hitAngleModRefl", ";Time % #omega_{a} g2period [us];Angle [arb. units]", bin_n/2, 0, g2period, bin_n/4, -angle_bin_max, angle_bin_max);
+  TH2F* hitAngleMod = new TH2F("hitAngleMod", ";Time % #omega_{a} g2period [us];Angle [mrad]", bin_n, -g2period, g2period, bin_n/4, -angle_bin_max, angle_bin_max);
+  TH2F* hitAngleModRefl = new TH2F("hitAngleModRefl", ";Time % #omega_{a} g2period [us];Angle [mrad]", bin_n/2, 0, g2period, bin_n/4, -angle_bin_max, angle_bin_max);
   //---end of pots 
 
   // -----MAIN-----
@@ -97,7 +97,7 @@ void longitudinal_edm_blind() {
   TCanvas* cPlot = new TCanvas("cPlot", "cPlot"); cPlot->SetTopMargin(0); cPlot->SetBottomMargin(0); cPlot->Divide(1, 2, 0, 0); cPlot->cd(1); gPad->SetBottomMargin(0); gPad->SetTopMargin(0.17);
   //Draw EDM, B_z, theta 
   f_bz->Draw(); f_edm->Draw("SAME"); fVertical->Draw("SAME");
-  f_bz->SetTitle(";;Angle [arb. units]"); f_bz->GetYaxis()->SetRangeUser(-angle_bin_max , angle_bin_max ); f_bz->GetYaxis()->SetTitleSize(0.07); f_bz->GetYaxis()->SetTitleOffset(0.5); f_bz->GetYaxis()->SetLabelSize(0.07); f_bz->GetYaxis()->CenterTitle();
+  f_bz->SetTitle(";;Angle [mrad]"); f_bz->GetYaxis()->SetRangeUser(-angle_bin_max , angle_bin_max ); f_bz->GetYaxis()->SetTitleSize(0.07); f_bz->GetYaxis()->SetTitleOffset(0.5); f_bz->GetYaxis()->SetLabelSize(0.07); f_bz->GetYaxis()->CenterTitle();
   // the resultant plot 
   cPlot->cd(2); gPad->SetTopMargin(0); gPad->SetBottomMargin(0.17); hitAngleModReflProf->GetYaxis()->SetTitle("Angle [mrad]"); hitAngleModReflProf->SetStats(0); hitAngleModReflProf->GetYaxis()->CenterTitle(); hitAngleModReflProf->GetYaxis()->SetTitleSize(0.07); hitAngleModReflProf->GetYaxis()->SetTitleOffset(0.5); hitAngleModReflProf->GetYaxis()->SetLabelSize(0.07); hitAngleModReflProf->GetXaxis()->SetLabelSize(0.07); hitAngleModReflProf->GetXaxis()->SetTitleSize(0.07);
   hitAngleModReflProf->Draw();
