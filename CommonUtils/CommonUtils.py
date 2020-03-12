@@ -22,7 +22,7 @@ def get_random_engine(init_seed=123456789):
     return np.random.RandomState(seed=init_seed)
 
 #set printout precision of arrays
-np.set_printoptions(precision=3)
+np.set_printoptions(precision=9)
 
 #Set constant phase (e.g. cu._phi=x)
 _phi=-1

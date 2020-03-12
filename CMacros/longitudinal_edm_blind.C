@@ -8,14 +8,8 @@
 
 void longitudinal_edm_blind() {
 
-  //------ constants
-  int n_inject = int(1e7);
-
-  // plots limits
-  double start_time = 0; // us
-  double end_time = 100; //  us
-  int bin_n = 4000;
- 
+  int n_inject = int(1013836);
+  
   // expected parameters (magic/simulation)
   double lifetime_magic = 64.04; // us
   double phase_magic = 6.295; // rad
@@ -28,6 +22,11 @@ void longitudinal_edm_blind() {
   double phase_offset = phase_magic / omega_magic; // adjust by phase us 
   double lifetime_weight = lifetime_magic; // can also be extracted from the fit to w_a 
 
+    // plots limits
+  double start_time = 4.5; // us
+  double end_time = 100; //  us
+  int bin_n = 4000;
+ 
   // Amplitudes
   double A_edm = 0.14; // large EDM 
   double A_bz  = -0.04;  // small B_z/A_u
@@ -37,6 +36,10 @@ void longitudinal_edm_blind() {
   double angRes = 0.01;
   TRandom3* rng = new TRandom3(12345);
   gRandom->SetSeed(12345);
+
+  ofstream dump;
+  dump.open ("../DATA/misc/C_dump.txt");
+  dump << "t" << ", " << "ang"  << ", " << "tMod" << ", " << "weight" << "\n";
   //---------end of const
 
   //----functions 
@@ -54,7 +57,7 @@ void longitudinal_edm_blind() {
   f_edm->SetParameter(0, A_edm );  f_edm->FixParameter(1, omega_magic);f_edm->FixParameter(2, phase_magic); f_edm->FixParameter(3, c_magic); f_edm->SetLineColor(4); // blue
 
   // vertical angle oscillation (generative function!/can be taken from data, also used for visualisation)
-  TF1* fVertical = new TF1("fVertical", "[0]*cos([2]*x+[3]) + [1]*sin([2]*x+[3])+[4]", start_time, end_time);
+  TF1* fVertical = new TF1("fVertical", "[0]*cos([2]*x-[3]) + [1]*sin([2]*x-[3])+[4]", 0, end_time);
   fVertical->SetParameters(A_bz, A_edm, omega_magic, phase_magic, c_magic);  fVertical->SetLineColor(1);  fVertical->SetLineStyle(3);  // greed-dashed
 
   // The convolution function (we fix omega and phase and fit for A_bz, c, and A_edm_BLINDED - safe to show)
@@ -79,6 +82,7 @@ void longitudinal_edm_blind() {
     double tMod = fmod(t - phase_offset, 2 * g2period) - g2period;
     double weight = exp(tMod / lifetime_weight);
     // cout << "tMod " << tMod << " weight " << weight << "\n";
+    dump << t << ", " << ang  << ", " << tMod << ", " << weight << "\n";
     hitTimesMod->Fill(tMod, weight);
     hitAngleMod->Fill(tMod, ang, weight);
     if (tMod > 0) hitAngleModRefl->Fill(tMod, ang, weight);

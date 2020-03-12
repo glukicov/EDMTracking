@@ -14,35 +14,38 @@ e.g.
 
 from ROOT import TH1, TH2, TFile
 import numpy as np
+import math
 from root_numpy import hist2array # http://scikit-hep.org/root_numpy/
 cimport cython  
 
-def hist2np(str file_path="data/data.root", str hist_path="Tracks/pvalue", bint cp=True,  bint overflow=False,  bint edges_bool=True):
+def hist2np(freq, edges, # default  
+            bint from_root=False, str file_path="data/data.root", str hist_path="Tracks/pvalue", 
+            bint cp=True,  bint overflow=False,  bint edges_bool=True):
     '''
     Extension of the hist2array to return 1D or 2D histos data as an array 
     Returns: 1D: dataX[], n_binsX, dBinX  2D: dataXY[][], n_binsXY[], dBinXY[]
     len(dataX) = entries in histogram (not counting over/underflows))
-    (!) Works for non-normalised (to 1) histos only (can be implemented) 
 
     #Example of getting some data, bins and bind width from ROOT 1D or 2D Histogram
     # dataXY, binsXY, dBinXY = ru.hist2np(file_path="DATA/noEDM.root", hist_path="AllStationsNoTQ/VertexExtap/t>0/0<p<3600/radialPos")
     '''
-    print("RUtils::hist2np Opening",hist_path,"in",file_path)
-    tfile=TFile.Open(file_path)
-    thist=tfile.Get(hist_path)
-    cdef int exp_total = int(thist.Integral()) # total number of entries (not counting over/underflows)
-    print("RUtils::hist2np Opened", thist, type(thist[0]), "with", exp_total, "entries (exc. over/underflows)")
+    cdef int exp_total;
+    if(from_root==True):
+        print("RUtils::hist2np Opening",hist_path,"in",file_path)
+        tfile=TFile.Open(file_path)
+        thist=tfile.Get(hist_path)
+        exp_total = int(thist.Integral()) # total number of entries (not counting over/underflows)
+        print("RUtils::hist2np Opened", thist, type(thist[0]), "with", exp_total, "entries (exc. over/underflows)")
 
-    #now call the the default root_numpy function to get frequencies and bin edges 
-    # # http://scikit-hep.org/root_numpy/reference/generated/root_numpy.hist2array.html
-    freq, edges = hist2array(thist, include_overflow=overflow, copy=cp, return_edges=edges_bool)
+        #now call the the default root_numpy function to get frequencies and bin edges 
+        # # http://scikit-hep.org/root_numpy/reference/generated/root_numpy.hist2array.html
+        freq, edges = hist2array(thist, include_overflow=overflow, copy=cp, return_edges=edges_bool)
+    else:
+        print("Using passed freq and edges")
     
     cdef int D=len(freq.shape)
     if(D!=1 and D!=2):
         raise Exception("RUtils::hist2np Implementation for 1D or 2D, got dimensions of", D)
-
-    #ensure int frequency count (in place copy)
-    freq=freq.astype(int, copy=False)
     
     if (D == 1):
         
@@ -61,11 +64,10 @@ def hist2np(str file_path="data/data.root", str hist_path="Tracks/pvalue", bint 
         #expand frequencies by bin centres 
         #bin with 0 frequency do not contribute to this expansion
         data=[]
-        for i_bin, f in enumerate(freq):
-            for i in range(0, f): 
-                data.append(binC[i_bin])
+        for i_bin in range(n_bins):
+            data.extend( (binC[i_bin]*np.ones(math.ceil(freq[i_bin]))) )
 
-        if (len(data) != exp_total):
+        if (len(data) != exp_total and from_root):
             raise Exception("RUtils::hist2np Did not get expected entries! Got", len(data), "expected", exp_total)
     #D1 end
     
@@ -83,7 +85,6 @@ def hist2np(str file_path="data/data.root", str hist_path="Tracks/pvalue", bint 
         for i_dim in range(D):
            
             #extract the edges from the array of arrays
-
             edges_D=edges[i_dim]
            
             #find number of bins
@@ -100,13 +101,12 @@ def hist2np(str file_path="data/data.root", str hist_path="Tracks/pvalue", bint 
             
         # now correlate binC(x,y) and freq(x,y)
         for ix,iy in np.ndindex(freq.shape): # looping over x,y indices of a matrix 
-            for i in range(0, freq[ix][iy]): # for that number of freq 
-                    data[0].append(binC[0][ix]) #append to  X, and Y
-                    data[1].append(binC[1][iy])
+            data[0].extend( (binC[0][ix]*np.ones(math.ceil(freq[ix][iy]))) )
+            data[1].extend( (binC[1][iy]*np.ones(math.ceil(freq[ix][iy]))) )
                 
         # sanity check
         for i_dim in range(D):
-            if (len(data[i_dim]) != exp_total):
+            if (len(data[i_dim]) != exp_total and from_root):
                 raise Exception("Did not get expected entries! Got ", len(data[i_dim]), "for D:", i_dim, "expected", exp_total)            
     # D2 end
 
