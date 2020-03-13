@@ -23,8 +23,8 @@ void longitudinal_edm_blind() {
   double lifetime_weight = lifetime_magic; // can also be extracted from the fit to w_a 
 
     // plots limits
-  double start_time = 4.5; // us
-  double end_time = 100; //  us
+  double start_time = 30; // us
+  double end_time = 300; //  us
   int bin_n = 4000;
  
   // Amplitudes
@@ -57,7 +57,7 @@ void longitudinal_edm_blind() {
   f_edm->SetParameter(0, A_edm );  f_edm->FixParameter(1, omega_magic);f_edm->FixParameter(2, phase_magic); f_edm->FixParameter(3, c_magic); f_edm->SetLineColor(4); // blue
 
   // vertical angle oscillation (generative function!/can be taken from data, also used for visualisation)
-  TF1* fVertical = new TF1("fVertical", "[0]*cos([2]*x-[3]) + [1]*sin([2]*x-[3])+[4]", 0, end_time);
+  TF1* fVertical = new TF1("fVertical", "[0]*cos([2]*x+[3]) + [1]*sin([2]*x+[3])+[4]", 0, end_time);
   fVertical->SetParameters(A_bz, A_edm, omega_magic, phase_magic, c_magic);  fVertical->SetLineColor(1);  fVertical->SetLineStyle(3);  // greed-dashed
 
   // The convolution function (we fix omega and phase and fit for A_bz, c, and A_edm_BLINDED - safe to show)

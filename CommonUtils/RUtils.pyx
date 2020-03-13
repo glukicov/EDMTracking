@@ -65,7 +65,7 @@ def hist2np(freq, edges, # default
         #bin with 0 frequency do not contribute to this expansion
         data=[]
         for i_bin in range(n_bins):
-            data.extend( (binC[i_bin]*np.ones(math.ceil(freq[i_bin]))) )
+            data.extend( (binC[i_bin]*np.ones(int(freq[i_bin]))) )
 
         if (len(data) != exp_total and from_root):
             raise Exception("RUtils::hist2np Did not get expected entries! Got", len(data), "expected", exp_total)
@@ -101,8 +101,11 @@ def hist2np(freq, edges, # default
             
         # now correlate binC(x,y) and freq(x,y)
         for ix,iy in np.ndindex(freq.shape): # looping over x,y indices of a matrix 
-            data[0].extend( (binC[0][ix]*np.ones(math.ceil(freq[ix][iy]))) )
-            data[1].extend( (binC[1][iy]*np.ones(math.ceil(freq[ix][iy]))) )
+            if (math.isnan(freq[ix][iy])):
+                pass
+            else:
+                data[0].extend( (binC[0][ix]*np.ones(int(freq[ix][iy]))) )
+                data[1].extend( (binC[1][iy]*np.ones(int(freq[ix][iy]))) )
                 
         # sanity check
         for i_dim in range(D):
