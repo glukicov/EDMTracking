@@ -6,6 +6,9 @@ using EDM blinding
 '''
 import numpy as np
 import pandas as pd
+# MPL in batch mode
+import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 import os, sys
 from scipy import optimize
@@ -18,7 +21,7 @@ import argparse
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("--t_min", type=int, default=4.4) # us 
 arg_parser.add_argument("--t_max", type=int, default=210) # us 
-arg_parser.add_argument("--p_min", type=int, default=0) # us 
+arg_parser.add_argument("--p_min", type=int, default=1800) # us 
 arg_parser.add_argument("--p_max", type=int, default=3100) # us 
 arg_parser.add_argument("--df", type=str, default="../DATA/HDF/Sim/VLEDM_skim.h5") 
 # arg_parser.add_argument("--sim", type=store_true, default=False) 
@@ -58,7 +61,7 @@ p0_theta_blinded=[1.0, 1.0, 1.0]
 print("Starting pars theta blinded (A_Bz, A_edm, c):", *p0_theta_blinded)
 
 ### Define global variables
-N=-1 # tracks after cuts 
+
 
 def main():
 
@@ -80,13 +83,15 @@ def load_data(df_path):
 
     #open skimmed 
     data = pd.read_hdf(df_path)
+    print("N before cuts", data.shape[0])
     mom_cut = ( (data['trackMomentum'] > p_min) & (data['trackMomentum'] < p_max) ) # MeV  
     time_cut =( (data['trackT0'] > t_min) & (data['trackT0'] < t_max) ) # MeV  
     data=data[mom_cut & time_cut]
     
     data=data.reset_index() # reset index from 0 after cuts 
     global N
-    N=data.shape[0] 
+    N=data.shape[0]
+    print("N after cuts", N)
 
     p=data['trackMomentum']
     py=data['trackMomentumY']

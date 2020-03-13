@@ -3,8 +3,10 @@
 from scipy import stats, optimize
 import numpy as np
 import seaborn as sns
-import matplotlib.pyplot as plt
+# MPL in batch mode
 import matplotlib as mpl
+mpl.use('Agg')
+import matplotlib.pyplot as plt
 import pandas as pd
 from pandas import Series, DataFrame
 import sys, os
@@ -137,9 +139,9 @@ def plot(x, y, x_err=None, y_err=None, fs=14, c="green",
     plt.xticks(fontsize=fs-1)
     plt.yticks(fontsize=fs-1)
     if(tight):
-        fig.tight_layout()
+        # fig.tight_layout()
         #make space for the colour bar
-        fig.tight_layout(rect=[0.0, 0.0, 0.95, 0.0])
+        fig.tight_layout(rect=[0.0, 0.0, 0.97, 0.97])
 
 
 
