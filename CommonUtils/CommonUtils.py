@@ -412,7 +412,7 @@ def blinded_wiggle_function_cbo(x, *pars):
     return norm * np.exp(-time/life) * (1 + asym*np.cos(omega*time + phi)) * C
 
 
-def thetaY_unblinded_phase(t, *pars):  
+def thetaY_phase(t, *pars):  
     '''
     \langle \theta(t) \rangle =  A_{\mathrm{B_z}}\cos(\omega t + \phi) + A_{\mathrm{EDM}}\sin(\omega t + \phi) + c
     '''  
