@@ -20,7 +20,7 @@ import argparse
 
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("--t_min", type=int, default=4.4) # us 
-arg_parser.add_argument("--t_max", type=int, default=210) # us 
+arg_parser.add_argument("--t_max", type=int, default=200) # us 
 arg_parser.add_argument("--p_min", type=int, default=1800) # us 
 arg_parser.add_argument("--p_max", type=int, default=3100) # us 
 arg_parser.add_argument("--df", type=str, default="../DATA/HDF/Sim/VLEDM_skim.h5") 
@@ -50,7 +50,7 @@ if(t_min<g2period):
 
 bin_w = 10*1e-3 # 10 ns 
 bin_n = int( round(g2period/bin_w) )
-xy_bins=(bin_n, bin_n)
+xy_bins=(bin_n*4, bin_n*4)
 print("Setting bin width of", bin_w*1e3, "ns with", bin_n, "bins")
 
 p0_count=[5000, 64, -0.4, 6.0]
