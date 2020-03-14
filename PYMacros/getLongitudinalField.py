@@ -50,7 +50,7 @@ if(t_min<g2period):
 
 bin_w = 10*1e-3 # 10 ns 
 bin_n = int( round(g2period/bin_w) )
-xy_bins=(bin_n*4, bin_n*4)
+xy_bins=(bin_n, bin_n*2)
 print("Setting bin width of", bin_w*1e3, "ns with", bin_n, "bins")
 
 p0_count=[5000, 64, -0.4, 6.0]
@@ -67,9 +67,9 @@ def main():
 
     data=load_data(args.df)
 
-    plot_counts(data)
+   # plot_counts(data)
 
-    plot_theta(data)
+    #plot_theta(data)
 
     plot_truth(data)
 

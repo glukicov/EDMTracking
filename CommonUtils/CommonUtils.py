@@ -5,7 +5,6 @@ import numpy as np
 import seaborn as sns
 # MPL in batch mode
 import matplotlib as mpl
-mpl.use('Agg')
 import matplotlib.pyplot as plt
 import pandas as pd
 from pandas import Series, DataFrame
@@ -196,14 +195,14 @@ def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, t_mod, t_max, t_min
     # deal with fitted parameters (to display nicely)
     parNames=[r"$N$", r"$\tau$", r"$A$", r"$R$", r"$\phi$"]
     units=["", r"$\rm{\mu}$s", "", "ppm",  "rad"]
-    legned_par=r"$\frac{\chi^2}{\rm{DoF}}$="+str(round(chi2_ndf,1))+"\n"
+    legned_par=r"$\frac{\chi^2}{\rm{DoF}}$="+str(round(chi2_ndf,2))+"\n"
     legned_par=legend_par(legned_par,  parNames, par, par_e, units, prec=prec)
-    textL(ax, 0.17, 0.73, "Fit: "+legned_par, fs=fs-2, color="red", weight="normal")
+    textL(ax, 0.17, 0.73, "Fit: "+legned_par, fs=fs-2, c="red", weight="normal")
     if(show_cbo_terms):
         parNames=[r"$\rm{A_{CBO}}$", r"$\omega_{\rm{CBO}}$", r"$\phi_{\rm{CBO}}$", r"$\rm{\tau_{CBO}}$"]
         units=[" ", r"$\rm{\mu}$s", "rad", r"$\rm{\mu}$s"]
         legned_cbo=legend_par("",  parNames, par[5:], par_e[5:], units, prec=prec)
-        textL(ax, 0.48, 0.75, r"CBO, $C(t)$"+":\n "+legned_cbo, fs=fs-3, color="red", weight="normal")
+        textL(ax, 0.48, 0.75, r"CBO, $C(t)$"+":\n "+legned_cbo, fs=fs-3, c="red", weight="normal")
 
     #axis labels and ticks
     plt.ylabel(r"Counts ($N$) per "+str(int(binW*1e3))+" ns", fontsize=fs)

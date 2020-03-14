@@ -24,6 +24,7 @@ args=arg_parser.parse_args()
 ### Constants 
 DS_path = ("../DATA/HDF/MMA/60h.h5", "../DATA/HDF/MMA/9D.h5", "../DATA/HDF/MMA/HK.h5", "../DATA/HDF/MMA/EG.h5")
 start_times = np.linspace(30, 100, 35, dtype=int)
+end_times = np.linspace(300, 550, 25, dtype=int)
 
 def main():
     '''
@@ -38,7 +39,8 @@ def main():
 
 def all(DS_path):
     for path in DS_path:
-        subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path])
+        # subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path])
+        subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--cbo"])
 
 def time_scan(DS_path, times):
     if (args.start==True): key = "--min"
