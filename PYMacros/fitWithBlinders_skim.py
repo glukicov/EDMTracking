@@ -26,8 +26,11 @@ arg_parser.add_argument("--key", type=str, default="QualityTracks", help="or Qua
 arg_parser.add_argument("--min", type=float, default=30.0, help="min fit starts time")
 arg_parser.add_argument("--max", type=float, default=500.0, help="max fit start time")
 arg_parser.add_argument("--cbo", action='store_true', default=False, help="include extra 4 CBO terms if True in the fitting")
+arg_parser.add_argument("--loss", action='store_true', default=False, help="include extra kloss")
 arg_parser.add_argument("--scan", action='store_true', default=False, help="if run externally for iterative scans - dump 𝝌2 and fitted pars to a file for summary plots")
 args=arg_parser.parse_args()
+
+if(args.loss==True): args.cbo = True 
 
 ### Constants
 stations=(12, 18)
@@ -56,27 +59,37 @@ f_cbo_M_a = f_cbo - f_a
 f_cbo_P_a = f_cbo + f_a
 
 ### (2) Deal with weather we are doing 5 or 9 parameter fit
-p0=[1e5, 64.0, 0.33, 1.0, 2.0]
+p0=[1e4, 64.0, 0.3, -30, 2.0]
 func = cu.blinded_wiggle_function # standard blinded function from CommonUtils
 func_label="5par"
 legend_fit=r'Fit: $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]$'
 show_cbo_terms=False
+show_loss_terms=False
 
 # for CBO pars see Joe's DocDB:12933
 if (args.cbo):
     # p0.extend([1.0, 1.0, 1.0, 1.0])
     # p0.extend([-0.05, 2.3, 2.0, 200.0]) #good
-    p0.extend([-0.05, 2.3, 2.0, 100.0])
+    p0.extend([0.05, 2.3, 2.8, 150.0])
     par_names.extend(["A_cbo", "w_cbo", "phi_cbo", "tau_cbo"])
     func=cu.blinded_wiggle_function_cbo
     func_label="9par"
     legend_fit=legend_fit+r"$\cdot C(t)$"
     show_cbo_terms=True
 
+if(args.loss):
+    p0.extend([0.99])
+    par_names.extend(["K_LM"])
+    funch=cu.blinded_10_par
+    func_label="10par"
+    legend_fit=legend_fit+r"(1-$K_{LM}$)"
+    show_cbo_terms=True
+    show_loss_terms=True
+
 #define modulation and limits (more can be made as arguments)
 bin_w = 150*1e-3 # 150 ns
-min_x = args.min # us
-max_x = args.max # us
+min_t = args.min # us
+max_t = args.max # us
 t_mod=100 # us; fold plot every N us
 
 ### Global storage
@@ -86,7 +99,7 @@ times_binned=[[],[]]
 # form a string to distinguish files (this still a list[i_station])
 global_label=ds_name+"_"+func_label
 file_label=["_S"+str(s)+"_"+global_label for s in stations]
-scan_label="_"+str(args.min)+"_"+str(args.max)
+scan_label="_"+str(min_t)+"_"+str(max_t)
 par_e_names=[str(par)+"_e" for par in par_names]
 
 def main():
@@ -94,14 +107,15 @@ def main():
     #open the hdf file and fit!
     times_binned, residuals=fit()
 
-    #now plot the (data - fit)
-    residual_plots(times_binned, residuals)
+    if(args.scan==False):
+        #now plot the (data - fit)
+        residual_plots(times_binned, residuals)
 
-    #FFTs
-    fft(residuals)
+        #FFTs
+        fft(residuals)
 
-    #finally add plots into single canvas
-    canvas()
+        #finally add plots into single canvas
+        canvas()
 
 def fit():
     '''
@@ -116,7 +130,10 @@ def fit():
     print("Opening", args.key, "in", args.hdf, "...")
     data = pd.read_hdf(args.hdf, args.key)
     print("Found", data.shape[0], "entries\n")
-    print("Fitting from", args.min, "to", args.max,"[μs]\n")
+    time_cut = ( (data['trackT0'] > min_t) & (data['trackT0'] < max_t) )
+    data = data[time_cut]
+    print("After time cut:", data.shape[0], "entries\n")
+    print("Fitting from", min_t, "to", max_t,"[μs]\n")
 
     #define station cuts to loop over
     s12_cut = (data['station'] == stations[0])
@@ -132,7 +149,7 @@ def fit():
 
         print("digitising data (binning)...")
         # just call x,y = frequencies, bin_centres for plotting and fitting
-        x, y = cu.get_freq_bin_c_from_data( t, bin_w, (min_x, max_x) )
+        x, y = cu.get_freq_bin_c_from_data( t, bin_w, (min_t, max_t) )
         y_err = np.sqrt(y) # sigma =sqrt(N)
         print("digitised data done!")
 
@@ -143,6 +160,10 @@ def fit():
         par_e = np.sqrt(np.diag(pcov))
         print("Pars  :", np.array(par))
         print("Pars e:",np.array(par_e))
+        
+        #print("Covariance matrix", pcov)
+        #np.save("../DATA/misc/pcov_S"+str(station)+".np", pcov)
+
         chi2_ndf, chi2, ndf=cu.chi2_ndf(x, y, y_err, func, par)
         print("Fit 𝝌2/DoF="+str(round(chi2_ndf,2)) )
 
@@ -151,8 +172,9 @@ def fit():
         data_type = re.findall('[A-Z][^A-Z]*', args.key) # should break into "Quality" and "Tracks"/"Vertices"
 
         #use pre-define module wiggle function from CommonUtils
-        fig,ax = cu.modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, t_mod, max_x, min_x, bin_w,  N,
+        fig,ax = cu.modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, t_mod, max_t, min_t, bin_w,  N,
                                                 show_cbo_terms=show_cbo_terms,
+                                                show_loss_terms=show_loss_terms,
                                                 legend_fit=legend_fit,
                                                 prec=3,
                                                 key=data_type[0]+" "+data_type[1],
@@ -168,8 +190,8 @@ def fit():
         # if running externally, via a different module and passing scan==True as an argument
         # dump the parameters to a unique file for summary plots
         if(args.scan==True):
-            par_dump=np.array([[args.min], args.max, chi2_ndf, N, station, ds_name, *par, *par_e])
-            par_dump_keys = ["start", "stop", "chi2", "n", "station", "ds"]
+            par_dump=np.array([[min_t], max_t, chi2_ndf, ndf, N, station, ds_name, *par, *par_e])
+            par_dump_keys = ["start",  "stop", "chi2", "ndf", "n", "station", "ds"]
             par_dump_keys.extend(par_names)
             par_dump_keys.extend(par_e_names)
             dict_dump = dict(zip(par_dump_keys,par_dump))

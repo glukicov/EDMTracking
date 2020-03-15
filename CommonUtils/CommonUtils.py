@@ -127,6 +127,8 @@ def plot(x, y, x_err=None, y_err=None, fs=14, c="green",
         ax.errorbar(x, y, xerr=x_err, yerr=y_err, linewidth=0, elinewidth=elw, color=c, marker=None, label=label)
     elif (plot):
         ax.plot(x, y, c=c, label=label, lw=lw, ls=ls)
+    else:
+        print("No plot style specified, returning a nicely formatted axis only: use it e.g. 'ax.plot()'")
     
 
     # make a nice looking plot as default 
@@ -142,14 +144,13 @@ def plot(x, y, x_err=None, y_err=None, fs=14, c="green",
         #make space for the colour bar
         fig.tight_layout(rect=[0.0, 0.0, 0.97, 0.97])
 
-
-
     return fig, ax
 
 
 def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, t_mod, t_max, t_min, binW, N,
                                 prec=3, # set custom precision 
                                 show_cbo_terms=False, 
+                                show_loss_terms=False, 
                                 data_bool=True,
                                 legend_fit=r'Fit: $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]$',
                                 legend_data="Run-1 tracker data",
@@ -203,6 +204,12 @@ def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, t_mod, t_max, t_min
         units=[" ", r"$\rm{\mu}$s", "rad", r"$\rm{\mu}$s"]
         legned_cbo=legend_par("",  parNames, par[5:], par_e[5:], units, prec=prec)
         textL(ax, 0.48, 0.75, r"CBO, $C(t)$"+":\n "+legned_cbo, fs=fs-3, c="red", weight="normal")
+    if(show_loss_terms):
+        parNames=[r"$K_{\rm{LM}}$"]
+        units=[" "]
+        legned_loss=legend_par("",  parNames, par[:-1], par_e[:-1], units, prec=prec)
+        textL(ax, 0.17, 0.17, legned_loss, fs=fs-3, c="red", weight="normal")
+
 
     #axis labels and ticks
     plt.ylabel(r"Counts ($N$) per "+str(int(binW*1e3))+" ns", fontsize=fs)
@@ -225,7 +232,7 @@ def get_freq_bin_c_from_data(data, bin_w, bin_range):
     freq, bin_edges = np.histogram(data, bins=bin_n, range=bin_range)
     bin_c=np.linspace(bin_edges[0]+bin_w/2, bin_edges[-1]-bin_w/2, len(freq))
     assert( len(freq) == len(bin_c) ==  bin_n)
-    return bin_c, freq 
+    return bin_c, freq
 
 def get_g2_mod_time(times):
     '''
@@ -413,9 +420,21 @@ def blinded_wiggle_function_cbo(x, *pars):
     phi_cbo = pars[7]
     t_cbo = pars[8]
     
-    C = 1.0 + (np.exp(-time / t_cbo) * A_cbo * np.cos(w_cbo * time+ phi_cbo))   
+    C = 1.0 - ( np.exp(-time / t_cbo) * A_cbo * np.cos(w_cbo * time+ phi_cbo) )   
     return norm * np.exp(-time/life) * (1 + asym*np.cos(omega*time + phi)) * C
 
+
+def blinded_10_par(x, *pars):
+    '''
+    CBO + lost muons
+    '''
+    K=pars[-1]
+    life=pars[1]
+
+
+    N = blinded_wiggle_function_cbo(x, pars[:-1])
+    L = (1-K)*np.exp(-x/life)
+    return N*L
 
 def thetaY_phase(t, *pars):  
     '''
