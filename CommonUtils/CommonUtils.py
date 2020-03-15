@@ -192,7 +192,7 @@ def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, t_mod, t_max, t_min
 
     #Put legend and pars values 
     N_str=sci_notation(N)
-    textL(ax, 0.82, 0.78, label_data+ r"$p$"+" > 1.8 GeV \n"+str(t_min)+r" $\rm{\mu}$s < t < "+str(t_max)+r" $\rm{\mu}$s"+"\n N="+N_str, fs=fs-2,  weight="normal")
+    textL(ax, 0.82, 0.78, label_data+ r"$p$"+" > 1.8 GeV \n"+str(round(t_min,1))+r" $\rm{\mu}$s < t < "+str(round(t_max,1))+r" $\rm{\mu}$s"+"\n N="+N_str, fs=fs-2,  weight="normal")
     # deal with fitted parameters (to display nicely)
     parNames=[r"$N$", r"$\tau$", r"$A$", r"$R$", r"$\phi$"]
     units=["", r"$\rm{\mu}$s", "", "ppm",  "rad"]
@@ -228,6 +228,7 @@ def get_freq_bin_c_from_data(data, bin_w, bin_range):
     '''
     bin_n = int(round((bin_range[1] - bin_range[0])/bin_w)) 
     freq, bin_edges = np.histogram(data, bins=bin_n, range=bin_range)
+    #print("First bin edge:", bin_edges[0], "last bin edge", bin_edges[-1], "bin width:",  bin_edges[1]- bin_edges[0], "bin n:", bin_n)
     bin_c=np.linspace(bin_edges[0]+bin_w/2, bin_edges[-1]-bin_w/2, len(freq))
     assert( len(freq) == len(bin_c) ==  bin_n)
     return bin_c, freq

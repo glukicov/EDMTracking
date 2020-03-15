@@ -23,10 +23,10 @@ arg_parser.add_argument("--plot", action='store_true', default=False)
 args=arg_parser.parse_args()
 
 ### Constants 
-# DS_path = ("../DATA/HDF/MMA/60h.h5", "../DATA/HDF/MMA/9D.h5", "../DATA/HDF/MMA/HK.h5", "../DATA/HDF/MMA/EG.h5")
-DS_path = (["../DATA/HDF/MMA/60h.h5"])
-start_times = np.linspace(50.2, 120.2, 66, dtype=int)
-end_times = np.linspace(400, 500, 31, dtype=int)
+DS_path = ("../DATA/HDF/MMA/60h.h5", "../DATA/HDF/MMA/9D.h5", "../DATA/HDF/MMA/HK.h5", "../DATA/HDF/MMA/EG.h5")
+# DS_path = (["../DATA/HDF/MMA/60h.h5"])
+start_times = np.linspace(30.2, 120.2, 31, dtype=int)
+end_times = np.linspace(400.2, 500.2, 31, dtype=int)
 
 # print(start_times)
 # print(end_times)
@@ -49,20 +49,22 @@ def main():
 
 def all(DS_path):
     for path in DS_path:
-        # subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path])
-        subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--cbo"])
+        subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path])
+        # subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--cbo"])
+        # subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--loss"])
 
 def time_scan(DS_path, times):
     if (args.start==True): key = "--min"
     if (args.end==True): key = "--max"
     for path in DS_path:
         for time in times:
-            subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--cbo", "--scan", key, str(time)])
+            subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--loss", "--scan", key, str(time)])
 
 
 def plot():
     data = pd.read_csv("../DATA/misc/scans/scan.csv")
     par_n=-1
+    if(data.shape[1] == 25):  par_n=10
     if(data.shape[1] == 25):  par_n=9
     if(data.shape[1] == 17):  par_n=5
     print("par_n =", par_n, "according to expected total columns")

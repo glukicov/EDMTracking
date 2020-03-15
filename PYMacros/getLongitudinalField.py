@@ -67,9 +67,9 @@ def main():
 
     data=load_data(args.df)
 
-   # plot_counts(data)
+    plot_counts(data)
 
-    #plot_theta(data)
+    plot_theta(data)
 
     plot_truth(data)
 

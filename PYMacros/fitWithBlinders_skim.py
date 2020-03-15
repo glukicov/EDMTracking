@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/MMA/60h.h5", help="input data")
 arg_parser.add_argument("--key", type=str, default="QualityTracks", help="or QualityVertices")
-arg_parser.add_argument("--min", type=float, default=30.0, help="min fit starts time")
+arg_parser.add_argument("--min", type=float, default=30.2876, help="min fit starts time")
 arg_parser.add_argument("--max", type=float, default=500.0, help="max fit start time")
 arg_parser.add_argument("--cbo", action='store_true', default=False, help="include extra 4 CBO terms if True in the fitting")
 arg_parser.add_argument("--loss", action='store_true', default=False, help="include extra kloss")
@@ -50,7 +50,7 @@ if(not ds_name in expected_DSs):
 
 # Now that we know what DS we have, we can
 # set tune and calculate expected FFTs and
-print("\nSetting tune parameters for ", ds_name, "DS\n")
+print("Setting tune parameters for ", ds_name, "DS")
 if (ds_name=="60h" or ds_name=="EG"): n_tune = 0.108
 if (ds_name=="9D" or ds_name=="HK"): n_tune = 0.120
 f_cbo = f_c * (1 - np.sqrt(1-n_tune) )
@@ -82,12 +82,12 @@ if(args.loss):
     par_names.extend(["K_LM"])
     func=cu.blinded_10_par
     func_label="10par"
-    legend_fit=legend_fit+r"(1-$K_{LM}$)"
+    legend_fit=legend_fit+r"(1-$\Lambda(t)$)"
     show_cbo_terms=True
     show_loss_terms=True
 
 #define modulation and limits (more can be made as arguments)
-bin_w = 150*1e-3 # 150 ns
+bin_w = 149.2*1e-3 # 150 ns
 min_t = args.min # us
 max_t = args.max # us
 t_mod=100 # us; fold plot every N us
@@ -129,11 +129,11 @@ def fit():
     '''
     print("Opening", args.key, "in", args.hdf, "...")
     data = pd.read_hdf(args.hdf, args.key)
-    print("Found", data.shape[0], "entries\n")
+    print("Found", data.shape[0], "entries")
     time_cut = ( (data['trackT0'] > min_t) & (data['trackT0'] < max_t) )
     data = data[time_cut]
-    print("After time cut:", data.shape[0], "entries\n")
-    print("Fitting from", min_t, "to", max_t,"[μs]\n")
+    print("After time cut:", data.shape[0], "entries")
+    print("Fitting from", min_t, "to", max_t,"[μs] using", func_label)
 
     #define station cuts to loop over
     s12_cut = (data['station'] == stations[0])
@@ -151,23 +151,21 @@ def fit():
         # just call x,y = frequencies, bin_centres for plotting and fitting
         x, y = cu.get_freq_bin_c_from_data( t, bin_w, (min_t, max_t) )
         y_err = np.sqrt(y) # sigma =sqrt(N)
-        print("digitised data done!")
 
         print("Fitting...")
         # Levenberg-Marquardt algorithm as implemented in MINPACK
-        par, pcov = optimize.curve_fit(f=func, xdata=x, ydata=y, sigma=y_err, p0=p0, absolute_sigma=False, method='lm') # TODO 
+        par, pcov = optimize.curve_fit(f=func, xdata=x, ydata=y, sigma=y_err, p0=p0, absolute_sigma=False, method='lm')  
         # par, pcov = optimize.curve_fit(f=func, xdata=x, ydata=y, p0=p0, absolute_sigma=False, method='lm')
         par_e = np.sqrt(np.diag(pcov))
+        if (np.max(abs(par_e)) == np.Infinity ): raise Exception("\nOne of the fit parameters is infinity! Exiting...\n")
         print("Pars  :", np.array(par))
         print("Pars e:",np.array(par_e))
-        
         #print("Covariance matrix", pcov)
         #np.save("../DATA/misc/pcov_S"+str(station)+".np", pcov)
-
         chi2_ndf, chi2, ndf=cu.chi2_ndf(x, y, y_err, func, par)
         print("Fit 𝝌2/DoF="+str(round(chi2_ndf,2)) )
 
-        print("Plotting fit and data!\n")
+        print("Plotting fit and data!")
         #make more automated things for "plot prettiness"
         data_type = re.findall('[A-Z][^A-Z]*', args.key) # should break into "Quality" and "Tracks"/"Vertices"
 
@@ -241,12 +239,12 @@ def fft(residuals):
         # or half of the sampling rate ==  the maximum frequency before sampling errors start
         sample_rate = 1.0 / bin_w
         nyquist_freq = 0.5 * sample_rate
-        print("bin width:", round(bin_w*1e3,3), " ns")
-        print("sample rate:", round(sample_rate,3), "MHz")
-        print("Nyquist freq:", round(nyquist_freq,3), "MHz\n")
+        # print("bin width:", round(bin_w*1e3,3), " ns")
+        # print("sample rate:", round(sample_rate,3), "MHz")
+        # print("Nyquist freq:", round(nyquist_freq,3), "MHz\n")
 
         # set plot limits
-        x_min, x_max, y_min, y_max = 0.03, nyquist_freq, 0,  1.2
+        x_min, x_max, y_min, y_max = 0.0, nyquist_freq, 0,  1.2
         ax.set_xlim(x_min, x_max)
         ax.set_ylim(y_min, y_max)
 
