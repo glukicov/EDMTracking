@@ -69,7 +69,7 @@ show_loss_terms=False
 # for CBO pars see Joe's DocDB:12933
 if (args.cbo):
     if (ds_name=="HK"): cbo_fit_terms=[0.05, 2.5, 3.8, 90.0];   print("Bad resistors in HK are accounted in the starting parameters!") # bad resistors fix 
-    if (ds_name=="EG"): cbo_fit_terms=[0.01, 2.3, -0.8, 200.0]; print("Bad resistors in EG are accounted in the starting parameters!") # bad resistors fix 
+    if (ds_name=="EG"): cbo_fit_terms=[0.1,   2.3, 6.0, 120.0]; print("Bad resistors in EG are accounted in the starting parameters!") # bad resistors fix 
     else: cbo_fit_terms=[0.05, 2.3, 2.8, 150.0]
     p0.extend(cbo_fit_terms)    
     par_names.extend(["A_cbo", "w_cbo", "phi_cbo", "tau_cbo"])
@@ -155,6 +155,7 @@ def fit():
 
         print("Fitting...")
         # Levenberg-Marquardt algorithm as implemented in MINPACK
+        if (ds_name=="EG" and station==18): p0[4:8]=[-0.01, 2.3, -0.8, 200.0]; print("Bad resistors in EG are accounted in the starting CBO parameters for S18!") # bad resistors fix 
         par, pcov = optimize.curve_fit(f=func, xdata=x, ydata=y, sigma=y_err, p0=p0, absolute_sigma=False, method='lm')  
         # par, pcov = optimize.curve_fit(f=func, xdata=x, ydata=y, p0=p0, absolute_sigma=False, method='lm')
         par_e = np.sqrt(np.diag(pcov))
