@@ -78,9 +78,9 @@ if (args.cbo):
     show_cbo_terms=True
 
 if(args.loss):
-    p0.extend([0.99])
+    p0.extend([1.0])
     par_names.extend(["K_LM"])
-    funch=cu.blinded_10_par
+    func=cu.blinded_10_par
     func_label="10par"
     legend_fit=legend_fit+r"(1-$K_{LM}$)"
     show_cbo_terms=True
@@ -155,8 +155,8 @@ def fit():
 
         print("Fitting...")
         # Levenberg-Marquardt algorithm as implemented in MINPACK
-        # par, pcov = optimize.curve_fit(f=func, xdata=x, ydata=y, sigma=y_err, p0=p0, absolute_sigma=False, method='lm')
-        par, pcov = optimize.curve_fit(f=func, xdata=x, ydata=y, sigma=y_err, p0=p0, absolute_sigma=False, method='lm')
+        par, pcov = optimize.curve_fit(f=func, xdata=x, ydata=y, sigma=y_err, p0=p0, absolute_sigma=False, method='lm') # TODO 
+        # par, pcov = optimize.curve_fit(f=func, xdata=x, ydata=y, p0=p0, absolute_sigma=False, method='lm')
         par_e = np.sqrt(np.diag(pcov))
         print("Pars  :", np.array(par))
         print("Pars e:",np.array(par_e))

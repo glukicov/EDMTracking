@@ -205,10 +205,8 @@ def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, t_mod, t_max, t_min
         legned_cbo=legend_par("",  parNames, par[5:], par_e[5:], units, prec=prec)
         textL(ax, 0.48, 0.75, r"CBO, $C(t)$"+":\n "+legned_cbo, fs=fs-3, c="red", weight="normal")
     if(show_loss_terms):
-        parNames=[r"$K_{\rm{LM}}$"]
-        units=[" "]
-        legned_loss=legend_par("",  parNames, par[:-1], par_e[:-1], units, prec=prec)
-        textL(ax, 0.17, 0.17, legned_loss, fs=fs-3, c="red", weight="normal")
+        legned_loss=legend_1par("",  r"$K_{\rm{LM}}$", par[-1], par_e[-1], " ", prec=prec)
+        textL(ax, 0.17, 0.05, legned_loss, fs=fs-3, c="red", weight="normal")
 
 
     #axis labels and ticks
@@ -316,27 +314,6 @@ def fit_and_chi2(x, y, y_err, func, p0):
     return par, par_e, chi2ndf
 
 
-def blinded_wiggle_function(x, *pars):
-    '''
-    ### Define blinded fit function $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]$,
-    where  
-    [0] $N$ is the overall normalisation  
-    [1] $\tau$ is the boosted muon lifetime $\tau = \gamma \cdot \tau_0 = 29.3\cdot2.2=66.44 \, \mu$s  
-    [2] $A$ is the asymmetry  
-    [3] $\omega_a$ is the anomalous precision frequency (blinded)  
-    [4] $\phi$ is the initial phase  
-    '''
-    time  = x
-    norm  = pars[0]
-    life  = pars[1]
-    asym  = pars[2]
-    R     = pars[3]
-    phi   = pars[4]
-    
-    omega = getBlinded.paramToFreq(R)
-    
-    return norm * np.exp(-time/life) * (1 + asym*np.cos(omega*time + phi))
-
 def unblinded_wiggle_function(x, *pars):
     '''
     ### Define blinded fit function $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]$,
@@ -379,18 +356,27 @@ def unblinded_wiggle_fixed(x, *pars):
     
     return norm * np.exp(-time/life) * (1 + asym*np.cos(omega*time + phi))
 
-def unblinded_bnl_function(x, *pars):
-    
+def blinded_wiggle_function(x, *pars):
+    '''
+    ### Define blinded fit function $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]$,
+    where  
+    [0] $N$ is the overall normalisation  
+    [1] $\tau$ is the boosted muon lifetime $\tau = \gamma \cdot \tau_0 = 29.3\cdot2.2=66.44 \, \mu$s  
+    [2] $A$ is the asymmetry  
+    [3] $\omega_a$ is the anomalous precision frequency (blinded)  
+    [4] $\phi$ is the initial phase  
+    '''
     time  = x
-    
-    N  = pars[0]
+    norm  = pars[0]
     life  = pars[1]
-    W  = pars[2]
-    omega = pars[3]
+    asym  = pars[2]
+    R     = pars[3]
     phi   = pars[4]
     
-    return np.exp(-time/life) * ( N + W *  np.cos( omega*time + phi ) )
-    # return norm * np.exp(-time/life) * (1 + asym*np.cos(omega*time + phi))
+    omega = getBlinded.paramToFreq(R)
+    
+    return norm * np.exp(-time/life) * (1 + asym*np.cos(omega*time + phi))
+
 
 def blinded_wiggle_function_cbo(x, *pars):
     '''
@@ -401,16 +387,6 @@ def blinded_wiggle_function_cbo(x, *pars):
     $C(t) = 1.0 + e^{-t / \rm{T_{CBO}}}\rm{A_{CBO}} \cos(\rm{WV_{CBO}} \cdot t + \phi_{\rm{CBO}})$
     '''
     time  = x
-    norm  = pars[0]
-    life  = pars[1]
-    asym  = pars[2]
-    R     = pars[3]
-    omega = getBlinded.paramToFreq(R)
-    
-    #adjust phase sign 
-    # while (pars[4] < 0):par[4] += np.pi()*2.0 
-    # while (pars[4] > np.pi()*2.0): par[4] -= np.pi()*2.0 
-    phi   = pars[4]
 
     #now add CBO pars
     A_cbo = pars[5]
@@ -420,21 +396,24 @@ def blinded_wiggle_function_cbo(x, *pars):
     phi_cbo = pars[7]
     t_cbo = pars[8]
     
-    C = 1.0 - ( np.exp(-time / t_cbo) * A_cbo * np.cos(w_cbo * time+ phi_cbo) )   
-    return norm * np.exp(-time/life) * (1 + asym*np.cos(omega*time + phi)) * C
+    C = 1.0 - ( np.exp(-time / t_cbo) * A_cbo * np.cos(w_cbo * time+ phi_cbo) )
+    N = blinded_wiggle_function(time, *pars[0:-4])
+    return N * C
 
 
 def blinded_10_par(x, *pars):
     '''
     CBO + lost muons
     '''
-    K=pars[-1]
-    life=pars[1]
-
-
-    N = blinded_wiggle_function_cbo(x, pars[:-1])
-    L = (1-K)*np.exp(-x/life)
-    return N*L
+    time  = x
+    life  = pars[1]
+    K     = pars[9]
+    
+    L=1-K*np.exp(-time/life)
+    NC=blinded_wiggle_function_cbo(time, *pars[0:-1])
+   
+    return NC * L
+  
 
 def thetaY_phase(t, *pars):  
     '''
