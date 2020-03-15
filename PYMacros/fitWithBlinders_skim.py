@@ -155,7 +155,7 @@ def fit():
 
         print("Fitting...")
         # Levenberg-Marquardt algorithm as implemented in MINPACK
-        if (ds_name=="EG" and station==18): p0[4:8]=[-0.01, 2.3, -0.8, 200.0]; print("Bad resistors in EG are accounted in the starting CBO parameters for S18!") # bad resistors fix 
+        if (ds_name=="EG" and station==18): p0[4:8]=[0.005, 2.3, 2.0, 200.0]; print("Bad resistors in EG are accounted in the starting CBO parameters for S18!") # bad resistors fix 
         par, pcov = optimize.curve_fit(f=func, xdata=x, ydata=y, sigma=y_err, p0=p0, absolute_sigma=False, method='lm')  
         # par, pcov = optimize.curve_fit(f=func, xdata=x, ydata=y, p0=p0, absolute_sigma=False, method='lm')
         par_e = np.sqrt(np.diag(pcov))
