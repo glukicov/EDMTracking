@@ -49,8 +49,8 @@ def main():
 
 def all(DS_path):
     for path in DS_path:
-        subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path])
-        # subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--cbo"])
+        # subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path])
+        subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--cbo"])
         # subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--loss"])
 
 def time_scan(DS_path, times):

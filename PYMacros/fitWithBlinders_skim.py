@@ -24,7 +24,7 @@ arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/MMA/60h.h5", help="input data")
 arg_parser.add_argument("--key", type=str, default="QualityTracks", help="or QualityVertices")
 arg_parser.add_argument("--min", type=float, default=30.2876, help="min fit starts time")
-arg_parser.add_argument("--max", type=float, default=500.0, help="max fit start time")
+arg_parser.add_argument("--max", type=float, default=450.0, help="max fit start time")
 arg_parser.add_argument("--cbo", action='store_true', default=False, help="include extra 4 CBO terms if True in the fitting")
 arg_parser.add_argument("--loss", action='store_true', default=False, help="include extra kloss")
 arg_parser.add_argument("--scan", action='store_true', default=False, help="if run externally for iterative scans - dump 𝝌2 and fitted pars to a file for summary plots")
@@ -68,9 +68,10 @@ show_loss_terms=False
 
 # for CBO pars see Joe's DocDB:12933
 if (args.cbo):
-    # p0.extend([1.0, 1.0, 1.0, 1.0])
-    # p0.extend([-0.05, 2.3, 2.0, 200.0]) #good
-    p0.extend([0.05, 2.3, 2.8, 150.0])
+    if (ds_name=="HK"): cbo_fit_terms=[0.05, 2.5, 3.8, 90.0];   print("Bad resistors in HK are accounted in the starting parameters!") # bad resistors fix 
+    if (ds_name=="EG"): cbo_fit_terms=[0.01, 2.3, -0.8, 200.0]; print("Bad resistors in EG are accounted in the starting parameters!") # bad resistors fix 
+    else: cbo_fit_terms=[0.05, 2.3, 2.8, 150.0]
+    p0.extend(cbo_fit_terms)    
     par_names.extend(["A_cbo", "w_cbo", "phi_cbo", "tau_cbo"])
     func=cu.blinded_wiggle_function_cbo
     func_label="9par"
@@ -157,13 +158,13 @@ def fit():
         par, pcov = optimize.curve_fit(f=func, xdata=x, ydata=y, sigma=y_err, p0=p0, absolute_sigma=False, method='lm')  
         # par, pcov = optimize.curve_fit(f=func, xdata=x, ydata=y, p0=p0, absolute_sigma=False, method='lm')
         par_e = np.sqrt(np.diag(pcov))
-        if (np.max(abs(par_e)) == np.Infinity ): raise Exception("\nOne of the fit parameters is infinity! Exiting...\n")
         print("Pars  :", np.array(par))
         print("Pars e:",np.array(par_e))
         #print("Covariance matrix", pcov)
         #np.save("../DATA/misc/pcov_S"+str(station)+".np", pcov)
         chi2_ndf, chi2, ndf=cu.chi2_ndf(x, y, y_err, func, par)
         print("Fit 𝝌2/DoF="+str(round(chi2_ndf,2)) )
+        if (np.max(abs(par_e)) == np.Infinity ): raise Exception("\nOne of the fit parameters is infinity! Exiting...\n")
 
         print("Plotting fit and data!")
         #make more automated things for "plot prettiness"
@@ -253,7 +254,7 @@ def fft(residuals):
         index=next(i for i,v in enumerate(freq) if v > x_min)
         # arbitrary: scale by max value in range of largest non-zero peak
         norm = 1./max(res_fft[index:-1])
-        if(args.cbo): norm=norm*0.25 # scale by 4 if cbo is used
+        #if(args.cbo): norm=norm*0.25 # scale by 4 if cbo is used
         res_fft=res_fft*norm
         ax.plot(freq, res_fft, label="Run-1: "+ds_name+" dataset S"+str(stations[i_station])+r": FFT, $n$={0:.3f}".format(n_tune), lw=2, c="g")
 
