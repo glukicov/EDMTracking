@@ -28,6 +28,7 @@ arg_parser.add_argument("--max", type=float, default=450.0, help="max fit start 
 arg_parser.add_argument("--cbo", action='store_true', default=False, help="include extra 4 CBO terms if True in the fitting")
 arg_parser.add_argument("--loss", action='store_true', default=False, help="include extra kloss")
 arg_parser.add_argument("--scan", action='store_true', default=False, help="if run externally for iterative scans - dump 𝝌2 and fitted pars to a file for summary plots")
+arg_parser.add_argument("--corr", action='store_true', default=False, help="Save covariance matrix for plotting")
 args=arg_parser.parse_args()
 
 if(args.loss==True): args.cbo = True 
@@ -161,8 +162,7 @@ def fit():
         par_e = np.sqrt(np.diag(pcov))
         print("Pars  :", np.array(par))
         print("Pars e:",np.array(par_e))
-        #print("Covariance matrix", pcov)
-        #np.save("../DATA/misc/pcov_S"+str(station)+".np", pcov)
+        if(args.corr): print("Covariance matrix", pcov); np.save("../DATA/misc/pcov_S"+str(station)+".np", pcov);
         chi2_ndf, chi2, ndf=cu.chi2_ndf(x, y, y_err, func, par)
         print("Fit 𝝌2/DoF="+str(round(chi2_ndf,2)) )
         if (np.max(abs(par_e)) == np.Infinity ): raise Exception("\nOne of the fit parameters is infinity! Exiting...\n")

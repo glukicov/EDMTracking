@@ -13,6 +13,7 @@ import matplotlib as mpl
 mpl.use('Agg') # MPL in batch mode
 font_size=16
 import matplotlib.pyplot as plt
+import seaborn as sn
 
 #Input fitting parameters 
 arg_parser = argparse.ArgumentParser()
@@ -20,6 +21,7 @@ arg_parser.add_argument("--all", action='store_true', default=False) # just run 
 arg_parser.add_argument("--start", action='store_true', default=False) 
 arg_parser.add_argument("--end", action='store_true', default=False) 
 arg_parser.add_argument("--plot", action='store_true', default=False) 
+arg_parser.add_argument("--corr", action='store_true', default=False) 
 args=arg_parser.parse_args()
 
 ### Constants 
@@ -46,6 +48,7 @@ def main():
     if(args.start): time_scan(DS_path, start_times)
     if(args.end): time_scan(DS_path, end_times)
     if(args.plot): plot()
+    if(args.corr): corr()
 
 
 def all(DS_path):
@@ -92,7 +95,18 @@ def plot():
             y_s = np.sqrt(y_e**2-y_e[0]**2) # 1sigma band
 
 
-
+def corr():
+    '''
+    plot correlation matrix for the fit parameters
+    '''
+    corr=[np.corrcoef(np.load("../DATA/misc/pcov_S12.np.npy")), np.corrcoef(np.load("../DATA/misc/pcov_S18.np.npy"))]
+    names=[r"$N$", r"$\tau$", r"$A$", r"$R$", r"$\phi$", r"$A_{\rm{CBO}}$", r"$\omega_{\rm{CBO}}$", r"$\phi_{\rm{CBO}}$", r"$\tau_{\rm{CBO}}$"]
+    for i_station, station in enumerate(stations):
+        df_corr = pd.DataFrame(corr[i_station],columns=names, index=names)
+        fig,ax = plt.subplots()
+        ax=sn.heatmap(df_corr, annot=True, fmt='.2f', linewidths=.5, cmap="bwr")
+        cu.textL(ax, 0.5, 1.1, "S"+str(station))
+        fig.savefig("../fig/corr_S"+str(station)+".png", dpi=300)
 
 
 if __name__ == "__main__":
