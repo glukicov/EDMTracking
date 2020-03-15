@@ -155,7 +155,7 @@ def fit():
 
         print("Fitting...")
         # Levenberg-Marquardt algorithm as implemented in MINPACK
-        if (ds_name=="EG" and station==18): p0[4:8]=[0.005, 2.3, 2.0, 200.0]; print("Bad resistors in EG are accounted in the starting CBO parameters for S18!") # bad resistors fix 
+        if (ds_name=="EG" and station==18): p0[4:8]=[0.005, 2.3, 1.6, 200.0]; print("Bad resistors in EG are accounted in the starting CBO parameters for S18!") # bad resistors fix 
         par, pcov = optimize.curve_fit(f=func, xdata=x, ydata=y, sigma=y_err, p0=p0, absolute_sigma=False, method='lm')  
         # par, pcov = optimize.curve_fit(f=func, xdata=x, ydata=y, p0=p0, absolute_sigma=False, method='lm')
         par_e = np.sqrt(np.diag(pcov))
@@ -196,7 +196,7 @@ def fit():
             par_dump_keys.extend(par_e_names)
             dict_dump = dict(zip(par_dump_keys,par_dump))
             df = pd.DataFrame.from_records(dict_dump, index='start')
-            with open("../DATA/misc/scans/scan.csv", 'a') as f:
+            with open("../DATA/scans/scan.csv", 'a') as f:
                 df.to_csv(f, mode='a', header=f.tell()==0)
             plt.savefig("../fig/scans/wiggle"+file_label[i_station]+scan_label+".png", dpi=300)
 

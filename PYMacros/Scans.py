@@ -23,12 +23,13 @@ arg_parser.add_argument("--plot", action='store_true', default=False)
 args=arg_parser.parse_args()
 
 ### Constants 
-DS_path = ("../DATA/HDF/MMA/60h.h5", "../DATA/HDF/MMA/9D.h5", "../DATA/HDF/MMA/HK.h5", "../DATA/HDF/MMA/EG.h5")
-# DS_path = (["../DATA/HDF/MMA/60h.h5"])
-start_times = np.linspace(30.2, 120.2, 31, dtype=int)
-end_times = np.linspace(400.2, 500.2, 31, dtype=int)
+# DS_path = ("../DATA/HDF/MMA/60h.h5", "../DATA/HDF/MMA/9D.h5", "../DATA/HDF/MMA/HK.h5", "../DATA/HDF/MMA/EG.h5")
+DS_path = (["../DATA/HDF/MMA/60h.h5"])
+start_times = np.linspace(30.2876, 100, 36, dtype=float)
+end_times = np.linspace(400, 500, 36, dtype=float)
 
 # print(start_times)
+# sys.exit()
 # print(end_times)
 
 stations=(12, 18)
@@ -58,7 +59,8 @@ def time_scan(DS_path, times):
     if (args.end==True): key = "--max"
     for path in DS_path:
         for time in times:
-            subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--loss", "--scan", key, str(time)])
+            # subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--loss", "--scan", key, str(time)])
+            subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--cbo", "--scan", key, str(time)])
 
 
 def plot():
