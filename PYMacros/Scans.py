@@ -21,6 +21,7 @@ arg_parser.add_argument("--all", action='store_true', default=False) # just run 
 arg_parser.add_argument("--start", action='store_true', default=False) 
 arg_parser.add_argument("--end", action='store_true', default=False) 
 arg_parser.add_argument("--plot", action='store_true', default=False) 
+arg_parser.add_argument("--plot_end", action='store_true', default=False) 
 arg_parser.add_argument("--corr", action='store_true', default=False) 
 args=arg_parser.parse_args()
 
@@ -41,7 +42,7 @@ stop = n_dt*factor*bin_w+start
 print("Adjusted last start time ",stop)
 
 start_times = np.arange(start, stop, step, dtype=float)
-end_times = np.linspace(400, 500, 36, dtype=float)
+end_times = np.linspace(300, 500, 36, dtype=float)
 
 # print(start_times)
 # sys.exit()
@@ -52,8 +53,8 @@ stations=(12, 18)
 dss = (["60h"])
 par_names=["N", "K_LM", "A", "R", "phi", "A_cbo", "w_cbo", "phi_cbo", "tau_cbo"]
 # par_names=["N", "tau", "A", "R", "phi", "A_cbo", "w_cbo", "phi_cbo", "tau_cbo"]
-par_label=[r"$N$", r"$K_{\rm{LM}}$", r"$A$", r"$R$", r"$\phi$", r"$A_{\rm{CBO}}$", r"$\omega_{\rm{CBO}}$", r"$\phi_{\rm{CBO}}$", r"$\tau_{\rm{CBO}}$"]
-# par_label=[r"$N$", r"$\tau$", r"$A$", r"$R$", r"$\phi$", r"$A_{\rm{CBO}}$", r"$\omega_{\rm{CBO}}$", r"$\phi_{\rm{CBO}}$", r"$\tau_{\rm{CBO}}$"])
+par_labels=[r"$N$", r"$K_{\rm{LM}}$", r"$A$", r"$R$", r"$\phi$", r"$A_{\rm{CBO}}$", r"$\omega_{\rm{CBO}}$", r"$\phi_{\rm{CBO}}$", r"$\tau_{\rm{CBO}}$"]
+# par_labels=[r"$N$", r"$\tau$", r"$A$", r"$R$", r"$\phi$", r"$A_{\rm{CBO}}$", r"$\omega_{\rm{CBO}}$", r"$\phi_{\rm{CBO}}$", r"$\tau_{\rm{CBO}}$"])
 
 def main():
     '''
@@ -64,6 +65,7 @@ def main():
     if(args.start): time_scan(DS_path, start_times)
     if(args.end): time_scan(DS_path, end_times)
     if(args.plot): plot(direction="start")
+    if(args.plot_end): plot(direction="stop")
     if(args.corr): corr()
 
 
@@ -100,7 +102,7 @@ def plot(direction="start"):
     chi2_e=np.sqrt(2/ (data['ndf']-par_n) ) #number of bins - number of fit parameters          
     data['chi2_e']=chi2_e # add chi2_e to the dataframe
     par_names.insert(0, "chi2")
-    par_label.insert(0, r"$\frac{\chi^2}{\rm{DoF}}$")
+    par_labels.insert(0, r"$\frac{\chi^2}{\rm{DoF}}$")
 
     for ds in dss:
         for station in stations:
@@ -122,6 +124,7 @@ def plot(direction="start"):
                 y=plot_data[par_names[i_par]] 
                 y_e=plot_data[par_names[i_par]+'_e'] 
                 y_s = np.sqrt(y_e**2-y_e[0]**2) # 1sigma band
+                if(args.plot_end): y_s = np.sqrt(y_e[0]**2-y_e**2) # 1sigma band
 
                 if(y_s.isnull().sum()>0): 
                     print("Error at later times are smaller - not physical, check for bad fit at these times [us]:")
@@ -136,7 +139,7 @@ def plot(direction="start"):
                 if(par_names[i_par]=='chi2'): ax.plot([min(x)-2, max(x)+2], [1, 1], c="k", ls="--");
                 ax.set_xlim(min(x)-2, max(x)+2)
                 ax.set_xlabel(direction+r" time [$\rm{\mu}$s]", fontsize=font_size);
-                ax.set_ylabel(par_label[i_par], fontsize=font_size);
+                ax.set_ylabel(par_labels[i_par], fontsize=font_size);
                 ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.5, 1.1))
                 fig.subplots_adjust(left=0.15)
                 fig.savefig("../fig/scans_fom/"+direction+"_"+par_names[i_par]+"_S"+str(station)+"_"+str(ds)+".png", dpi=300);
@@ -149,9 +152,8 @@ def corr():
     plot correlation matrix for the fit parameters
     '''
     corr=[np.corrcoef(np.load("../DATA/misc/pcov_S12.np.npy")), np.corrcoef(np.load("../DATA/misc/pcov_S18.np.npy"))]
-    names=[r"$N$", r"$\tau$", r"$A$", r"$R$", r"$\phi$", r"$A_{\rm{CBO}}$", r"$\omega_{\rm{CBO}}$", r"$\phi_{\rm{CBO}}$", r"$\tau_{\rm{CBO}}$"]
     for i_station, station in enumerate(stations):
-        df_corr = pd.DataFrame(corr[i_station],columns=names, index=names)
+        df_corr = pd.DataFrame(corr[i_station],columns=par_labels, index=par_labels)
         fig,ax = plt.subplots()
         ax=sn.heatmap(df_corr, annot=True, fmt='.2f', linewidths=.5, cmap="bwr")
         cu.textL(ax, 0.5, 1.1, "S"+str(station))
