@@ -440,7 +440,7 @@ def blinded_10_par(x, *pars):
     ''' 
     # use a pre-made histograms of muon loss spectrum to get this integral 
     #the times in the histogram are in ns
-    L = 1.0 - K  * ru.LM_integral(time*1e3, ds) * 1e-10 # the 1e-10 is just an arbitrary scaling factor
+    L = 1.0 - K  * ru.LM_integral(time*1e3, ds) * -3.75e-7 # the 1e-10 is just an arbitrary scaling factor
    
     return N_LT * C * L
   

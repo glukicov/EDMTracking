@@ -29,6 +29,7 @@ arg_parser.add_argument("--cbo", action='store_true', default=False, help="inclu
 arg_parser.add_argument("--loss", action='store_true', default=False, help="include extra kloss")
 arg_parser.add_argument("--scan", action='store_true', default=False, help="if run externally for iterative scans - dump 𝝌2 and fitted pars to a file for summary plots")
 arg_parser.add_argument("--corr", action='store_true', default=False, help="Save covariance matrix for plotting")
+arg_parser.add_argument("--pars", action='store_true', default=False, help="Save parameters for plotting")
 args=arg_parser.parse_args()
 
 if(args.loss==True): args.cbo = True 
@@ -73,12 +74,17 @@ if (args.cbo):
         cbo_fit_terms_s18=[0.05, 2.5, 3.8, 90.0]   
         print("Bad resistors in HK are accounted in the starting parameters!") # bad resistors fix 
     if (ds_name=="EG"): 
-        cbo_fit_terms_s12=[0.1,   2.3, 6.0, 120.0]
-        cbo_fit_terms_s18=[0.005, 2.3, 1.6, 200.0]
+        cbo_fit_terms_s12=[-0.033, 2.312, 5.233, 120.0]
+        cbo_fit_terms_s18=[0.0051, 2.300, 1.625, 120.0]
         print("Bad resistors in EG are accounted in the starting parameters!") # bad resistors fix 
-    else: 
+    if (ds_name=="60h"):  
+        # cbo_fit_terms_s12=[0.05, 2.5, 3.8, 90.0] 
         cbo_fit_terms_s12=[0.028, 2.332, 2.826, 175.2]
         cbo_fit_terms_s18=[0.020, 2.338, 1.055, 175.2]
+    if (ds_name=="9D"):  
+        # cbo_fit_terms_s12=[0.026, 2.330, 3.034, 200.0]
+        cbo_fit_terms_s12=[0.05, 2.5, 3.8, 90.0]  
+        cbo_fit_terms_s18=[0.034, 2.327, 1.774, 120.2]
     p0_s12.extend(cbo_fit_terms_s12)    
     p0_s18.extend(cbo_fit_terms_s18)    
     par_names.extend(["A_cbo", "w_cbo", "phi_cbo", "tau_cbo"])
@@ -91,7 +97,7 @@ if(args.loss):
     cu._LT=64.44 # us 
     cu._DS=ds_name # for muon loss integral 
     par_names[1]="K_LM" # replace LT by K_LM term
-    p0_s12[1]=1.0; p0_s18[1]=1.0; # S12 and S18 
+    p0_s12[1]=100.0; p0_s18[1]=2.0; # S12 and S18 
     # 0_s12[0]=0.001; p0_s18[1]=0.001; # S12 and S18 
     func=cu.blinded_10_par
     func_label="10par"
@@ -177,7 +183,8 @@ def fit():
         print("Pars e:",np.array(par_e))
         if(args.corr): print("Covariance matrix", pcov); np.save("../DATA/misc/pcov_S"+str(station)+".np", pcov);
         chi2_ndf, chi2, ndf=cu.chi2_ndf(x, y, y_err, func, par)
-        print("Fit 𝝌2/DoF="+str(round(chi2_ndf,2)) )
+        if(args.pars): print("Parameters saved"); pars_dump=[ds_name, chi2_ndf, ndf]; pars_dump.extend(par); pars_dump.extend(par_e); np.save("../DATA/misc/pars_S"+str(station)+".np", pars_dump);
+        print("Fit 𝝌2/DoF="+str(round(chi2_ndf,2))+" ± "+str( round( np.sqrt(2/(ndf-len(par_e)) ) , 2) ), "𝝌2:", int(chi2), "DoF:", ndf)
         if (np.max(abs(par_e)) == np.Infinity ): raise Exception("\nOne of the fit parameters is infinity! Exiting...\n")
 
         print("Plotting fit and data!")

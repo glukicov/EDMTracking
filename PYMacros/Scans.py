@@ -26,8 +26,8 @@ arg_parser.add_argument("--corr", action='store_true', default=False)
 args=arg_parser.parse_args()
 
 ### Constants 
-# DS_path = ("../DATA/HDF/MMA/60h.h5", "../DATA/HDF/MMA/9D.h5", "../DATA/HDF/MMA/HK.h5", "../DATA/HDF/MMA/EG.h5")
-DS_path = (["../DATA/HDF/MMA/60h.h5"])
+DS_path = ("../DATA/HDF/MMA/60h.h5", "../DATA/HDF/MMA/9D.h5", "../DATA/HDF/MMA/HK.h5", "../DATA/HDF/MMA/EG.h5")
+# DS_path = (["../DATA/HDF/MMA/60h.h5"])
 
 
 bin_w = 149.2*1e-3 # 150 ns
@@ -71,9 +71,9 @@ def main():
 
 def all(DS_path):
     for path in DS_path:
-        # subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path])
-        # subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--cbo"])
-        subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--loss"])
+        subprocess.Popen(["python3", "fitWithBlinders_skim.py", "--hdf", path])
+        subprocess.Popen(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--cbo"])
+        subprocess.Popen(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--loss"])
 
 def time_scan(DS_path, times):
     subprocess.call(["mv", "../DATA/scans/scan.csv", "../DATA/scans/scan_"+str(int(datetime.datetime.now().timestamp()))+".csv"]) # backup previous file
