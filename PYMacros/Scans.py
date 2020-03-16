@@ -1,7 +1,7 @@
 # Author: Gleb Lukicov (21 Feb 2020)
 # A front-end module to run over fitWithBlinders_skim.py iteratively  
 
-import sys, re, subprocess
+import sys, re, os, subprocess, datetime
 import argparse
 import pandas as pd
 import numpy as np
@@ -47,9 +47,7 @@ def main():
     As a quick solution use sub process 
     TODO: import and run module properly
     '''
-
     if(args.all): all(DS_path)
-
     if(args.start): time_scan(DS_path, start_times)
     if(args.end): time_scan(DS_path, end_times)
     if(args.plot): plot(direction="start")
@@ -63,6 +61,7 @@ def all(DS_path):
         # subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--loss"])
 
 def time_scan(DS_path, times):
+    os.rename("../DATA/scans/scan.csv", "../DATA/scans/scan_"+str(int(datetime.datetime.now().timestamp()))+".csv") # backup previous file
     if (args.start==True): key = "--min"
     if (args.end==True): key = "--max"
     for path in DS_path:
@@ -111,8 +110,8 @@ def plot(direction="start"):
                 y_s = np.sqrt(y_e**2-y_e[0]**2) # 1sigma band
 
                 if(y_s.isnull().sum()>0): 
-                    print("Error at later times are smaller - not physical, check for bad fit at:")
-                    print(y_s.isnull()[0])
+                    print("Error at later times are smaller - not physical, check for bad fit at these times [us]:")
+                    print( [x[i] for i, B in enumerate(y_s.isnull()) if B]) # y_s.isnull() list of T/F , B is on of T/F in that list, i is index of True, x[i] times of True
                 
                 #Plot 
                 fig, ax = cu.plot(x, y, y_err=y_e, error=True, elw=2, label="S"+str(station)+": "+ds+" DS", tight=True)
@@ -128,7 +127,8 @@ def plot(direction="start"):
                 fig.subplots_adjust(left=0.15)
                 fig.savefig("../fig/scans_fom/"+direction+"_"+par_names[i_par]+"_S"+str(station)+"_"+str(ds)+".png", dpi=300);
 
-                if(par_names[i_par]=='A_cbo'): print(y, y_e, y_s); sys.exit()
+                # look into parameters
+                #if(par_names[i_par]=='A_cbo'): print(y, y_e, y_s); sys.exit()
             
 def corr():
     '''
