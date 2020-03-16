@@ -20,36 +20,33 @@ cimport cython
 
 
 def LM_integral(double[:] times, str ds):
+    '''
+    Get Lost Muons spectra for pre-made histograms to use in fit functions
+    The code and the LM spectra courtesy of N. Kinnaird 
+    (Muon spin precession frequency extraction and decay positron track fitting in Run-1 of the Fermilab Muon g − 2 experiment, 
+    PhD thesis, Boston University (2020).)
+    ''' 
 
-    print("RU:: times", times,  "ds", ds)
-
-    #store the returned data from hist 
-    cdef int N=len(times)
-    print("RU::  N",  N)
-    cdef list integralParts = []
-    
-    cdef str file_path="../DATA/LostMuons/"+ds+".root"
-    print("RU:: file_path", file_path)
-
+    cdef int N=len(times)  # how many times/bins are we passing 
+    cdef list integralParts = []    #store the returned data from histograms 
+    cdef str file_path="../DATA/LostMuons/"+ds+".root" 
     cdef str hist_path="topDir/AdditionalCuts/Triples/Losses_minus_quadruples_accidentals/triple_losses_spectra_minus_quadruples_accidentals"
-    print("RU:: hist_path", hist_path)
-
-    tfile = TFile.Open(file_path) 
-    print("RU:: tfile", tfile)
-
+    
+    #open root histo 
+    tfile = TFile.Open(file_path)  
     lostMuonIntegral=tfile.Get(hist_path)
-    print("RU:: lostMuonIntegral", lostMuonIntegral)
 
+    #declare outside of loop 
     cdef int timeBin;
     cdef int integralPart;
     
+    # get inte integral for each time 
     for i in range(N):
         timeBin = lostMuonIntegral.FindBin(times[i]);
         integralPart = lostMuonIntegral.GetBinContent(timeBin);
         integralParts.append(integralPart)
-        print("RU:: i", i, "times[i]", times[i],  "timeBin", timeBin, "integralPart", integralPart)
-
-    return np.array(integralParts)
+        
+    return np.array(integralParts) # return back to the function as Numpy array 
 
 def hist2np(freq, edges, # default  
             bint from_root=False, str file_path="data/data.root", str hist_path="Tracks/pvalue", 

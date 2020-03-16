@@ -439,11 +439,8 @@ def blinded_10_par(x, *pars):
     The code and the LM spectra courtesy of N. Kinnaird (Muon spin precession frequency extraction and decay positron track fitting in Run-1 of the Fermilab Muon g − 2 experiment, PhD thesis, Boston University (2020).)
     ''' 
     # use a pre-made histograms of muon loss spectrum to get this integral 
-    print("CU:: time", time,  "ds", ds)
-    L = 1.0 - K  * ru.LM_integral(time, ds) * 1e-10 # the 1e-10 is just an arbitrary scaling factor
-    print("CU:: L", L,  "K", K, "LM_integral", ru.LM_integral(time, ds))
-
-    # L=1-K*np.exp(-time/constant_lifetime)
+    #the times in the histogram are in ns
+    L = 1.0 - K  * ru.LM_integral(time*1e3, ds) * 1e-10 # the 1e-10 is just an arbitrary scaling factor
    
     return N_LT * C * L
   
