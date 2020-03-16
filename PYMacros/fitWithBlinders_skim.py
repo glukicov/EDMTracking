@@ -60,7 +60,8 @@ f_cbo_M_a = f_cbo - f_a
 f_cbo_P_a = f_cbo + f_a
 
 ### (2) Deal with weather we are doing 5 or 9 parameter fit
-p0=[1e4, 64.0, 0.3, -30, 2.0]
+p0_s12=[3e4, 64.0, 0.3, -30, 2.0]
+p0_s18=[2e4, 64.0, 0.3, -30, 2.0]
 func = cu.blinded_wiggle_function # standard blinded function from CommonUtils
 func_label="5par"
 legend_fit=r'Fit: $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]$'
@@ -69,10 +70,19 @@ show_loss_terms=False
 
 # for CBO pars see Joe's DocDB:12933
 if (args.cbo):
-    if (ds_name=="HK"): cbo_fit_terms=[0.05, 2.5, 3.8, 90.0];   print("Bad resistors in HK are accounted in the starting parameters!") # bad resistors fix 
-    if (ds_name=="EG"): cbo_fit_terms=[0.1,   2.3, 6.0, 120.0]; print("Bad resistors in EG are accounted in the starting parameters!") # bad resistors fix 
-    else: cbo_fit_terms=[0.05, 2.3, 2.8, 150.0]
-    p0.extend(cbo_fit_terms)    
+    if (ds_name=="HK"): 
+        cbo_fit_terms_s12=[0.05, 2.5, 3.8, 90.0]   
+        cbo_fit_terms_s18=[0.05, 2.5, 3.8, 90.0]   
+        print("Bad resistors in HK are accounted in the starting parameters!") # bad resistors fix 
+    if (ds_name=="EG"): 
+        cbo_fit_terms_s12=[0.1,   2.3, 6.0, 120.0]
+        cbo_fit_terms_s18=[0.005, 2.3, 1.6, 200.0]
+        print("Bad resistors in EG are accounted in the starting parameters!") # bad resistors fix 
+    else: 
+        cbo_fit_terms_s12=[0.02, 2.33, 2.8, 200.0]
+        cbo_fit_terms_s18=[0.03, 2.32, 1.7, 120.0]
+    p0_s12.extend(cbo_fit_terms_s12)    
+    p0_s18.extend(cbo_fit_terms_s18)    
     par_names.extend(["A_cbo", "w_cbo", "phi_cbo", "tau_cbo"])
     func=cu.blinded_wiggle_function_cbo
     func_label="9par"
@@ -80,13 +90,16 @@ if (args.cbo):
     show_cbo_terms=True
 
 if(args.loss):
-    p0.extend([1.0])
+    p0_s12.extend([1.0]); p0_s18.extend([1.0]); # S12 and S18 
     par_names.extend(["K_LM"])
     func=cu.blinded_10_par
     func_label="10par"
     legend_fit=legend_fit+r"(1-$\Lambda(t)$)"
     show_cbo_terms=True
     show_loss_terms=True
+
+#form final starting parameters array (should probably used dict for this...)
+p0=[p0_s12, p0_s18]
 
 #define modulation and limits (more can be made as arguments)
 bin_w = 149.2*1e-3 # 150 ns
@@ -156,9 +169,8 @@ def fit():
 
         print("Fitting...")
         # Levenberg-Marquardt algorithm as implemented in MINPACK
-        if (ds_name=="EG" and station==18): p0[4:8]=[0.005, 2.3, 1.6, 200.0]; print("Bad resistors in EG are accounted in the starting CBO parameters for S18!") # bad resistors fix 
-        par, pcov = optimize.curve_fit(f=func, xdata=x, ydata=y, sigma=y_err, p0=p0, absolute_sigma=False, method='lm')  
-        # par, pcov = optimize.curve_fit(f=func, xdata=x, ydata=y, p0=p0, absolute_sigma=False, method='lm')
+        par, pcov = optimize.curve_fit(f=func, xdata=x, ydata=y, sigma=y_err, p0=p0[i_station], absolute_sigma=False, method='lm')  
+        # par, pcov = optimize.curve_fit(f=func, xdata=x, ydata=y, p0=p0[i_station], absolute_sigma=False, method='lm')
         par_e = np.sqrt(np.diag(pcov))
         print("Pars  :", np.array(par))
         print("Pars e:",np.array(par_e))

@@ -35,7 +35,12 @@ end_times = np.linspace(400, 500, 36, dtype=float)
 # print(end_times)
 
 stations=(12, 18)
-dss = ("60h", "9D", "HK", "EG")
+# dss = ("60h", "9D", "HK", "EG")
+dss = (["60h"])
+# par_names=["N", "tau", "A", "R", "phi", "A_cbo", "w_cbo", "phi_cbo", "tau_cbo", "K_LM"]
+par_names=["N", "tau", "A", "R", "phi", "A_cbo", "w_cbo", "phi_cbo", "tau_cbo"]
+# par_label=[r"$N$", r"$\tau$", r"$A$", r"$R$", r"$\phi$", r"$A_{\rm{CBO}}$", r"$\omega_{\rm{CBO}}$", r"$\phi_{\rm{CBO}}$", r"$\tau_{\rm{CBO}}$", r"$\K_{\rm{LM}}$"])
+par_label=[r"$N$", r"$\tau$", r"$A$", r"$R$", r"$\phi$", r"$A_{\rm{CBO}}$", r"$\omega_{\rm{CBO}}$", r"$\phi_{\rm{CBO}}$", r"$\tau_{\rm{CBO}}$"]
 
 def main():
     '''
@@ -47,7 +52,7 @@ def main():
 
     if(args.start): time_scan(DS_path, start_times)
     if(args.end): time_scan(DS_path, end_times)
-    if(args.plot): plot()
+    if(args.plot): plot(direction="start")
     if(args.corr): corr()
 
 
@@ -66,35 +71,65 @@ def time_scan(DS_path, times):
             subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--cbo", "--scan", key, str(time)])
 
 
-def plot():
-    data = pd.read_csv("../DATA/misc/scans/scan.csv")
+def plot(direction="start"):
+    print("Making scan summary plot")
+    data = pd.read_csv("../DATA/scans/scan.csv")
     par_n=-1
-    if(data.shape[1] == 25):  par_n=10
+    if(data.shape[1] == 27):  par_n=10
     if(data.shape[1] == 25):  par_n=9
     if(data.shape[1] == 17):  par_n=5
     print("par_n =", par_n, "according to expected total columns")
+    if(par_n!=len(par_names)): raise Exception("More parameters in scan data then expected names - expand!")
+    if(par_n==--1): raise Exception("Scan data has less/more then expected parameters!")
+
+    #resolve chi2 - a special parameter and add to data
+    chi2 = data['chi2']
+    chi2_e=np.sqrt(2/ (data['ndf']-par_n) ) #number of bins - number of fit parameters          
+    data['chi2_e']=chi2_e # add chi2_e to the dataframe
+    par_names.insert(0, "chi2")
+    par_label.insert(0, r"$\frac{\chi^2}{\rm{DoF}}$")
 
     for ds in dss:
         for station in stations:
             # apply cuts and select data
+            print("S",station,":")
             station_cut = (data["station"]==station)
             ds_cut =  (data['ds']==ds)
-            plot_data= data[station_cut & ds_cut]
+            plot_data=data[station_cut & ds_cut]
             plot_data=plot_data.reset_index()
 
+            if(np.max(plot_data.isnull().sum()) > 0): raise Exception("NaNs detected, make method to treat those...")
+
             # resolve paramters for plotting 
-            start=plot_data['start']
-            stop=plot_data['stop']
+            x=plot_data[direction]
+
+            #loop over all parameters 
+            for i_par in range(par_n):
+                print(par_names[i_par])
+                y=plot_data[par_names[i_par]] 
+                y_e=plot_data[par_names[i_par]+'_e'] 
+                y_s = np.sqrt(y_e**2-y_e[0]**2) # 1sigma band
+
+                if(y_s.isnull().sum()>0): 
+                    print("Error at later times are smaller - not physical, check for bad fit at:")
+                    print(y_s.isnull()[0])
+                
+                #Plot 
+                fig, ax = cu.plot(x, y, y_err=y_e, error=True, elw=2, label="S"+str(station)+": "+ds+" DS", tight=True)
+                ax.plot(x, y, marker=".", ms=10, c="g", lw=0)
+                ax.plot(x, y[0]+y_s, c="r", ls=":", lw=2, label=r"$\sigma_{\Delta_{21}}$")
+                ax.plot(x, y[0]-y_s, c="r", ls=":", lw=2)
+                if(par_names[i_par]=='tau'): ax.plot([np.min(x)-2, np.max(x)+2], [64.44, 64.44], c="k", ls="--"); ax.set_ylim(np.min(y)-0.1, 64.6);
+                if(par_names[i_par]=='chi2'): ax.plot([min(x)-2, max(x)+2], [1, 1], c="k", ls="--");
+                ax.set_xlim(min(x)-2, max(x)+2)
+                ax.set_xlabel(direction+r" time [$\rm{\mu}$s]", fontsize=font_size);
+                ax.set_ylabel(par_label[i_par], fontsize=font_size);
+                ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.5, 1.1))
+                fig.subplots_adjust(left=0.15)
+                fig.savefig("../fig/scans_fom/"+direction+"_"+par_names[i_par]+"_S"+str(station)+"_"+str(ds)+".png", dpi=300);
+
+                if(par_names[i_par]=='A_cbo'): print(y, y_e, y_s); sys.exit()
             
-            chi2 = plot_data['chi2']
-            chi2_e=np.sqrt(2/ (plot_data['ndf']-par_n) )
-
-            x=start
-            y=chi2
-            y_e=chi2_e 
-            y_s = np.sqrt(y_e**2-y_e[0]**2) # 1sigma band
-
-
 def corr():
     '''
     plot correlation matrix for the fit parameters

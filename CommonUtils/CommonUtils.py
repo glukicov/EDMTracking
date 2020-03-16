@@ -142,7 +142,7 @@ def plot(x, y, x_err=None, y_err=None, fs=14, c="green",
     if(tight):
         # fig.tight_layout()
         #make space for the colour bar
-        fig.tight_layout(rect=[0.0, 0.0, 0.97, 0.97])
+        fig.tight_layout(rect=[0.05, 0.05, 0.95, 0.95])
 
     return fig, ax
 
