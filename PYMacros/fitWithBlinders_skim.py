@@ -45,9 +45,7 @@ par_names= ["N", "tau", "A", "R", "phi"]
 ds_name=args.hdf.replace(".","/").split("/")[-2] # if all special chars are "/" the DS name is just after extension
 print("Detected DS name:", ds_name, "from the input file!")
 if(not ds_name in expected_DSs):
-    print("Unexpected input hdf name: if using Run-1 data, rename your file to DS.h5 (e.g. 60h.h5)")
-    print("Otherwise, modify functionality of this programme...exiting...")
-    sys.exit()
+    raise Exception("Unexpected input HDF name: if using Run-1 data, rename your file to DS.h5 (e.g. 60h.h5); Otherwise, modify functionality of this programme...exiting...")
 
 # Now that we know what DS we have, we can
 # set tune and calculate expected FFTs and
@@ -91,6 +89,7 @@ if (args.cbo):
 
 if(args.loss):
     cu._LT=64.44 # us 
+    cu._DS=ds_name # for muon loss integral 
     par_names[1]="K_LM" # replace LT by K_LM term
     p0_s12[1]=1.0; p0_s18[1]=1.0; # S12 and S18 
     # 0_s12[0]=0.001; p0_s18[1]=0.001; # S12 and S18 

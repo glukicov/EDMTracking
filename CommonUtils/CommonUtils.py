@@ -29,6 +29,7 @@ np.set_printoptions(precision=9)
 _phi=-1
 _omega=-1
 _LT=-1
+_DS=-1
 
 #define common constants
 meanS=r"$\mathrm{\mu}$"
@@ -409,9 +410,13 @@ def blinded_10_par(x, *pars):
     '''
     CBO (4 par) + lost muons (1 par) with constant LT (5 par, 4/5 var 1 const LT)
     '''
+    import RUtils as ru
+
     time  = x
     constant_lifetime =_LT
     if (constant_lifetime == -1): raise Exception("Set constants lifetime via cu._LT=x")
+    ds=_DS
+    if(ds==-1): raise Exception("DS not set via cu._DS=x")
     
     norm  = pars[0]
     K     = pars[1]
@@ -429,7 +434,16 @@ def blinded_10_par(x, *pars):
     
     N_LT = norm * np.exp(-time/constant_lifetime) * (1 + asym*np.cos(omega*time + phi))
     C = 1.0 - ( np.exp(-time / t_cbo) * A_cbo * np.cos(w_cbo * time+ phi_cbo) )
-    L=1-K*np.exp(-time/constant_lifetime)
+    
+    '''
+    The code and the LM spectra courtesy of N. Kinnaird (Muon spin precession frequency extraction and decay positron track fitting in Run-1 of the Fermilab Muon g − 2 experiment, PhD thesis, Boston University (2020).)
+    ''' 
+    # use a pre-made histograms of muon loss spectrum to get this integral 
+    print("CU:: time", time,  "ds", ds)
+    L = 1.0 - K  * ru.LM_integral(time, ds) * 1e-10 # the 1e-10 is just an arbitrary scaling factor
+    print("CU:: L", L,  "K", K, "LM_integral", ru.LM_integral(time, ds))
+
+    # L=1-K*np.exp(-time/constant_lifetime)
    
     return N_LT * C * L
   

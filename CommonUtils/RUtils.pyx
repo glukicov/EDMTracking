@@ -16,7 +16,40 @@ from ROOT import TH1, TH2, TFile
 import numpy as np
 import math
 from root_numpy import hist2array # http://scikit-hep.org/root_numpy/
-cimport cython  
+cimport cython 
+
+
+def LM_integral(double[:] times, str ds):
+
+    print("RU:: times", times,  "ds", ds)
+
+    #store the returned data from hist 
+    cdef int N=len(times)
+    print("RU::  N",  N)
+    cdef list integralParts = []
+    
+    cdef str file_path="../DATA/LostMuons/"+ds+".root"
+    print("RU:: file_path", file_path)
+
+    cdef str hist_path="topDir/AdditionalCuts/Triples/Losses_minus_quadruples_accidentals/triple_losses_spectra_minus_quadruples_accidentals"
+    print("RU:: hist_path", hist_path)
+
+    tfile = TFile.Open(file_path) 
+    print("RU:: tfile", tfile)
+
+    lostMuonIntegral=tfile.Get(hist_path)
+    print("RU:: lostMuonIntegral", lostMuonIntegral)
+
+    cdef int timeBin;
+    cdef int integralPart;
+    
+    for i in range(N):
+        timeBin = lostMuonIntegral.FindBin(times[i]);
+        integralPart = lostMuonIntegral.GetBinContent(timeBin);
+        integralParts.append(integralPart)
+        print("RU:: i", i, "times[i]", times[i],  "timeBin", timeBin, "integralPart", integralPart)
+
+    return np.array(integralParts)
 
 def hist2np(freq, edges, # default  
             bint from_root=False, str file_path="data/data.root", str hist_path="Tracks/pvalue", 
