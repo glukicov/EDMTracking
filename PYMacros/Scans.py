@@ -1,7 +1,7 @@
 # Author: Gleb Lukicov (21 Feb 2020)
 # A front-end module to run over fitWithBlinders_skim.py iteratively  
 
-import sys, re, os, subprocess, datetime
+import sys, re, os, subprocess, datetime, glob
 import argparse
 import pandas as pd
 import numpy as np
@@ -27,7 +27,20 @@ args=arg_parser.parse_args()
 ### Constants 
 # DS_path = ("../DATA/HDF/MMA/60h.h5", "../DATA/HDF/MMA/9D.h5", "../DATA/HDF/MMA/HK.h5", "../DATA/HDF/MMA/EG.h5")
 DS_path = (["../DATA/HDF/MMA/60h.h5"])
-start_times = np.linspace(30.2876, 100, 36, dtype=float)
+
+
+bin_w = 149.2*1e-3 # 150 ns
+factor=10
+step=bin_w*factor
+stop_desired=90 # us 
+start=30.2876 # us 
+dt = stop_desired - start
+n_dt = int(dt/bin_w/factor) # how many whole (factor x bins) do we fit in that interval
+print("Will generate", n_dt+1, "start times between", start, "and", stop_desired, 'us')
+stop = n_dt*factor*bin_w+start
+print("Adjusted last start time ",stop)
+
+start_times = np.arange(start, stop, step, dtype=float)
 end_times = np.linspace(400, 500, 36, dtype=float)
 
 # print(start_times)
@@ -61,7 +74,8 @@ def all(DS_path):
         # subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--loss"])
 
 def time_scan(DS_path, times):
-    os.rename("../DATA/scans/scan.csv", "../DATA/scans/scan_"+str(int(datetime.datetime.now().timestamp()))+".csv") # backup previous file
+    subprocess.call(["mv", "../DATA/scans/scan.csv", "../DATA/scans/scan_"+str(int(datetime.datetime.now().timestamp()))+".csv"]) # backup previous file
+    subprocess.Popen( ["trash"] + glob.glob("../fig/scans/*.png") )
     if (args.start==True): key = "--min"
     if (args.end==True): key = "--max"
     for path in DS_path:
@@ -72,6 +86,7 @@ def time_scan(DS_path, times):
 
 def plot(direction="start"):
     print("Making scan summary plot")
+    subprocess.Popen( ["trash"] + glob.glob("../fig/scans_fom/*.png") )
     data = pd.read_csv("../DATA/scans/scan.csv")
     par_n=-1
     if(data.shape[1] == 27):  par_n=10

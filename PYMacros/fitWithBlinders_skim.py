@@ -60,8 +60,8 @@ f_cbo_M_a = f_cbo - f_a
 f_cbo_P_a = f_cbo + f_a
 
 ### (2) Deal with weather we are doing 5 or 9 parameter fit
-p0_s12=[3e4, 64.0, 0.3, -30, 2.0]
-p0_s18=[2e4, 64.0, 0.3, -30, 2.0]
+p0_s12=[15000, 63.0, 0.345, -60, 2.080]
+p0_s18=[13000, 64.0, 0.345, -90, 2.080]
 func = cu.blinded_wiggle_function # standard blinded function from CommonUtils
 func_label="5par"
 legend_fit=r'Fit: $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]$'
@@ -79,8 +79,8 @@ if (args.cbo):
         cbo_fit_terms_s18=[0.005, 2.3, 1.6, 200.0]
         print("Bad resistors in EG are accounted in the starting parameters!") # bad resistors fix 
     else: 
-        cbo_fit_terms_s12=[0.02, 2.33, 2.8, 200.0]
-        cbo_fit_terms_s18=[0.03, 2.32, 1.7, 120.0]
+        cbo_fit_terms_s12=[0.028, 2.332, 2.826, 175.2]
+        cbo_fit_terms_s18=[0.020, 2.338, 1.055, 175.2]
     p0_s12.extend(cbo_fit_terms_s12)    
     p0_s18.extend(cbo_fit_terms_s18)    
     par_names.extend(["A_cbo", "w_cbo", "phi_cbo", "tau_cbo"])
