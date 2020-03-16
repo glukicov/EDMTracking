@@ -124,7 +124,7 @@ def plot(direction="start"):
                 y=plot_data[par_names[i_par]] 
                 y_e=plot_data[par_names[i_par]+'_e'] 
                 y_s = np.sqrt(y_e**2-y_e[0]**2) # 1sigma band
-                if(args.plot_end): y_s = np.sqrt(y_e[0]**2-y_e**2) # 1sigma band
+                if(args.plot_end): y_s = np.sqrt(y_e[0]**2-y_e**2); # 1sigma band
 
                 if(y_s.isnull().sum()>0): 
                     print("Error at later times are smaller - not physical, check for bad fit at these times [us]:")
@@ -133,8 +133,10 @@ def plot(direction="start"):
                 #Plot 
                 fig, ax = cu.plot(x, y, y_err=y_e, error=True, elw=2, label="S"+str(station)+": "+ds+" DS", tight=True)
                 ax.plot(x, y, marker=".", ms=10, c="g", lw=0)
-                ax.plot(x, y[0]+y_s, c="r", ls=":", lw=2, label=r"$\sigma_{\Delta_{21}}$")
-                ax.plot(x, y[0]-y_s, c="r", ls=":", lw=2)
+                sigma_index=0; band_P=y[sigma_index]+y_s; band_M=y[sigma_index]-y_s;
+                if(args.plot_end): sigma_index=len(y)-1; band_P=np.flip(band_P); band_M=np.flip(band_M);
+                ax.plot(x, band_P, c="r", ls=":", lw=2, label=r"$\sigma_{\Delta_{21}}$")
+                ax.plot(x, band_M, c="r", ls=":", lw=2)
                 if(par_names[i_par]=='tau'): ax.plot([np.min(x)-2, np.max(x)+2], [64.44, 64.44], c="k", ls="--"); ax.set_ylim(np.min(y)-0.1, 64.6);
                 if(par_names[i_par]=='chi2'): ax.plot([min(x)-2, max(x)+2], [1, 1], c="k", ls="--");
                 ax.set_xlim(min(x)-2, max(x)+2)
