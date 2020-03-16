@@ -90,8 +90,10 @@ if (args.cbo):
     show_cbo_terms=True
 
 if(args.loss):
-    p0_s12.extend([1.0]); p0_s18.extend([1.0]); # S12 and S18 
-    par_names.extend(["K_LM"])
+    cu._LT=64.44 # us 
+    par_names[1]="K_LM" # replace LT by K_LM term
+    p0_s12[1]=1.0; p0_s18[1]=1.0; # S12 and S18 
+    # 0_s12[0]=0.001; p0_s18[1]=0.001; # S12 and S18 
     func=cu.blinded_10_par
     func_label="10par"
     legend_fit=legend_fit+r"(1-$\Lambda(t)$)"
@@ -267,7 +269,7 @@ def fft(residuals):
         index=next(i for i,v in enumerate(freq) if v > x_min)
         # arbitrary: scale by max value in range of largest non-zero peak
         norm = 1./max(res_fft[index:-1])
-        #if(args.cbo): norm=norm*0.25 # scale by 4 if cbo is used
+        if(args.loss): norm=norm*0.1 # scale by 4 if LM is used
         res_fft=res_fft*norm
         ax.plot(freq, res_fft, label="Run-1: "+ds_name+" dataset S"+str(stations[i_station])+r": FFT, $n$={0:.3f}".format(n_tune), lw=2, c="g")
 
