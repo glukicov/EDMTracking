@@ -40,7 +40,7 @@ expected_DSs = ("60h", "9D", "HK", "EG", "VLEDM_skim")
 ds_name=args.hdf.replace(".","/").split("/")[-2] # if all special chars are "/" the DS name is just after extension
 folder=args.hdf.replace(".","/").split("/")[-3] 
 print("Detected DS name:", ds_name, "from the input file!")
-if(not (folder is "Sim") or not (folder is "EDM")): raise Exception("Loaded pre-skimmed simulation or EDM file")
+if( (folder is not "Sim") and (folder is not "EDM")): raise Exception("Loaded pre-skimmed simulation or EDM file")
 if(not ds_name in expected_DSs): raise Exception("Unexpected input HDF name: if using Run-1 data, rename your file to DS.h5 (e.g. 60h.h5); Otherwise, modify functionality of this programme...exiting...")
 
 sim=False
