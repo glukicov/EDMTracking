@@ -51,9 +51,9 @@ end_times = np.linspace(300, 500, 36, dtype=float)
 stations=(12, 18)
 # dss = ("60h", "9D", "HK", "EG")
 dss = (["60h"])
-par_names=["N", "K_LM", "A", "R", "phi", "A_cbo", "w_cbo", "phi_cbo", "tau_cbo"]
+par_names=["N", "tau", "A", "R", "phi", "A_cbo", "w_cbo", "phi_cbo", "tau_cbo", "K_LM",]
 # par_names=["N", "tau", "A", "R", "phi", "A_cbo", "w_cbo", "phi_cbo", "tau_cbo"]
-par_labels=[r"$N$", r"$K_{\rm{LM}}$", r"$A$", r"$R$", r"$\phi$", r"$A_{\rm{CBO}}$", r"$\omega_{\rm{CBO}}$", r"$\phi_{\rm{CBO}}$", r"$\tau_{\rm{CBO}}$"]
+par_labels=[r"$N$", r"$\tau$", r"$A$", r"$R$", r"$\phi$", r"$A_{\rm{CBO}}$", r"$\omega_{\rm{CBO}}$", r"$\phi_{\rm{CBO}}$", r"$\tau_{\rm{CBO}}$", r"$K_{\rm{LM}}$",]
 # par_labels=[r"$N$", r"$\tau$", r"$A$", r"$R$", r"$\phi$", r"$A_{\rm{CBO}}$", r"$\omega_{\rm{CBO}}$", r"$\phi_{\rm{CBO}}$", r"$\tau_{\rm{CBO}}$"])
 
 def main():
@@ -71,8 +71,8 @@ def main():
 
 def all(DS_path):
     for path in DS_path:
-        subprocess.Popen(["python3", "fitWithBlinders_skim.py", "--hdf", path])
-        subprocess.Popen(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--cbo"])
+        # subprocess.Popen(["python3", "fitWithBlinders_skim.py", "--hdf", path])
+        # subprocess.Popen(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--cbo"])
         subprocess.Popen(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--loss"])
 
 def time_scan(DS_path, times):
@@ -83,7 +83,7 @@ def time_scan(DS_path, times):
     for path in DS_path:
         for time in times:
             # subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--cbo", "--scan", key, str(time)])
-            subprocess.call(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--loss", "--scan", key, str(time)])
+            subprocess.Popen(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--loss", "--scan", key, str(time)])
 
 
 def plot(direction="start"):
@@ -91,7 +91,8 @@ def plot(direction="start"):
     subprocess.Popen( ["trash"] + glob.glob("../fig/scans_fom/*.png") )
     data = pd.read_csv("../DATA/scans/scan.csv")
     par_n=-1
-    if(data.shape[1] == 25):  par_n=9 # 9 or 10 with the constant LT 
+    if(data.shape[1] == 27):  par_n=10
+    if(data.shape[1] == 25):  par_n=9 
     if(data.shape[1] == 17):  par_n=5
     print("par_n =", par_n, "according to expected total columns")
     if(par_n!=len(par_names)): raise Exception("More parameters in scan data then expected names - expand!")

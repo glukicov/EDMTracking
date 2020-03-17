@@ -59,8 +59,8 @@ f_cbo_M_a = f_cbo - f_a
 f_cbo_P_a = f_cbo + f_a
 
 ### (2) Deal with weather we are doing 5 or 9 parameter fit
-p0_s12=[15000, 63.0, 0.345, -60, 2.080]
-p0_s18=[13000, 64.0, 0.345, -90, 2.080]
+p0_s12=[15000, 64.44, 0.34, -60, 2.080]
+p0_s18=[13000, 64.44, 0.34, -90, 2.080]
 func = cu.blinded_wiggle_function # standard blinded function from CommonUtils
 func_label="5par"
 legend_fit=r'Fit: $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]$'
@@ -94,14 +94,12 @@ if (args.cbo):
     show_cbo_terms=True
 
 if(args.loss):
-    cu._LT=64.44 # us 
     cu._DS=ds_name # for muon loss integral 
-    par_names[1]="K_LM" # replace LT by K_LM term
-    p0_s12[1]=100.0; p0_s18[1]=2.0; # S12 and S18 
-    # 0_s12[0]=0.001; p0_s18[1]=0.001; # S12 and S18 
+    par_names.extend("K_LM")
+    p0_s12.extend([100.0]); p0_s18.extend([2.0]); # S12 and S18 
     func=cu.blinded_10_par
     func_label="10par"
-    legend_fit=legend_fit+r"(1-$\Lambda(t)$)"
+    legend_fit=legend_fit+r"$\cdot\Lambda(t)$"
     show_cbo_terms=True
     show_loss_terms=True
 
