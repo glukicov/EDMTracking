@@ -20,26 +20,40 @@ from fitWithBlinders_skim import fft, residual_plots
 
 
 arg_parser = argparse.ArgumentParser()
-arg_parser.add_argument("--t_min", type=float, default=4.4) # us 
-arg_parser.add_argument("--t_max", type=float, default=200) # us 
+arg_parser.add_argument("--t_min", type=float, default=4.365411) # us 
+arg_parser.add_argument("--t_max", type=float, default=199.985411) # us 
 arg_parser.add_argument("--p_min", type=float, default=1800) # us 
 arg_parser.add_argument("--p_max", type=float, default=3100) # us 
-arg_parser.add_argument("--df", type=str, default="../DATA/HDF/Sim/VLEDM_skim.h5") 
+arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/Sim/VLEDM_skim.h5") 
+# arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/60h.h5", help="input data")
 arg_parser.add_argument("--corr", action='store_true', default=False, help="Save covariance matrix for plotting")
-arg_parser.add_argument("--sim", action='store_true', default=True, help="make truth plots")
+arg_parser.add_argument("--scan", action='store_true', default=False, help="if run externally for iterative scans - dump 𝝌2 and fitted pars to a file for summary plots")
 # arg_parser.add_argument("--sim", type=store_true, default=False) 
 args=arg_parser.parse_args()
 
 ### Define constants and starting fit parameters
 font_size=14 # for plots
 stations=(12, 18)
+expected_DSs = ("60h", "9D", "HK", "EG", "VLEDM_skim")
 
-omega_a = 1.4393112 # rad/us (magic)
-cu._omega=omega_a #for BNL fits
-print("Magic omega set to", cu._omega, "MHz")
+### Get ds_name from filename
+ds_name=args.hdf.replace(".","/").split("/")[-2] # if all special chars are "/" the DS name is just after extension
+folder=args.hdf.replace(".","/").split("/")[-3] 
+print("Detected DS name:", ds_name, "from the input file!")
+if(not (folder is "Sim") or not (folder is "EDM")): raise Exception("Loaded pre-skimmed simulation or EDM file")
+if(not ds_name in expected_DSs): raise Exception("Unexpected input HDF name: if using Run-1 data, rename your file to DS.h5 (e.g. 60h.h5); Otherwise, modify functionality of this programme...exiting...")
 
-g2period = 2*np.pi / omega_a   # 4.3653 us 
+sim=False
+if(ds_name is "VLEDM"):
+    print("Simulation data is loaded!"); sim=True; stations=([1218])
 
+#Set gm2 period 
+g2period = round(2*np.pi / cu._omega,6)   # 4.365411 us 
+print("g-2 period ", g2period, "us")
+# if(t_min<g2period):
+#     raise Exception("Set t_min>g2period for EDM reflection blinding to work")
+
+#Cuts 
 t_min = args.t_min # us  #TODO 30 for data 
 t_max = args.t_max # us 
 print("Starting and end times:", t_min, "to", t_max, "us")
@@ -47,34 +61,36 @@ p_min = args.p_min # MeV
 p_max = args.p_max # MeV 
 print("Momentum cuts:", p_min, "to", p_max, "MeV")
 
-print("g-2 period ", round(g2period, 3), "us")
-# if(t_min<g2period):
-#     raise Exception("Set t_min>g2period for EDM reflection blinding to work")
-
+#binning 
 bin_w = 10*1e-3 # 10 ns 
-bin_n = int( round(g2period/bin_w) )
+bin_n = int( g2period/bin_w)
 xy_bins=(bin_n, bin_n*2)
-print("Setting bin width of", bin_w*1e3, "ns with", bin_n, "bins")
+print("Setting bin width of", bin_w*1e3, "ns with ~", bin_n, "bins")
 
-p0_count=[5000, 64, -0.4, 6.0]
-print("Starting pars count (N, tau, A, phi):", *p0_count)
-p0_theta_truth=[0.00, 0.17, 0.0]
-print("Starting pars TRUTH theta (A_Bz, A_edm, c):", *p0_theta_truth)
+#starting fit parameters and their labels for plotting 
+par_names_count= ["N", "tau", "A", "phi"]; par_labels_count= [r"$N$", r"$\tau$", r"$A$", r"$\phi$"]
+par_names_theta= ["A_Bz", "A_edm_blind", "c"]; par_labesl_theta= [r"$A_{B_{z}}$", r"$A^{\rm{BLINDED}}_{\mathrm{EDM}}$", r"$c$"]
+par_name_theta_truth=par_names_theta; par_name_theta_truth[1]="A_edm"
+p0_count=[3000, 64.4, -0.40, 6.240]
+print("Starting pars count",*par_names_count, *p0_count)
 p0_theta_blinded=[1.0, 1.0, 1.0]
-print("Starting pars theta blinded (A_Bz, A_edm, c):", *p0_theta_blinded)
+print("Starting pars theta blinded", *par_names_theta, *p0_theta_blinded)
+if(sim): p0_theta_truth=[0.00, 0.17, 0.0]; print("Starting pars TRUTH theta", *par_name_theta_truth, *p0_theta_truth)
+
+sys.exit()
 
 ### Define global variables
 
 
 def main():
 
-    data=load_data(args.df)
+    data=load_data(args.hdf)
 
     plot_counts(data)
 
     plot_theta(data)
 
-    if(args.sim): plot_truth(data)
+    if(sim): plot_truth(data)
 
 
 def load_data(df_path):
@@ -104,7 +120,7 @@ def load_data(df_path):
     data['mod_times']=mod_times # add to the data frame 
     data['theta_y_mrad']=theta_y_mrad # add to the data frame 
 
-    # if (args.sim == False):
+    # if (sim == False):
     #     define station cuts to loop over TODO fpr data
     #     s12_cut = (data['station'] == stations[0])
     #     s18_cut = (data['station'] == stations[1])
@@ -132,20 +148,14 @@ def plot_counts(data):
     # if(args.corr): print("Covariance matrix", pcov); np.save("../DATA/misc/pcov_N_S"+str(station)+".np", pcov);
 
     #Plot
-    fig, ax = cu.plot(bin_c, freq, y_err=y_err, error=True, elw=1, label="Data (sim.)", fs=font_size, tight=True,
-                      xlabel=r"$t^{mod}_{g-2} \ \mathrm{[\mu}$s]", ylabel=r"Counts ($N$) per "+str(int(bin_w*1e3))+" ns")
-    ax.plot(bin_c, cu.unblinded_wiggle_fixed(bin_c, *par), c="red", 
-            label=r'Fit: $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]$', lw=2)
-    ax.set_xlim(0, g2period);
-    ax.set_ylim(np.amin(freq)*0.9, np.amax(freq)*1.25);
-    leg_fit=cu.legend_chi2(chi2_ndf, ndf, par)
-    leg_fit=cu.legend_1par(leg_fit, r"$\phi$", par[3], par_e[3], " rad", prec=3)
-    leg_fit=cu.legend_1par(leg_fit, r"$\tau$", par[1], par_e[1], " us", prec=3)
-    leg_data="N="+cu.sci_notation(N)+"\n"+str(p_min)+r"<$p$<"+str(p_max)+" MeV\n"+str(round(t_min,1))+r"<$t$<"+str(round(t_max,1))+r" $\mathrm{\mu}$s"
-    ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.5, 1.1));
-    cu.textL(ax, 0.5, 0.35, leg_fit, c="r", fs=font_size+2)
-    cu.textL(ax, 0.8, 0.75, leg_data, fs=font_size+1)
+    fig, ax = cu.plot_edm(bin_c, freq, y_err, bin_w, font_size=font_size)
+    
+    # cu.textL(ax, 0.48, 0.35, leg_fit, c="r", fs=font_size+2)
+    # cu.textL(ax, 0.78, 0.75, leg_data, fs=font_size+1)
+    # ax.set_ylim(np.amin(freq)*0.9, np.amax(freq)*1.3);
     fig.savefig("../fig/count_fit.png", dpi=300)
+
+    sys.exit()
 
     ### Set constant phase for the next step
     cu._LT=par[1]
@@ -155,9 +165,10 @@ def plot_counts(data):
 
 
     ## FFTs
-    residuals = cu.residuals(x, y, cu.unblinded_wiggle_fixed, par)
-    residual_plots([x], [residuals], sim=True, eL="count")
-    fft([residuals], sim=True, eL="count")
+    if(not args.scan):
+        residuals = cu.residuals(x, y, cu.unblinded_wiggle_fixed, par)
+        residual_plots([x], [residuals], sim=True, eL="count")
+        fft([residuals], sim=True, eL="count")
 
 
 def plot_theta(data):
@@ -182,7 +193,7 @@ def plot_theta(data):
     #Fit
     par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x, y, y_e, cu.thetaY_phase, p0_theta_blinded)
     if (np.max(abs(par_e)) == np.Infinity ): raise Exception("\nOne of the fit parameters is infinity! Exiting...\n")
-    if(args.corr): print("Covariance matrix", pcov); np.save(".np.pi()*2.0", pcov);
+    if(args.corr): print("Covariance matrix", pcov); np.save("../DATA/misc/pcov_theta.np.npy", pcov);
     # if(args.corr): print("Covariance matrix", pcov); np.save("../DATA/misc/pcov_theta_S"+str(station)+".np", pcov);
 
     #Plot
@@ -191,10 +202,10 @@ def plot_theta(data):
     ax.plot(x, cu.thetaY_phase(x, *par), c="red", 
             label=r'Fit: $\langle \theta(t) \rangle =  A_{\mathrm{B_z}}\cos(\omega_a t + \phi) + A_{\mathrm{EDM}}\sin(\omega_a t + \phi) + c$', lw=2)
     ax.set_xlim(0, g2period);
-    ax.set_ylim(-np.amax(y)*1.8, np.amax(y)*2.0);
-    leg_data="N="+cu.sci_notation(N)+"\n"+str(p_min)+r"<$p$<"+str(p_max)+" MeV\n"+str(t_min)+r"<$t$<"+str(t_max)+r" $\mathrm{\mu}$s"
-    ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.5, 1.1));
-    cu.textL(ax, 0.75, 0.8, leg_data, fs=font_size)
+    ax.set_ylim(-np.amax(y)*1.4, np.amax(y)*1.2);
+    leg_data="N="+cu.sci_notation(N)+"\n"+str(int(p_min))+r"<$p$<"+str(int(p_max))+" MeV\n"+str(round(t_min,1))+r"<$t$<"+str(round(t_max,1))+r" $\mathrm{\mu}$s"
+    ax.legend(fontsize=font_size-2, loc='upper center', bbox_to_anchor=(0.5, 1.1));
+    cu.textL(ax, 0.75, 0.15, leg_data, fs=font_size)
     leg_fit=cu.legend_chi2(chi2_ndf, ndf, par)
     leg_fit=cu.legend_1par(leg_fit, r"$A_{B_{z}}$", par[0], par_e[0], "mrad")
     leg_fit=cu.legend_1par(leg_fit, r"$A^{\rm{BLINDED}}_{\mathrm{EDM}}$", par[1], par_e[1], "mrad")
@@ -204,9 +215,10 @@ def plot_theta(data):
 
 
     ## FFTs
-    residuals = cu.residuals(x, y, cu.thetaY_phase, par)
-    residual_plots([x], [residuals], sim=True, eL="theta")
-    fft([residuals], sim=True, eL="theta")
+    if(not args.scan):
+        residuals = cu.residuals(x, y, cu.thetaY_phase, par)
+        residual_plots([x], [residuals], sim=True, eL="theta")
+        fft([residuals], sim=True, eL="theta")
 
 
 
@@ -228,15 +240,15 @@ def plot_truth(data):
     ax.plot(x, cu.thetaY_phase(x, *par), c="red", 
             label=r'Fit: $\langle \theta(t) \rangle =  A_{\mathrm{B_z}}\cos(\omega_a t + \phi) + A_{\mathrm{EDM}}\sin(\omega_a t + \phi) + c$', lw=2)
     ax.set_xlim(0, g2period);
-    ax.set_ylim(-np.amax(y)*1.8, np.amax(y)*2.0);
-    leg_data="N="+cu.sci_notation(N)+"\n"+str(p_min)+r"<$p$<"+str(p_max)+" MeV\n"+str(t_min)+r"<$t$<"+str(t_max)+r" $\mathrm{\mu}$s"
+    ax.set_ylim(-np.amax(y)*1.8, np.amax(y)*2.1);
+    leg_data="N="+cu.sci_notation(N)+"\n"+str(p_min)+r"<$p$<"+str(int(p_max))+" MeV\n"+str(t_min)+r"<$t$<"+str(t_max)+r" $\mathrm{\mu}$s"
     ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.5, 1.1));
-    cu.textL(ax, 0.75, 0.8, leg_data, fs=font_size)
+    cu.textL(ax, 0.74, 0.8, leg_data, fs=font_size)
     leg_fit=cu.legend_chi2(chi2_ndf, ndf, par)
     leg_fit=cu.legend_1par(leg_fit, r"$A_{B_{z}}$", par[0], par_e[0], "mrad")
     leg_fit=cu.legend_1par(leg_fit, r"$A_{\mathrm{EDM}}$", par[1], par_e[1], "mrad")
     leg_fit=cu.legend_1par(leg_fit, "c", par[2], par_e[2], "mrad")
-    cu.textL(ax, 0.25, 0.12, leg_fit, fs=font_size, c="r")
+    cu.textL(ax, 0.23, 0.12, leg_fit, fs=font_size, c="r")
     fig.savefig("../fig/bz_truth_fit.png", dpi=300)
 
 if __name__ == '__main__':

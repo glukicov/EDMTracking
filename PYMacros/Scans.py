@@ -23,7 +23,6 @@ arg_parser.add_argument("--end", action='store_true', default=False)
 arg_parser.add_argument("--plot", action='store_true', default=False) 
 arg_parser.add_argument("--plot_end", action='store_true', default=False) 
 arg_parser.add_argument("--corr", action='store_true', default=False) 
-arg_parser.add_argument("--edm", action='store_true', default=False) 
 args=arg_parser.parse_args()
 
 ### Constants 
@@ -156,31 +155,13 @@ def corr():
     '''
     plot correlation matrix for the fit parameters
     '''
-    if(not args.edm):
-        corr=[np.corrcoef(np.load("../DATA/misc/pcov_S12.np.npy")), np.corrcoef(np.load("../DATA/misc/pcov_S18.np.npy"))]
-        for i_station, station in enumerate(stations):
-            df_corr = pd.DataFrame(corr[i_station],columns=par_labels, index=par_labels)
-            fig,ax = plt.subplots()
-            ax=sn.heatmap(df_corr, annot=True, fmt='.2f', linewidths=.5, cmap="bwr")
-            cu.textL(ax, 0.5, 1.1, "S"+str(station))
-            fig.savefig("../fig/corr_S"+str(station)+".png", dpi=300)
-    if(args.edm):
-        par_labels=[r"$N$", r"$\tau$", r"$A$", r"$\phi$"]
-        corr=np.corrcoef(np.load("../DATA/misc/pcov_N.np.npy"))
-        df_corr = pd.DataFrame(corr, columns=par_labels, index=par_labels)
+    corr=[np.corrcoef(np.load("../DATA/misc/pcov_S12.np.npy")), np.corrcoef(np.load("../DATA/misc/pcov_S18.np.npy"))]
+    for i_station, station in enumerate(stations):
+        df_corr = pd.DataFrame(corr[i_station],columns=par_labels, index=par_labels)
         fig,ax = plt.subplots()
         ax=sn.heatmap(df_corr, annot=True, fmt='.2f', linewidths=.5, cmap="bwr")
-        # cu.textL(ax, 0.5, 1.1, "S"+str(station))
-        fig.savefig("../fig/corr_N.png", dpi=300)
-
-        par_labels=[r"$A_{B_{z}}$", r"$A^{\rm{BLINDED}}_{\mathrm{EDM}}$", r"$c$"]
-        corr=np.corrcoef(np.load("../DATA/misc/pcov_theta.np.npy"))
-        df_corr = pd.DataFrame(corr, columns=par_labels, index=par_labels)
-        fig,ax = plt.subplots()
-        ax=sn.heatmap(df_corr, annot=True, fmt='.2f', linewidths=.5, cmap="bwr")
-        # cu.textL(ax, 0.5, 1.1, "S"+str(station))
-        fig.savefig("../fig/corr_theta.png", dpi=300)
-
+        cu.textL(ax, 0.5, 1.1, "S"+str(station))
+        fig.savefig("../fig/corr_S"+str(station)+".png", dpi=300)
 
 
 

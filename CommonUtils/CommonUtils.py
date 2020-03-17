@@ -25,9 +25,11 @@ def get_random_engine(init_seed=123456789):
 #set printout precision of arrays
 np.set_printoptions(precision=9)
 
-#Set constant phase (e.g. cu._phi=x)
+#Set constants from fit (e.g. cu._phi=x)
+_f_a=0.2290735 # MHz BNL (arXiv:hep-ex/0602035) 
+_omega=round(_f_a*2*np.pi,7) # rad/us (magic) 
+print("Magic omega set to", _omega, "MHz")
 _phi=-1
-_omega=-1
 _LT=-1
 _DS=-1
 
@@ -143,7 +145,7 @@ def plot(x, y, x_err=None, y_err=None, fs=14, c="green",
     if(tight):
         # fig.tight_layout()
         #make space for the colour bar
-        fig.tight_layout(rect=[0.05, 0.05, 0.95, 0.95])
+        fig.tight_layout(rect=[0.05, 0.05, 0.98, 0.98])
 
     return fig, ax
 
@@ -220,6 +222,17 @@ def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, ndf, t_mod, t_max, 
 
     return fig, ax
 
+
+def plot_edm(x, y, y_e, bin_w, font_size=14):
+    fig, ax = plot(x, y, y_err=y_e, error=True, elw=1, fs=font_size, tight=True, 
+                      label="Data (sim.)", xlabel=r"$t^{mod}_{g-2} \ \mathrm{[\mu}$s]", ylabel=r"Counts ($N$) per "+str(int(bin_w*1e3))+" ns")
+    # ax.plot(bin_c, cu.unblinded_wiggle_fixed(bin_c, *par), c="red", label=r'Fit: $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]$', lw=2)
+    # ax.set_xlim(0, g2period);
+    # leg_fit=cu.legend_chi2(chi2_ndf, ndf, par)
+    # legned_par=legend_par(legned_par,  parNames, par, par_e, units, prec=prec)
+    # leg_data="N="+cu.sci_notation(N)+"\n"+str(int(p_min))+r"<$p$<"+str(int(p_max))+" MeV\n"+str(round(t_min,1))+r"<$t$<"+str(round(t_max,1))+r" $\mathrm{\mu}$s"
+    # ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.5, 1.1));
+    return fig, ax
 
 def get_freq_bin_c_from_data(data, bin_w, bin_range):
     '''
