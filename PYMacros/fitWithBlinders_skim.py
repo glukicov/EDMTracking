@@ -29,7 +29,6 @@ arg_parser.add_argument("--cbo", action='store_true', default=False, help="inclu
 arg_parser.add_argument("--loss", action='store_true', default=False, help="include extra kloss")
 arg_parser.add_argument("--scan", action='store_true', default=False, help="if run externally for iterative scans - dump 𝝌2 and fitted pars to a file for summary plots")
 arg_parser.add_argument("--corr", action='store_true', default=False, help="Save covariance matrix for plotting")
-arg_parser.add_argument("--pars", action='store_true', default=False, help="Save parameters for plotting")
 args=arg_parser.parse_args()
 
 if(args.loss==True): args.cbo = True 
@@ -176,7 +175,6 @@ def fit():
         par, par_e, pcov, chi2_ndf, ndf =cu.fit_and_chi2(x, y, y_err, func, p0[i_station])       
         if (np.max(abs(par_e)) == np.Infinity ): raise Exception("\nOne of the fit parameters is infinity! Exiting...\n")
         if(args.corr): print("Covariance matrix", pcov); np.save("../DATA/misc/pcov_S"+str(station)+".np", pcov);
-        if(args.pars): print("Parameters saved"); pars_dump=[ds_name, chi2_ndf, ndf]; pars_dump.extend(par); pars_dump.extend(par_e); np.save("../DATA/misc/pars_S"+str(station)+".np", pars_dump);
 
         print("Plotting fit and data!")
         #make more automated things for "plot prettiness"

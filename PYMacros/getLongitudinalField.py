@@ -19,11 +19,12 @@ import argparse
 
 
 arg_parser = argparse.ArgumentParser()
-arg_parser.add_argument("--t_min", type=int, default=4.4) # us 
+arg_parser.add_argument("--t_min", type=int, default=4.4652) # us 
 arg_parser.add_argument("--t_max", type=int, default=200) # us 
 arg_parser.add_argument("--p_min", type=int, default=1800) # us 
 arg_parser.add_argument("--p_max", type=int, default=3100) # us 
 arg_parser.add_argument("--df", type=str, default="../DATA/HDF/Sim/VLEDM_skim.h5") 
+arg_parser.add_argument("--corr", action='store_true', default=False, help="Save covariance matrix for plotting")
 # arg_parser.add_argument("--sim", type=store_true, default=False) 
 args=arg_parser.parse_args()
 
@@ -46,7 +47,7 @@ print("Momentum cuts:", p_min, "to", p_max, "MeV")
 
 print("g-2 period ", round(g2period, 3), "us")
 if(t_min<g2period):
-    raise Exception("Set t_min>g2period for EDM reflection blidning to work")
+    raise Exception("Set t_min>g2period for EDM reflection blinding to work")
 
 bin_w = 10*1e-3 # 10 ns 
 bin_n = int( round(g2period/bin_w) )
@@ -123,7 +124,9 @@ def plot_counts(data):
     x,y,y_e = bin_c, freq, y_err
    
     #Fit
-    par, par_e, chi2_ndf = cu.fit_and_chi2(x, y, y_e, cu.unblinded_wiggle_fixed, p0_count)
+    par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x, y, y_e, cu.unblinded_wiggle_fixed, p0_count)
+    if (np.max(abs(par_e)) == np.Infinity ): raise Exception("\nOne of the fit parameters is infinity! Exiting...\n")
+    # if(args.corr): print("Covariance matrix", pcov); np.save("../DATA/misc/pcov_N_S"+str(station)+".np", pcov);
 
     #Plot
     fig, ax = cu.plot(bin_c, freq, y_err=y_err, error=True, elw=1, label="Data (sim.)", fs=font_size, tight=True,
@@ -132,7 +135,7 @@ def plot_counts(data):
             label=r'Fit: $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]$', lw=2)
     ax.set_xlim(0, g2period);
     ax.set_ylim(np.amin(freq)*0.9, np.amax(freq)*1.25);
-    leg_fit=cu.legend1_fit(chi2_ndf)
+    leg_fit=cu.legend_chi2(chi2_ndf, ndf, par)
     leg_fit=cu.legend_1par(leg_fit, r"$\phi$", par[3], par_e[3], " rad", prec=3)
     leg_fit=cu.legend_1par(leg_fit, r"$\tau$", par[1], par_e[1], " us", prec=3)
     leg_data="N="+cu.sci_notation(N)+"\n"+str(p_min)+r"<$p$<"+str(p_max)+" MeV\n"+str(t_min)+r"<$t$<"+str(t_max)+r" $\mathrm{\mu}$s"
@@ -168,7 +171,9 @@ def plot_theta(data):
     x, y, y_e, x_e =df_binned['bincenters'], df_binned['ymean'], df_binned['yerr'], df_binned['xerr']
 
     #Fit
-    par, par_e, chi2_ndf = cu.fit_and_chi2(x, y, y_e, cu.thetaY_phase, p0_theta_blinded)
+    par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x, y, y_e, cu.thetaY_phase, p0_theta_blinded)
+    if (np.max(abs(par_e)) == np.Infinity ): raise Exception("\nOne of the fit parameters is infinity! Exiting...\n")
+    # if(args.corr): print("Covariance matrix", pcov); np.save("../DATA/misc/pcov_theta_S"+str(station)+".np", pcov);
 
     #Plot
     fig, ax = cu.plot(x, y, y_err=y_e, error=True, elw=1, label="Data (sim.)", fs=font_size, tight=True,
@@ -180,7 +185,7 @@ def plot_theta(data):
     leg_data="N="+cu.sci_notation(N)+"\n"+str(p_min)+r"<$p$<"+str(p_max)+" MeV\n"+str(t_min)+r"<$t$<"+str(t_max)+r" $\mathrm{\mu}$s"
     ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.5, 1.1));
     cu.textL(ax, 0.75, 0.8, leg_data, fs=font_size)
-    leg_fit=cu.legend1_fit(chi2_ndf)
+    leg_fit=cu.legend_chi2(chi2_ndf, ndf, par)
     leg_fit=cu.legend_1par(leg_fit, r"$A_{B_{z}}$", par[0], par_e[0], "mrad")
     leg_fit=cu.legend_1par(leg_fit, r"$A^{\rm{BLINDED}}_{\mathrm{EDM}}$", par[1], par_e[1], "mrad")
     leg_fit=cu.legend_1par(leg_fit, "c", par[2], par_e[2], "mrad")
@@ -198,7 +203,7 @@ def plot_truth(data):
     x, y, y_e, x_e =df_binned['bincenters'], df_binned['ymean'], df_binned['yerr'], df_binned['xerr']
 
     # Fit 
-    par, par_e, chi2_ndf = cu.fit_and_chi2(x, y, y_e, cu.thetaY_phase, p0_theta_truth)
+    par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x, y, y_e, cu.thetaY_phase, p0_theta_truth)
 
     #Plot
     fig, ax = cu.plot(x, y, y_err=y_e, error=True, elw=1, label="Data (sim.)", fs=font_size, tight=True,
@@ -210,7 +215,7 @@ def plot_truth(data):
     leg_data="N="+cu.sci_notation(N)+"\n"+str(p_min)+r"<$p$<"+str(p_max)+" MeV\n"+str(t_min)+r"<$t$<"+str(t_max)+r" $\mathrm{\mu}$s"
     ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.5, 1.1));
     cu.textL(ax, 0.75, 0.8, leg_data, fs=font_size)
-    leg_fit=cu.legend1_fit(chi2_ndf)
+    leg_fit=cu.legend_chi2(chi2_ndf, ndf, par)
     leg_fit=cu.legend_1par(leg_fit, r"$A_{B_{z}}$", par[0], par_e[0], "mrad")
     leg_fit=cu.legend_1par(leg_fit, r"$A_{\mathrm{EDM}}$", par[1], par_e[1], "mrad")
     leg_fit=cu.legend_1par(leg_fit, "c", par[2], par_e[2], "mrad")

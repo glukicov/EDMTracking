@@ -193,18 +193,18 @@ def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, ndf, t_mod, t_max, 
 
     #Put legend and pars values 
     N_str=sci_notation(N)
-    textL(ax, 0.82, 0.78, label_data+ r"$p$"+" > 1.8 GeV \n"+str(round(t_min,1))+r" $\rm{\mu}$s < t < "+str(round(t_max,1))+r" $\rm{\mu}$s"+"\n N="+N_str, fs=fs-2,  weight="normal")
+    textL(ax, 0.822, 0.78, label_data+ r"$p$"+" > 1.8 GeV \n"+str(round(t_min,1))+r" $\rm{\mu}$s < t < "+str(round(t_max,1))+r" $\rm{\mu}$s"+"\n N="+N_str, fs=fs-2.5,  weight="normal")
     # deal with fitted parameters (to display nicely)
     parNames=[r"$N$", r"$\tau$", r"$A$", r"$R$", r"$\phi$"]
     units=["", r"$\rm{\mu}$s", "", "ppm",  "rad"]
     legned_par=legend_chi2(chi2_ndf, ndf, par)
-    legned_par=legend_par(legned_par+"\n",  parNames, par, par_e, units, prec=prec)
+    legned_par=legend_par(legned_par,  parNames, par, par_e, units, prec=prec)
     textL(ax, 0.17, 0.73, "Fit: "+legned_par, fs=fs-2, c="red", weight="normal")
     if(show_cbo_terms):
         parNames=[r"$\rm{A_{CBO}}$", r"$\omega_{\rm{CBO}}$", r"$\phi_{\rm{CBO}}$", r"$\rm{\tau_{CBO}}$"]
-        units=[" ", r"$\rm{\mu}$s", "rad", r"$\rm{\mu}$s"]
+        units=[" ", r"$\rm{\mu}$s", r"rad/$\rm{\mu}$s", r"$\rm{\mu}$s"]
         legned_cbo=legend_par("",  parNames, par[5:], par_e[5:], units, prec=prec)
-        textL(ax, 0.48, 0.75, r"CBO, $C(t)$"+":\n "+legned_cbo, fs=fs-3, c="red", weight="normal")
+        textL(ax, 0.477, 0.75, r"CBO, $C(t)$"+":\n "+legned_cbo, fs=fs-3, c="red", weight="normal")
     if(show_loss_terms):
         legned_par=legend_1par("", r"$K_{\rm{LM}}$", par[9], par_e[9], " ", prec=prec)
         textL(ax, 0.73, 0.04, "Fit: "+legned_par, fs=fs-2, c="red", weight="normal")
@@ -489,7 +489,7 @@ def legend_chi2(chi2ndf, ndf, par, prec=2):
     # form raw string with Latex
     
     legend = "  "+str(chi2ndfS)+"={0:.{prec}f}".format(chi2ndf, prec=prec)+"({0:d})".format( int( round( chi2_ndf_e(par, ndf) *10**prec ) ) )
-    return legend
+    return legend+"\n"
 
 def legend_par(legend, parNames, par, par_e, units, prec=2):
     for i, i_name in enumerate(parNames):
