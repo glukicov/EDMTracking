@@ -148,7 +148,7 @@ def plot(x, y, x_err=None, y_err=None, fs=14, c="green",
     return fig, ax
 
 
-def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, t_mod, t_max, t_min, binW, N,
+def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, ndf, t_mod, t_max, t_min, binW, N,
                                 prec=3, # set custom precision 
                                 show_cbo_terms=False, 
                                 show_loss_terms=False, 
@@ -197,8 +197,8 @@ def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, t_mod, t_max, t_min
     # deal with fitted parameters (to display nicely)
     parNames=[r"$N$", r"$\tau$", r"$A$", r"$R$", r"$\phi$"]
     units=["", r"$\rm{\mu}$s", "", "ppm",  "rad"]
-    legned_par=r"$\frac{\chi^2}{\rm{DoF}}$="+str(round(chi2_ndf,2))+"\n"
-    legned_par=legend_par(legned_par,  parNames, par, par_e, units, prec=prec)
+    legned_par=legend_chi2(chi2_ndf, ndf, par)
+    legned_par=legend_par(legned_par+"\n",  parNames, par, par_e, units, prec=prec)
     textL(ax, 0.17, 0.73, "Fit: "+legned_par, fs=fs-2, c="red", weight="normal")
     if(show_cbo_terms):
         parNames=[r"$\rm{A_{CBO}}$", r"$\omega_{\rm{CBO}}$", r"$\phi_{\rm{CBO}}$", r"$\rm{\tau_{CBO}}$"]
@@ -311,8 +311,12 @@ def fit_and_chi2(x, y, y_err, func, p0):
     print("Params:", par)
     print("Errors:", par_e)
     chi2ndf, chi2, ndf=chi2_ndf(x, y, y_err, func, par)
-    print("𝝌2/dof="+str(round(chi2ndf, 2)) )
-    return par, par_e, chi2ndf
+    print("Fit 𝝌2/DoF=", str(round(chi2ndf,2))+"("+ str(int(round(chi2_ndf_e(par, ndf)*10**2))) +") 𝝌2:", int(chi2), "DoF:", ndf)
+    return par, par_e, pcov, chi2ndf, ndf
+
+
+def chi2_ndf_e(par, ndf):
+    return np.sqrt( 2/(ndf-len(par)) )
 
 
 def unblinded_wiggle_function(x, *pars):
@@ -478,13 +482,13 @@ def legend4_fit(chi2ndf, mean, meanE, sd, sdE, units, prec=2):
     legend = "  "+str(chi2ndfS)+"={:.{prec}f}\n".format(chi2ndf, prec=2)+str(meanS)+"={0:.{prec}f}({1:d}) ".format(mean, int(round(meanE*10**prec)), prec=prec)+units+"\n"+str(sigmaS)+"={0:.{prec}f}({1:d}) ".format(sd, int(round(sdE*10**prec)), prec=prec)+units
     return legend
 
-def legend1_fit(chi2ndf, prec=2):
+def legend_chi2(chi2ndf, ndf, par, prec=2):
     '''
     form a string from 1 stat inputs with given precision
     '''
     # form raw string with Latex
     
-    legend = "  "+str(chi2ndfS)+"={0:.{prec}f}\n".format(chi2ndf, prec=prec)
+    legend = "  "+str(chi2ndfS)+"={0:.{prec}f}".format(chi2ndf, prec=prec)+"({0:d})".format( int( round( chi2_ndf_e(par, ndf) *10**prec ) ) )
     return legend
 
 def legend_par(legend, parNames, par, par_e, units, prec=2):

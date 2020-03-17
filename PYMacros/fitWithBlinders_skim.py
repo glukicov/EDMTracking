@@ -74,7 +74,7 @@ if (args.cbo):
         cbo_fit_terms_s18=[0.05, 2.5, 3.8, 90.0]   
         print("Bad resistors in HK are accounted in the starting parameters!") # bad resistors fix 
     if (ds_name=="EG"): 
-        cbo_fit_terms_s12=[-0.033, 2.312, 5.233, 120.0]
+        cbo_fit_terms_s12=[-0.033, 2.312, 5.233, 100.0]
         cbo_fit_terms_s18=[0.0051, 2.300, 1.625, 120.0]
         print("Bad resistors in EG are accounted in the starting parameters!") # bad resistors fix 
     if (ds_name=="60h"):  
@@ -95,8 +95,8 @@ if (args.cbo):
 
 if(args.loss):
     cu._DS=ds_name # for muon loss integral 
-    par_names.extend("K_LM")
-    p0_s12.extend([100.0]); p0_s18.extend([2.0]); # S12 and S18 
+    par_names.extend(["K_LM"])
+    p0_s12.extend([18.0]); p0_s18.extend([6.0]); # S12 and S18 
     func=cu.blinded_10_par
     func_label="10par"
     legend_fit=legend_fit+r"$\cdot\Lambda(t)$"
@@ -173,24 +173,17 @@ def fit():
         y_err = np.sqrt(y) # sigma =sqrt(N)
 
         print("Fitting...")
-        # Levenberg-Marquardt algorithm as implemented in MINPACK
-        par, pcov = optimize.curve_fit(f=func, xdata=x, ydata=y, sigma=y_err, p0=p0[i_station], absolute_sigma=False, method='lm')  
-        # par, pcov = optimize.curve_fit(f=func, xdata=x, ydata=y, p0=p0[i_station], absolute_sigma=False, method='lm')
-        par_e = np.sqrt(np.diag(pcov))
-        print("Pars  :", np.array(par))
-        print("Pars e:",np.array(par_e))
-        if(args.corr): print("Covariance matrix", pcov); np.save("../DATA/misc/pcov_S"+str(station)+".np", pcov);
-        chi2_ndf, chi2, ndf=cu.chi2_ndf(x, y, y_err, func, par)
-        if(args.pars): print("Parameters saved"); pars_dump=[ds_name, chi2_ndf, ndf]; pars_dump.extend(par); pars_dump.extend(par_e); np.save("../DATA/misc/pars_S"+str(station)+".np", pars_dump);
-        print("Fit 𝝌2/DoF="+str(round(chi2_ndf,2))+" ± "+str( round( np.sqrt(2/(ndf-len(par_e)) ) , 2) ), "𝝌2:", int(chi2), "DoF:", ndf)
+        par, par_e, pcov, chi2_ndf, ndf =cu.fit_and_chi2(x, y, y_err, func, p0[i_station])       
         if (np.max(abs(par_e)) == np.Infinity ): raise Exception("\nOne of the fit parameters is infinity! Exiting...\n")
+        if(args.corr): print("Covariance matrix", pcov); np.save("../DATA/misc/pcov_S"+str(station)+".np", pcov);
+        if(args.pars): print("Parameters saved"); pars_dump=[ds_name, chi2_ndf, ndf]; pars_dump.extend(par); pars_dump.extend(par_e); np.save("../DATA/misc/pars_S"+str(station)+".np", pars_dump);
 
         print("Plotting fit and data!")
         #make more automated things for "plot prettiness"
         data_type = re.findall('[A-Z][^A-Z]*', args.key) # should break into "Quality" and "Tracks"/"Vertices"
 
         #use pre-define module wiggle function from CommonUtils
-        fig,ax = cu.modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, t_mod, max_t, min_t, bin_w,  N,
+        fig,ax = cu.modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, ndf, t_mod, max_t, min_t, bin_w,  N,
                                                 show_cbo_terms=show_cbo_terms,
                                                 show_loss_terms=show_loss_terms,
                                                 legend_fit=legend_fit,
@@ -209,7 +202,7 @@ def fit():
         # dump the parameters to a unique file for summary plots
         if(args.scan==True):
             par_dump=np.array([[min_t], max_t, chi2_ndf, ndf, N, station, ds_name, *par, *par_e])
-            par_dump_keys = ["start",  "stop", "chi2", "ndf", "n", "station", "ds"]
+            par_dump_keys = ["start", "stop", "chi2", "ndf", "n", "station", "ds"]
             par_dump_keys.extend(par_names)
             par_dump_keys.extend(par_e_names)
             dict_dump = dict(zip(par_dump_keys,par_dump))
