@@ -87,7 +87,7 @@ def skim():
             # here we are appending to the file over tracks and then vertices
             print("Saving compressed data...")
             data=data.reset_index() # reset index from 0 
-            cols_to_keep = ["station", "trackT0"] # only write for time and station 
+            cols_to_keep = ["station", "trackT0", "trackMomentum", "trackMomentumY"] # only write for time and station 
             data[cols_to_keep].to_hdf(args.df+"_"+str(i_file)+".h5", key=key, mode='a', complevel=9, complib="zlib", format="fixed")
             print("Skimmed dataframe saved to disk", args.df, "\n")
 

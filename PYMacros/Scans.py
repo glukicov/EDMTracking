@@ -29,6 +29,13 @@ args=arg_parser.parse_args()
 # DS_path = ("../DATA/HDF/MMA/60h.h5", "../DATA/HDF/MMA/9D.h5", "../DATA/HDF/MMA/HK.h5", "../DATA/HDF/MMA/EG.h5")
 DS_path = (["../DATA/HDF/MMA/60h.h5"])
 
+stations=(12, 18)
+# dss = ("60h", "9D", "HK", "EG")
+dss = (["60h"])
+par_names=["N", "tau", "A", "R", "phi", "A_cbo", "w_cbo", "phi_cbo", "tau_cbo", "K_LM",]
+# par_names=["N", "tau", "A", "R", "phi", "A_cbo", "w_cbo", "phi_cbo", "tau_cbo"]
+par_labels=[r"$N$", r"$\tau$", r"$A$", r"$R$", r"$\phi$", r"$A_{\rm{CBO}}$", r"$\omega_{\rm{CBO}}$", r"$\phi_{\rm{CBO}}$", r"$\tau_{\rm{CBO}}$", r"$K_{\rm{LM}}$",]
+# par_labels=[r"$N$", r"$\tau$", r"$A$", r"$R$", r"$\phi$", r"$A_{\rm{CBO}}$", r"$\omega_{\rm{CBO}}$", r"$\phi_{\rm{CBO}}$", r"$\tau_{\rm{CBO}}$"])
 
 bin_w = 149.2*1e-3 # 150 ns
 factor=10
@@ -48,13 +55,6 @@ end_times = np.linspace(300, 500, 36, dtype=float)
 # sys.exit()
 # print(end_times)
 
-stations=(12, 18)
-# dss = ("60h", "9D", "HK", "EG")
-dss = (["60h"])
-par_names=["N", "tau", "A", "R", "phi", "A_cbo", "w_cbo", "phi_cbo", "tau_cbo", "K_LM",]
-# par_names=["N", "tau", "A", "R", "phi", "A_cbo", "w_cbo", "phi_cbo", "tau_cbo"]
-par_labels=[r"$N$", r"$\tau$", r"$A$", r"$R$", r"$\phi$", r"$A_{\rm{CBO}}$", r"$\omega_{\rm{CBO}}$", r"$\phi_{\rm{CBO}}$", r"$\tau_{\rm{CBO}}$", r"$K_{\rm{LM}}$",]
-# par_labels=[r"$N$", r"$\tau$", r"$A$", r"$R$", r"$\phi$", r"$A_{\rm{CBO}}$", r"$\omega_{\rm{CBO}}$", r"$\phi_{\rm{CBO}}$", r"$\tau_{\rm{CBO}}$"])
 
 def main():
     '''

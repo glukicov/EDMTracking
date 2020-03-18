@@ -62,25 +62,27 @@ print("Momentum cuts:", p_min, "to", p_max, "MeV")
 
 #binning 
 bin_w = 10*1e-3 # 10 ns 
-bin_n = int( g2period/bin_w)
+# bin_n = 433 # TODO 
+bin_n = int( g2period/bin_w) # TODO 
 xy_bins=(bin_n, bin_n*2)
 print("Setting bin width of", bin_w*1e3, "ns with ~", bin_n, "bins")
 
 #starting fit parameters and their labels for plotting 
 par_names_count= ["N", "tau", "A", "phi"]; par_labels_count= [r"$N$", r"$\tau$", r"$A$", r"$\phi$"]; par_units_count=[" ",  r"$\rm{\mu}$s", " ", "rad"]
 par_names_theta= ["A_Bz", "A_edm_blind", "c"]; par_labels_theta= [r"$A_{B_{z}}$", r"$A^{\rm{BLINDED}}_{\mathrm{EDM}}$", r"$c$"]; par_units_theta=["mrad", "mrad", "mrad"]
-par_name_theta_truth=par_names_theta; par_name_theta_truth[1]="A_edm"
+par_name_theta_truth=par_names_theta; par_name_theta_truth[1]="A_edm", par_labels_truth=par_labels_theta; par_labels_theta[1]=r"$A_{\mathrm{EDM}}$"
 p0_count=[ [3000, 64.4, -0.40, 6.240], [3000, 64.4, -0.40, 6.240]]
-print("Starting pars count",*par_names_count, *p0_count)
 p0_theta_blinded=[ [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]
+if(sim): 
+    p0_count=[ [3000, 64.4, -0.40, 6.240], [3000, 64.4, -0.40, 6.240]]
+    p0_theta_blinded=[ [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]
+    p0_theta_truth=[ [0.00, 0.17, 0.0], [0.00, 0.17, 0.0] ]; print("Starting pars TRUTH theta", *par_name_theta_truth, *p0_theta_truth)
 print("Starting pars theta blinded", *par_names_theta, *p0_theta_blinded)
-if(sim): p0_theta_truth=[ [0.00, 0.17, 0.0], [0.00, 0.17, 0.0] ]; print("Starting pars TRUTH theta", *par_name_theta_truth, *p0_theta_truth)
+print("Starting pars count",*par_names_count, *p0_count)
 
 ### Define global variables
-residuals_counts=[[],[]]
-residuals_theta=[[],[]]
-times_counts=[[],[]]
-times_theta=[[],[]]
+residuals_counts, residuals_theta, times_counts, times_theta=[[],[]], [[],[]], [[],[]] , [[],[]]
+if(sim): residuals_counts, residuals_theta, times_counts, times_theta=[ [] ], [ [] ], [ [] ], [ [] ]
 
 def main():
 
@@ -137,7 +139,7 @@ def plot_counts_theta(data):
         #Fit
         par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x, y, y_e, cu.unblinded_wiggle_fixed, p0_count[i_station])
         if (np.max(abs(par_e)) == np.Infinity ): raise Exception("\nOne of the fit parameters is infinity! Exiting...\n")
-        if(args.corr): print("Covariance matrix", pcov); np.save("../DATA/misc/pcov_N_S"+str(station)+".np", pcov);
+        if (args.corr): print("Covariance matrix\n", pcov); np.save("../DATA/misc/pcov_count_S"+str(station)+".np", pcov);
 
         #Plot
         if(sim): legend=ds_name+" S"+str(station);
@@ -156,7 +158,7 @@ def plot_counts_theta(data):
         cu.textL(ax, 0.80, 0.75, leg_data, fs=font_size+1)
         ax.set_ylim(np.amin(y)*0.9, np.amax(y)*1.1);
         ax.set_xlim(0, g2period);
-        fig.savefig("../fig/count_fit_S"+str(station)+".png", dpi=300)
+        fig.savefig("../fig/count_"+ds_name+"_S"+str(station)+".png", dpi=300)
 
       
         # get residuals for later plots 
@@ -177,7 +179,8 @@ def plot_counts_theta(data):
         ang=data_station['theta_y_mrad']
 
         ### Digitise data with weights
-        h,xedges,yedges  = np.histogram2d(tmod_abs, ang, weights=weights, bins=xy_bins);
+        # xy_bins=(bin_n, bin_n*2) # TODO 
+        h,xedges,yedges  = np.histogram2d(tmod_abs, ang, weights=weights, bins= xy_bins);
         
         # expand 
         (x_w, y_w), binsXY, dBinXY = ru.hist2np(h, (xedges,yedges))
@@ -190,7 +193,7 @@ def plot_counts_theta(data):
         #Fit
         par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x, y, y_e, cu.thetaY_phase, p0_theta_blinded[i_station])
         if (np.max(abs(par_e)) == np.Infinity ): raise Exception("\nOne of the fit parameters is infinity! Exiting...\n")
-        if(args.corr): print("Covariance matrix", pcov); np.save("../DATA/misc/pcov_theta_S"+str(station)+".np", pcov);
+        if(args.corr): print("Covariance matrix\n", pcov); np.save("../DATA/misc/pcov_theta_S"+str(station)+".np", pcov);
 
         #Plot
         fig, ax, leg_data, leg_fit = cu.plot_edm(x, y, y_e, cu.thetaY_phase, 
@@ -206,7 +209,7 @@ def plot_counts_theta(data):
         ax.set_ylim(-np.amax(y)*1.4, np.amax(y)*1.2);
         cu.textL(ax, 0.75, 0.15, leg_data, fs=font_size)
         cu.textL(ax, 0.25, 0.12, leg_fit, fs=font_size, c="r")
-        fig.savefig("../fig/bz_fit_S"+str(station)+".png", dpi=300)
+        fig.savefig("../fig/bz_"+ds_name+"_S"+str(station)+".png", dpi=300)
 
 
         # get residuals for later plots 
@@ -217,6 +220,7 @@ def plot_counts_theta(data):
         Make truth (un-blinded fits) if simulation
         '''
         if(sim):
+            print("Making truth plots in simulation")
 
             # Bin 
             df_binned =cu.Profile(data_station['mod_times'], data_station['theta_y_mrad'], None, nbins=bin_n, xmin=np.min(data_station['mod_times']), xmax=np.max(data_station['mod_times']), mean=True, only_binned=True)
@@ -224,6 +228,8 @@ def plot_counts_theta(data):
 
             # Fit 
             par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x, y, y_e, cu.thetaY_phase, p0_theta_truth[i_station])
+            if (np.max(abs(par_e)) == np.Infinity ): raise Exception("\nOne of the fit parameters is infinity! Exiting...\n")
+            if(args.corr): print("Covariance matrix", pcov); np.save("../DATA/misc/pcov_truth_S"+str(station)+".np", pcov);
 
             #Plot
             fig, ax, leg_data, leg_fit = cu.plot_edm(x, y, y_e, cu.thetaY_phase, 
@@ -235,7 +241,7 @@ def plot_counts_theta(data):
                                      ylabel=r"$\langle\theta_y\rangle$ [mrad] per "+str(int(bin_w*1e3))+" ns",
                                      font_size=font_size,
                                      prec=2)
-            cu.textL(ax, 0.74, 0.8, leg_data, fs=font_size)
+            cu.textL(ax, 0.74, 0.15, leg_data, fs=font_size)
             cu.textL(ax, 0.23, 0.12, leg_fit, fs=font_size, c="r")
             ax.set_xlim(0, g2period);
             ax.set_ylim(-np.amax(y)*1.8, np.amax(y)*2.1);

@@ -218,7 +218,7 @@ def residual_plots(times_binned, residuals, sim=False, eL=""):
     for i_station, (x, residual) in enumerate(zip(times_binned, residuals)):
         fig, ax = plt.subplots(figsize=(8, 5))
         if(not sim):ax.plot(x, residual, c='g', label="Run-1: "+ds_name+" dataset S"+str(stations[i_station])+" data-fit"); 
-        if(sim): ax.plot(x, residual, c='g', label="Sim: data-fit"); 
+        if(sim):    ax.plot(x, residual, c='g', label="Sim: data-fit"); 
         y_label=r"Fit residuals (counts, $N$)"
         if(sim and eL is "theta"): y_label=r"Fit residuals ($\theta_y$ [mrad])"
         ax.set_ylabel(y_label, fontsize=font_size);
@@ -226,7 +226,7 @@ def residual_plots(times_binned, residuals, sim=False, eL=""):
         ax.legend(fontsize=font_size)
         if(args.scan==False and not sim): plt.savefig("../fig/res/res"+file_label[i_station]+".png", dpi=300)
         if(args.scan==True and not sim):  plt.savefig("../fig/scans/res"+file_label[i_station]+scan_label+".png", dpi=300)
-        if(sim): plt.savefig("../fig/res_sim_"+eL+".png", dpi=300); 
+        if(sim): plt.savefig("../fig/res_sim_S1218_"+eL+".png", dpi=300); 
 
 def fft(residuals, sim=False, eL=""):
     '''
@@ -235,7 +235,7 @@ def fft(residuals, sim=False, eL=""):
     print("FFT analysis...")
     for i_station, residual in enumerate(residuals):
 
-        if(not sim): print("S"+str(stations[i_station]),":")
+        print("S"+str(stations[i_station]),":")
         fig, ax = plt.subplots(figsize=(8, 5))
 
         # de-trend data (trying to remove the peak at 0 Hz)
@@ -271,7 +271,7 @@ def fft(residuals, sim=False, eL=""):
         if(args.loss): norm=norm*0.1 # scale by 4 if LM is used
         res_fft=res_fft*norm
         if(not sim): ax.plot(freq, res_fft, label="Run-1: "+ds_name+" dataset S"+str(stations[i_station])+r": FFT, $n$={0:.3f}".format(n_tune), lw=2, c="g")
-        if(sim): ax.plot(freq, res_fft, label="Sim: FFT", lw=2, c="g")
+        if(sim):     ax.plot(freq, res_fft, label="Sim: FFT", lw=2, c="g")
 
         #plot expected frequencies
         ax.plot( (f_cbo, f_cbo), (y_min, y_max), c="r", ls="--", label="CBO")
@@ -286,7 +286,7 @@ def fft(residuals, sim=False, eL=""):
         ax.set_xlabel("Frequency [MHz]", fontsize=font_size)
         if(args.scan==False and not sim): plt.savefig("../fig/fft/fft"+file_label[i_station]+".png", dpi=300)
         if(args.scan==True and not sim):  plt.savefig("../fig/scans/fft"+file_label[i_station]+scan_label+".png", dpi=300)
-        if(sim): plt.savefig("../fig/fft_sim_"+eL+".png", dpi=300)
+        if(sim): plt.savefig("../fig/fft_sim_S1218_"+eL+".png", dpi=300)
 
 def canvas():
     if (args.scan==False):
