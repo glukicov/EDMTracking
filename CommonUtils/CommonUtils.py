@@ -145,7 +145,7 @@ def plot(x, y, x_err=None, y_err=None, fs=14, c="green",
     if(tight):
         # fig.tight_layout()
         #make space for the colour bar
-        fig.tight_layout(rect=[0.05, 0.05, 0.98, 0.98])
+        fig.tight_layout(rect=[0.02, 0.02, 0.98, 0.98])
 
     return fig, ax
 
@@ -223,16 +223,23 @@ def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, ndf, t_mod, t_max, 
     return fig, ax
 
 
-def plot_edm(x, y, y_e, bin_w, font_size=14):
-    fig, ax = plot(x, y, y_err=y_e, error=True, elw=1, fs=font_size, tight=True, 
-                      label="Data (sim.)", xlabel=r"$t^{mod}_{g-2} \ \mathrm{[\mu}$s]", ylabel=r"Counts ($N$) per "+str(int(bin_w*1e3))+" ns")
-    # ax.plot(bin_c, cu.unblinded_wiggle_fixed(bin_c, *par), c="red", label=r'Fit: $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]$', lw=2)
-    # ax.set_xlim(0, g2period);
-    # leg_fit=cu.legend_chi2(chi2_ndf, ndf, par)
-    # legned_par=legend_par(legned_par,  parNames, par, par_e, units, prec=prec)
-    # leg_data="N="+cu.sci_notation(N)+"\n"+str(int(p_min))+r"<$p$<"+str(int(p_max))+" MeV\n"+str(round(t_min,1))+r"<$t$<"+str(round(t_max,1))+r" $\mathrm{\mu}$s"
-    # ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.5, 1.1));
-    return fig, ax
+def plot_edm(x, y, y_e, func, par, par_e, chi2_ndf, ndf, bin_w, N,
+             t_min, t_max, p_min, p_max,
+             parNames, units,
+             legend_data="Data", font_size=14, ylabel="y", 
+             xlabel=r"$t^{mod}_{g-2} \ \mathrm{[\mu}$s]",
+             legend_fit="Fit",
+             prec=3
+             ):
+    fig, ax = plot(x, y, y_err=y_e, error=True, elw=1, fs=font_size, tight=False, 
+                      label=legend_data, xlabel=xlabel, ylabel=ylabel)
+    ax.plot(x, func(x, *par), c="red", label=legend_fit, lw=2)
+    leg_fit=legend_chi2(chi2_ndf, ndf, par)
+    legned_par=legend_par(leg_fit,  parNames, par, par_e, units, prec=prec)
+    leg_data="N="+sci_notation(N)+"\n"+str(int(p_min))+r"<$p$<"+str(int(p_max))+" MeV\n"+str(round(t_min,1))+r"<$t$<"+str(round(t_max,1))+r" $\mathrm{\mu}$s"
+    ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.5, 1.1));
+    fig.tight_layout()
+    return fig, ax, leg_data, legned_par
 
 def get_freq_bin_c_from_data(data, bin_w, bin_range):
     '''
@@ -244,7 +251,7 @@ def get_freq_bin_c_from_data(data, bin_w, bin_range):
     #print("First bin edge:", bin_edges[0], "last bin edge", bin_edges[-1], "bin width:",  bin_edges[1]- bin_edges[0], "bin n:", bin_n)
     bin_c=np.linspace(bin_edges[0]+bin_w/2, bin_edges[-1]-bin_w/2, len(freq))
     assert( len(freq) == len(bin_c) ==  bin_n)
-    return bin_c, freq
+    return bin_c, freq, np.sqrt(freq) # Poissson error 
 
 def get_g2_mod_time(times):
     '''
