@@ -78,7 +78,7 @@ par_names_theta_truth=par_names_theta.copy(); par_names_theta_truth[1]="A_edm"; 
 p0_count=[ [3000, 64.4, -0.40, 6.240], [3000, 64.4, -0.40, 6.240]]
 p0_theta_blinded=[ [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]
 if(sim): 
-    p0_count=[ [3000, 64.4, -0.40, 6.240], [3000, 64.4, -0.40, 6.240]]
+    p0_count=[ [15000, 63.251, 0.339, 2.057], [12498, 64.183, 0.341, 2.074]]
     p0_theta_blinded=[ [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]
     p0_theta_truth=[ [0.00, 0.17, 0.0], [0.00, 0.17, 0.0] ]; print("Starting pars TRUTH theta", *par_names_theta_truth, *p0_theta_truth)
 print("Starting pars theta blinded", *par_names_theta, *p0_theta_blinded)
@@ -104,6 +104,7 @@ def load_data(df_path):
     '''
     Load data apply cuts and return two data frames - one per station 
     '''
+    print("Opening data...")
     data_hdf = pd.read_hdf(df_path)   #open skimmed 
     print("N before cuts", data_hdf.shape[0])
     
@@ -296,6 +297,7 @@ def plot_counts_theta(data):
     ### now if not scanning - get FFTs for both stations
     ## FFTs
     if(not args.scan):
+        print("Plotting residuals and FFTs...")
         cu.residual_plots(times_counts, residuals_counts, sim=True, eL="count")
         cu.fft(residuals_counts, bin_w, sim=True, eL="count")
         cu.residual_plots(times_theta, residuals_theta, sim=True, eL="theta")
