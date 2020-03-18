@@ -74,7 +74,7 @@ print("Setting bin width of", bin_w*1e3, "ns with ~", bin_n, "bins")
 #starting fit parameters and their labels for plotting 
 par_names_count= ["N", "tau", "A", "phi"]; par_labels_count= [r"$N$", r"$\tau$", r"$A$", r"$\phi$"]; par_units_count=[" ",  r"$\rm{\mu}$s", " ", "rad"]
 par_names_theta= ["A_Bz", "A_edm_blind", "c"]; par_labels_theta= [r"$A_{B_{z}}$", r"$A^{\rm{BLINDED}}_{\mathrm{EDM}}$", r"$c$"]; par_units_theta=["mrad", "mrad", "mrad"]
-par_names_theta_truth=par_names_theta; par_names_theta_truth[1]="A_edm"; par_labels_truth=par_labels_theta; par_labels_theta[1]=r"$A_{\mathrm{EDM}}$"
+par_names_theta_truth=par_names_theta.copy(); par_names_theta_truth[1]="A_edm"; par_labels_truth=par_labels_theta.copy(); par_labels_truth[1]=r"$A_{\mathrm{EDM}}$"
 p0_count=[ [3000, 64.4, -0.40, 6.240], [3000, 64.4, -0.40, 6.240]]
 p0_theta_blinded=[ [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]
 if(sim): 
@@ -167,20 +167,21 @@ def plot_counts_theta(data):
         cu.textL(ax, 0.80, 0.75, leg_data, fs=font_size+1)
         ax.set_ylim(np.amin(y)*0.9, np.amax(y)*1.1);
         ax.set_xlim(0, g2period);
-        fig.savefig("../fig/count_"+ds_name+"_S"+str(station)+".png", dpi=300)
+        if(args.scan==False): fig.savefig("../fig/count_"+ds_name+"_S"+str(station)+".png", dpi=300)
 
         # if running externally, via a different module and passing scan==True as an argument
         # dump the parameters to a unique file for summary plots
         scan_label="_"+str(t_min)+"_"+str(t_max)+"_"+str(p_min)+"_"+str(p_max)+"_"+str(ndf)
         if(args.scan==True):
-            par_dump=np.array([[t_min], t_max, chi2_ndf, ndf, N, station, ds_name, *par, *par_e])
-            par_dump_keys = ["start", "stop", "chi2", "ndf", "n", "station", "ds"]
+            par_dump=np.array([[t_min], t_max, p_min, p_max, chi2_ndf, ndf, N, station, ds_name, *par, *par_e])
+            par_dump_keys = ["start", "stop", "p_min", "p_max", "chi2", "ndf", "n", "station", "ds"]
             par_dump_keys.extend(par_names_count)
             par_dump_keys.extend( [str(par)+"_e" for par in par_names_count] )
             dict_dump = dict(zip(par_dump_keys,par_dump))
             df = pd.DataFrame.from_records(dict_dump, index='start')
-            df.to_hdf("../DATA/scans/edm_scan.h5", key=keys[0], mode='a', complevel=9, complib="zlib", format="table", data_columns=True)
-            plt.savefig("../fig/scans/count_"+str(station)+scan_label+".png", dpi=300)
+            with open("../DATA/scans/edm_scan_"+keys[0]+".csv", 'a') as f:
+                df.to_csv(f, mode='a', header=f.tell()==0)
+            plt.savefig("../fig/scans/count_"+ds_name+"_S"+str(station)+scan_label+".png", dpi=300)
     
         # get residuals for later plots 
         residuals_counts[i_station] = cu.residuals(x, y, cu.unblinded_wiggle_fixed, par)
@@ -230,17 +231,18 @@ def plot_counts_theta(data):
         ax.set_ylim(-np.amax(y)*1.4, np.amax(y)*1.2);
         cu.textL(ax, 0.75, 0.15, leg_data, fs=font_size)
         cu.textL(ax, 0.25, 0.12, leg_fit, fs=font_size, c="r")
-        fig.savefig("../fig/bz_"+ds_name+"_S"+str(station)+".png", dpi=300)
+        if(args.scan==False): fig.savefig("../fig/bz_"+ds_name+"_S"+str(station)+".png", dpi=300)
 
         if(args.scan==True):
-            par_dump=np.array([[t_min], t_max, chi2_ndf, ndf, N, station, ds_name, *par, *par_e])
-            par_dump_keys = ["start", "stop", "chi2", "ndf", "n", "station", "ds"]
+            par_dump=np.array([[t_min], t_max, p_min, p_max, chi2_ndf, ndf, N, station, ds_name, *par, *par_e])
+            par_dump_keys = ["start", "stop", "p_min", "p_max", "chi2", "ndf", "n", "station", "ds"]
             par_dump_keys.extend(par_names_theta)
             par_dump_keys.extend( [str(par)+"_e" for par in par_names_theta] )
             dict_dump = dict(zip(par_dump_keys,par_dump))
             df = pd.DataFrame.from_records(dict_dump, index='start')
-            df.to_hdf("../DATA/scans/edm_scan.h5", key=keys[1], mode='a', complevel=9, complib="zlib", format="table", data_columns=True)
-            plt.savefig("../fig/scans/count_"+str(station)+scan_label+".png", dpi=300)
+            with open("../DATA/scans/edm_scan_"+keys[1]+".csv", 'a') as f:
+                df.to_csv(f, mode='a', header=f.tell()==0)
+            plt.savefig("../fig/scans/bz_"+ds_name+"_S"+str(station)+scan_label+".png", dpi=300)
 
 
         # get residuals for later plots 
@@ -276,17 +278,18 @@ def plot_counts_theta(data):
             cu.textL(ax, 0.23, 0.12, leg_fit, fs=font_size, c="r")
             ax.set_xlim(0, g2period);
             ax.set_ylim(-np.amax(y)*1.8, np.amax(y)*2.1);
-            fig.savefig("../fig/bz_truth_fit_S"+str(station)+".png", dpi=300)
+            if(args.scan==False): fig.savefig("../fig/bz_truth_fit_S"+str(station)+".png", dpi=300)
 
             if(args.scan==True):
-                par_dump=np.array([[t_min], t_max, chi2_ndf, ndf, N, station, ds_name, *par, *par_e])
-                par_dump_keys = ["start", "stop", "chi2", "ndf", "n", "station", "ds"]
+                par_dump=np.array([[t_min], t_max, p_min, p_max, chi2_ndf, ndf, N, station, ds_name, *par, *par_e])
+                par_dump_keys = ["start", "stop", "p_min", "p_max", "chi2", "ndf", "n", "station", "ds"]
                 par_dump_keys.extend(par_names_theta_truth)
                 par_dump_keys.extend( [str(par)+"_e" for par in par_names_theta_truth] )
                 dict_dump = dict(zip(par_dump_keys,par_dump))
                 df = pd.DataFrame.from_records(dict_dump, index='start')
-                df.to_hdf("../DATA/scans/edm_scan.h5", key=keys[2], mode='a', complevel=9, complib="zlib", format="table", data_columns=True)
-                plt.savefig("../fig/scans/count_"+str(station)+scan_label+".png", dpi=300)
+                with open("../DATA/scans/edm_scan_"+keys[2]+".csv", 'a') as f:
+                    df.to_csv(f, mode='a', header=f.tell()==0)
+                plt.savefig("../fig/scans/bz_truth_fit_S"+str(station)+scan_label+".png", dpi=300)
 
         #-------end of looping over stations
 
