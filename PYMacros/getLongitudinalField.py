@@ -24,6 +24,7 @@ arg_parser.add_argument("--t_min", type=float, default=30.0) # us
 arg_parser.add_argument("--t_max", type=float, default=199.985411) # us 
 arg_parser.add_argument("--p_min", type=float, default=1800) # us 
 arg_parser.add_argument("--p_max", type=float, default=3100) # us 
+arg_parser.add_argument("--bin_w", type=int, default=10) # ns 
 arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/Sim/Sim.h5") 
 # arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/60h.h5", help="input data")
 arg_parser.add_argument("--corr", action='store_true', default=False, help="Save covariance matrix for plotting")
@@ -77,10 +78,10 @@ print("Setting bin width of", bin_w*1e3, "ns with ~", bin_n, "bins")
 par_names_count= ["N", "tau", "A", "phi"]; par_labels_count= [r"$N$", r"$\tau$", r"$A$", r"$\phi$"]; par_units_count=[" ",  r"$\rm{\mu}$s", " ", "rad"]
 par_names_theta= ["A_Bz", "A_edm_blind", "c"]; par_labels_theta= [r"$A_{B_{z}}$", r"$A^{\rm{BLINDED}}_{\mathrm{EDM}}$", r"$c$"]; par_units_theta=["mrad", "mrad", "mrad"]
 par_names_theta_truth=par_names_theta.copy(); par_names_theta_truth[1]="A_edm"; par_labels_truth=par_labels_theta.copy(); par_labels_truth[1]=r"$A_{\mathrm{EDM}}$"
-p0_count=[ [3000, 64.4, -0.40, 6.240], [3000, 64.4, -0.40, 6.240]]
+p0_count=[ [7000, 63.251, 0.339, 2.057], [12498, 64.183, 0.341, 2.074]]
 p0_theta_blinded=[ [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]
 if(sim): 
-    p0_count=[ [15000, 63.251, 0.339, 2.057], [12498, 64.183, 0.341, 2.074]]
+    p0_count=[ [3000, 64.4, -0.40, 6.240], [3000, 64.4, -0.40, 6.240]]
     p0_theta_blinded=[ [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]
 print("Starting pars theta blinded", *par_names_theta, *p0_theta_blinded)
 print("Starting pars count",*par_names_count, *p0_count)
@@ -92,6 +93,8 @@ if(sim): residuals_counts, residuals_theta, times_counts, times_theta=[ [] ], [ 
 
 # output scan file HDF5 keys 
 keys=["count", "theta", "truth"]
+global_label=ds_name+"_"
+file_label=["_S"+str(s)+"_"+global_label for s in stations]
 
 scan_label=-1
 
@@ -312,10 +315,10 @@ def plot_counts_theta(data):
     if(not args.scan):
         if (not args.count):
             print("Plotting residuals and FFTs...")
-            cu.residual_plots(times_counts, residuals_counts, sim=True, eL="count")
-            cu.fft(residuals_counts, bin_w, sim=True, eL="count")
-            cu.residual_plots(times_theta, residuals_theta, sim=True, eL="theta")
-            cu.fft(residuals_theta, bin_w, sim=True, eL="theta")
+            cu.residual_plots(times_counts, residuals_counts, sim=sim, eL="count", file_label=file_label+"count")
+            cu.fft(residuals_counts, bin_w, sim=sim, eL="count")
+            cu.residual_plots(times_theta, residuals_theta, sim=sim, eL="theta",  file_label=file_label+"theta")
+            cu.fft(residuals_theta, bin_w, sim=sim, eL="theta")
 
 if __name__ == '__main__':
     main()
