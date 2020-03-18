@@ -13,7 +13,7 @@ import numpy as np
 np.set_printoptions(precision=3) # 3 sig.fig
 sys.path.append('../CommonUtils/') # https://github.com/glukicov/EDMTracking/blob/master/CommonUtils/CommonUtils.py
 import CommonUtils as cu
-from scipy import stats, optimize, fftpack
+from scipy import stats, optimize
 import matplotlib as mpl
 mpl.use('Agg') # MPL in batch mode
 font_size=15
@@ -35,9 +35,7 @@ if(args.loss==True): args.cbo = True
 
 ### Constants
 stations=(12, 18)
-expected_DSs = ("60h", "9D", "HK", "EG")
-f_a = 0.23 # MHz "g-2" frequency
-f_c = 6.71 # MHz cyclotron frequency
+expected_DSs = ("60h", "9D", "HK", "EG", "Sim")
 par_names= ["N", "tau", "A", "R", "phi"]
 
 
@@ -49,13 +47,8 @@ if(not ds_name in expected_DSs):
 
 # Now that we know what DS we have, we can
 # set tune and calculate expected FFTs and
+cu._DS=ds_name
 print("Setting tune parameters for ", ds_name, "DS")
-if (ds_name=="60h" or ds_name=="EG"): n_tune = 0.108
-if (ds_name=="9D" or ds_name=="HK"): n_tune = 0.120
-f_cbo = f_c * (1 - np.sqrt(1-n_tune) )
-f_vw = f_c * (1 - 2 *np.sqrt(n_tune) )
-f_cbo_M_a = f_cbo - f_a
-f_cbo_P_a = f_cbo + f_a
 
 ### (2) Deal with weather we are doing 5 or 9 parameter fit
 p0_s12=[15000, 64.44, 0.34, -60, 2.080]
@@ -128,10 +121,10 @@ def main():
 
     if(args.scan==False):
         #now plot the (data - fit)
-        residual_plots(times_binned, residuals)
+        cu.residual_plots(times_binned, residuals, file_label=file_label, scan_label=scan_label)
 
         #FFTs
-        fft(residuals)
+        cu.fft(residuals, bin_w, file_label=file_label, scan_label=scan_label)
 
         #finally add plots into single canvas
         canvas()
@@ -168,8 +161,7 @@ def fit():
 
         print("digitising data (binning)...")
         # just call x,y = frequencies, bin_centres for plotting and fitting
-        x, y = cu.get_freq_bin_c_from_data( t, bin_w, (min_t, max_t) )
-        y_err = np.sqrt(y) # sigma =sqrt(N)
+        x, y, y_err = cu.get_freq_bin_c_from_data( t, bin_w, (min_t, max_t) )
 
         print("Fitting...")
         par, par_e, pcov, chi2_ndf, ndf =cu.fit_and_chi2(x, y, y_err, func, p0[i_station])       
@@ -211,82 +203,6 @@ def fit():
 
     return times_binned, residuals
 
-def residual_plots(times_binned, residuals, sim=False, eL=""):
-    '''
-    loop over the two lists to fill residual plots
-    '''
-    for i_station, (x, residual) in enumerate(zip(times_binned, residuals)):
-        fig, ax = plt.subplots(figsize=(8, 5))
-        if(not sim):ax.plot(x, residual, c='g', label="Run-1: "+ds_name+" dataset S"+str(stations[i_station])+" data-fit"); 
-        if(sim):    ax.plot(x, residual, c='g', label="Sim: data-fit"); 
-        y_label=r"Fit residuals (counts, $N$)"
-        if(sim and eL is "theta"): y_label=r"Fit residuals ($\theta_y$ [mrad])"
-        ax.set_ylabel(y_label, fontsize=font_size);
-        ax.set_xlabel(r"Time [$\mathrm{\mu}$s]", fontsize=font_size)
-        ax.legend(fontsize=font_size)
-        if(args.scan==False and not sim): plt.savefig("../fig/res/res"+file_label[i_station]+".png", dpi=300)
-        if(args.scan==True and not sim):  plt.savefig("../fig/scans/res"+file_label[i_station]+scan_label+".png", dpi=300)
-        if(sim): plt.savefig("../fig/res_sim_S1218_"+eL+".png", dpi=300); 
-
-def fft(residuals, sim=False, eL=""):
-    '''
-    perform the FFT analysis on the fit residuals
-    '''
-    print("FFT analysis...")
-    for i_station, residual in enumerate(residuals):
-
-        print("S"+str(stations[i_station]),":")
-        fig, ax = plt.subplots(figsize=(8, 5))
-
-        # de-trend data (trying to remove the peak at 0 Hz)
-        res_detrend = np.subtract(residual, np.average(residuals))
-
-        # Now to the FFT:
-        N = len(res_detrend) # window length
-        res_fft = fftpack.fft(res_detrend) # return DFT on the fit residuals
-        res_fft = np.absolute(res_fft) # magnitude of the complex number
-        freqs = fftpack.fftfreq(N, d=bin_w)  # DFT sample frequencies (d=sample spacing, ~150 ns)
-        #take the +ive part
-        freq=freqs[0:N//2]
-        res_fft=res_fft[0:N//2]
-
-        # Calculate the Nyquist frequency, which is twice the highest frequeny in the signal
-        # or half of the sampling rate ==  the maximum frequency before sampling errors start
-        sample_rate = 1.0 / bin_w
-        nyquist_freq = 0.5 * sample_rate
-        # print("bin width:", round(bin_w*1e3,3), " ns")
-        # print("sample rate:", round(sample_rate,3), "MHz")
-        # print("Nyquist freq:", round(nyquist_freq,3), "MHz\n")
-
-        # set plot limits
-        x_min, x_max, y_min, y_max = 0.0, nyquist_freq, 0,  1.2
-        ax.set_xlim(x_min, x_max)
-        ax.set_ylim(y_min, y_max)
-
-        ###Normalise and plot:
-        # find index of frequency above x_min
-        index=next(i for i,v in enumerate(freq) if v > x_min)
-        # arbitrary: scale by max value in range of largest non-zero peak
-        norm = 1./max(res_fft[index:-1])
-        if(args.loss): norm=norm*0.1 # scale by 4 if LM is used
-        res_fft=res_fft*norm
-        if(not sim): ax.plot(freq, res_fft, label="Run-1: "+ds_name+" dataset S"+str(stations[i_station])+r": FFT, $n$={0:.3f}".format(n_tune), lw=2, c="g")
-        if(sim):     ax.plot(freq, res_fft, label="Sim: FFT", lw=2, c="g")
-
-        #plot expected frequencies
-        ax.plot( (f_cbo, f_cbo), (y_min, y_max), c="r", ls="--", label="CBO")
-        ax.plot( (f_a, f_a), (y_min, y_max), c="b", ls="-", label=r"$(g-2)$")
-        ax.plot( (f_cbo_M_a, f_cbo_M_a), (y_min, y_max), c="k", ls="-.", label=r"CBO - $(g-2)$")
-        ax.plot( (f_cbo_P_a, f_cbo_P_a), (y_min, y_max), c="c", ls=":", label=r"CBO + $(g-2)$")
-        ax.plot( (f_vw, f_vw), (y_min, y_max), c="m", ls=(0, (1, 10)), label="VW")
-
-        # prettify and save plot
-        ax.legend(fontsize=font_size, loc="best")
-        ax.set_ylabel("FFT magnitude (normalised)", fontsize=font_size)
-        ax.set_xlabel("Frequency [MHz]", fontsize=font_size)
-        if(args.scan==False and not sim): plt.savefig("../fig/fft/fft"+file_label[i_station]+".png", dpi=300)
-        if(args.scan==True and not sim):  plt.savefig("../fig/scans/fft"+file_label[i_station]+scan_label+".png", dpi=300)
-        if(sim): plt.savefig("../fig/fft_sim_S1218_"+eL+".png", dpi=300)
 
 def canvas():
     if (args.scan==False):

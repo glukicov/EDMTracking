@@ -1,6 +1,6 @@
 # Define some commonly used functions here   \
 # Gleb Lukicov (11 Jan 2020)  
-from scipy import stats, optimize
+from scipy import stats, optimize, fftpack
 import numpy as np
 import seaborn as sns
 # MPL in batch mode
@@ -24,6 +24,8 @@ def get_random_engine(init_seed=123456789):
 
 #set printout precision of arrays
 np.set_printoptions(precision=9)
+
+stations=(12,18)
 
 #Set constants from fit (e.g. cu._phi=x)
 _f_a=0.2290735 # MHz BNL (arXiv:hep-ex/0602035) 
@@ -240,6 +242,101 @@ def plot_edm(x, y, y_e, func, par, par_e, chi2_ndf, ndf, bin_w, N,
     ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.5, 1.1));
     fig.tight_layout()
     return fig, ax, leg_data, legned_par
+
+def residual_plots(times_binned, residuals, sim=False, eL="", file_label="", scan_label=""):
+    '''
+    loop over the two lists to fill residual plots
+    '''
+    ds_name=_DS
+    if(ds_name==-1): raise Exception("DS not set via cu._DS=x")
+
+    for i_station, (x, residual) in enumerate(zip(times_binned, residuals)):
+        fig, ax = plt.subplots(figsize=(8, 5))
+        if(not sim):ax.plot(x, residual, c='g', label="Run-1: "+ds_name+" dataset S"+str(stations[i_station])+" data-fit"); 
+        if(sim):    ax.plot(x, residual, c='g', label="Sim: data-fit"); 
+        y_label=r"Fit residuals (counts, $N$)"
+        if(sim and eL is "theta"): y_label=r"Fit residuals ($\theta_y$ [mrad])"
+        ax.set_ylabel(y_label, fontsize=14);
+        ax.set_xlabel(r"Time [$\mathrm{\mu}$s]", fontsize=14)
+        ax.legend(fontsize=14)
+        if(not sim): plt.savefig("../fig/res/res"+file_label[i_station]+".png", dpi=300)
+        if(sim): plt.savefig("../fig/res_sim_S1218_"+eL+".png", dpi=300); 
+
+
+def fft(residuals, bin_w, sim=False, eL="", file_label="", scan_label=""):
+    '''
+    perform the FFT analysis on the fit residuals
+    '''
+    
+    ds_name=_DS
+    if(ds_name==-1): raise Exception("DS not set via cu._DS=x")
+
+    f_a = 0.23 # MHz "g-2" frequency
+    f_c = 6.71 # MHz cyclotron frequency
+    
+    if (ds_name=="60h" or ds_name=="EG"): n_tune = 0.108
+    else: n_tune = 0.120
+    f_cbo = f_c * (1 - np.sqrt(1-n_tune) )
+    f_vw = f_c * (1 - 2 *np.sqrt(n_tune) )
+    f_cbo_M_a = f_cbo - f_a
+    f_cbo_P_a = f_cbo + f_a
+
+
+    print("FFT analysis...")
+    for i_station, residual in enumerate(residuals):
+
+        print("S"+str(stations[i_station]),":")
+        fig, ax = plt.subplots(figsize=(8, 5))
+
+        # de-trend data (trying to remove the peak at 0 Hz)
+        res_detrend = np.subtract(residual, np.average(residuals))
+
+        # Now to the FFT:
+        N = len(res_detrend) # window length
+        res_fft = fftpack.fft(res_detrend) # return DFT on the fit residuals
+        res_fft = np.absolute(res_fft) # magnitude of the complex number
+        freqs = fftpack.fftfreq(N, d=bin_w)  # DFT sample frequencies (d=sample spacing, ~150 ns)
+        #take the +ive part
+        freq=freqs[0:N//2]
+        res_fft=res_fft[0:N//2]
+
+        # Calculate the Nyquist frequency, which is twice the highest frequeny in the signal
+        # or half of the sampling rate ==  the maximum frequency before sampling errors start
+        sample_rate = 1.0 / bin_w
+        nyquist_freq = 0.5 * sample_rate
+        # print("bin width:", round(bin_w*1e3,3), " ns")
+        # print("sample rate:", round(sample_rate,3), "MHz")
+        # print("Nyquist freq:", round(nyquist_freq,3), "MHz\n")
+
+        # set plot limits
+        x_min, x_max, y_min, y_max = 0.0, nyquist_freq, 0,  1.2
+        ax.set_xlim(x_min, x_max)
+        ax.set_ylim(y_min, y_max)
+
+        ###Normalise and plot:
+        # find index of frequency above x_min
+        index=next(i for i,v in enumerate(freq) if v > x_min)
+        # arbitrary: scale by max value in range of largest non-zero peak
+        norm = 1./max(res_fft[index:-1])
+        #if(args.loss): norm=norm*0.1 # scale by 4 if LM is used
+        res_fft=res_fft*norm
+        if(not sim): ax.plot(freq, res_fft, label="Run-1: "+ds_name+" dataset S"+str(stations[i_station])+r": FFT, $n$={0:.3f}".format(n_tune), lw=2, c="g")
+        if(sim):     ax.plot(freq, res_fft, label="Sim: FFT", lw=2, c="g")
+
+        #plot expected frequencies
+        ax.plot( (f_cbo, f_cbo), (y_min, y_max), c="r", ls="--", label="CBO")
+        ax.plot( (f_a, f_a), (y_min, y_max), c="b", ls="-", label=r"$(g-2)$")
+        ax.plot( (f_cbo_M_a, f_cbo_M_a), (y_min, y_max), c="k", ls="-.", label=r"CBO - $(g-2)$")
+        ax.plot( (f_cbo_P_a, f_cbo_P_a), (y_min, y_max), c="c", ls=":", label=r"CBO + $(g-2)$")
+        ax.plot( (f_vw, f_vw), (y_min, y_max), c="m", ls=(0, (1, 10)), label="VW")
+
+        # prettify and save plot
+        ax.legend(fontsize=14, loc="best")
+        ax.set_ylabel("FFT magnitude (normalised)", fontsize=14)
+        ax.set_xlabel("Frequency [MHz]", fontsize=14)
+        if(not sim): plt.savefig("../fig/fft/fft"+file_label[i_station]+".png", dpi=300)
+        if(sim): plt.savefig("../fig/fft_sim_S1218_"+eL+".png", dpi=300)
+
 
 def get_freq_bin_c_from_data(data, bin_w, bin_range):
     '''

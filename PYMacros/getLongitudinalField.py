@@ -16,7 +16,6 @@ sys.path.append("../CommonUtils/") # https://github.com/glukicov/EDMTracking/blo
 import CommonUtils as cu
 import RUtils as ru
 import argparse 
-from fitWithBlinders_skim import fft, residual_plots
 
 
 arg_parser = argparse.ArgumentParser()
@@ -41,6 +40,11 @@ folder=args.hdf.replace(".","/").split("/")[-3]
 print("Detected DS name:", ds_name, "from the input file!")
 if( (folder != "Sim") and (folder != "EDM")): raise Exception("Loaded pre-skimmed simulation or EDM file")
 if(not ds_name in expected_DSs): raise Exception("Unexpected input HDF name: if using Run-1 data, rename your file to DS.h5 (e.g. 60h.h5); Otherwise, modify functionality of this programme...exiting...")
+
+# Now that we know what DS we have, we can
+# set tune and calculate expected FFTs and
+cu._DS=ds_name
+print("Setting tune parameters for ", ds_name, "DS")
 
 sim=False
 if(ds_name == "Sim"):
@@ -70,19 +74,24 @@ print("Setting bin width of", bin_w*1e3, "ns with ~", bin_n, "bins")
 #starting fit parameters and their labels for plotting 
 par_names_count= ["N", "tau", "A", "phi"]; par_labels_count= [r"$N$", r"$\tau$", r"$A$", r"$\phi$"]; par_units_count=[" ",  r"$\rm{\mu}$s", " ", "rad"]
 par_names_theta= ["A_Bz", "A_edm_blind", "c"]; par_labels_theta= [r"$A_{B_{z}}$", r"$A^{\rm{BLINDED}}_{\mathrm{EDM}}$", r"$c$"]; par_units_theta=["mrad", "mrad", "mrad"]
-par_name_theta_truth=par_names_theta; par_name_theta_truth[1]="A_edm", par_labels_truth=par_labels_theta; par_labels_theta[1]=r"$A_{\mathrm{EDM}}$"
+par_names_theta_truth=par_names_theta; par_names_theta_truth[1]="A_edm"; par_labels_truth=par_labels_theta; par_labels_theta[1]=r"$A_{\mathrm{EDM}}$"
 p0_count=[ [3000, 64.4, -0.40, 6.240], [3000, 64.4, -0.40, 6.240]]
 p0_theta_blinded=[ [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]
 if(sim): 
     p0_count=[ [3000, 64.4, -0.40, 6.240], [3000, 64.4, -0.40, 6.240]]
     p0_theta_blinded=[ [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]
-    p0_theta_truth=[ [0.00, 0.17, 0.0], [0.00, 0.17, 0.0] ]; print("Starting pars TRUTH theta", *par_name_theta_truth, *p0_theta_truth)
+    p0_theta_truth=[ [0.00, 0.17, 0.0], [0.00, 0.17, 0.0] ]; print("Starting pars TRUTH theta", *par_names_theta_truth, *p0_theta_truth)
 print("Starting pars theta blinded", *par_names_theta, *p0_theta_blinded)
 print("Starting pars count",*par_names_count, *p0_count)
 
 ### Define global variables
 residuals_counts, residuals_theta, times_counts, times_theta=[[],[]], [[],[]], [[],[]] , [[],[]]
 if(sim): residuals_counts, residuals_theta, times_counts, times_theta=[ [] ], [ [] ], [ [] ], [ [] ]
+
+# output scan file HDF5 keys 
+keys=["count", "theta", "truth"]
+
+scan_label=-1
 
 def main():
 
@@ -160,7 +169,19 @@ def plot_counts_theta(data):
         ax.set_xlim(0, g2period);
         fig.savefig("../fig/count_"+ds_name+"_S"+str(station)+".png", dpi=300)
 
-      
+        # if running externally, via a different module and passing scan==True as an argument
+        # dump the parameters to a unique file for summary plots
+        scan_label="_"+str(t_min)+"_"+str(t_max)+"_"+str(p_min)+"_"+str(p_max)+"_"+str(ndf)
+        if(args.scan==True):
+            par_dump=np.array([[t_min], t_max, chi2_ndf, ndf, N, station, ds_name, *par, *par_e])
+            par_dump_keys = ["start", "stop", "chi2", "ndf", "n", "station", "ds"]
+            par_dump_keys.extend(par_names_count)
+            par_dump_keys.extend( [str(par)+"_e" for par in par_names_count] )
+            dict_dump = dict(zip(par_dump_keys,par_dump))
+            df = pd.DataFrame.from_records(dict_dump, index='start')
+            df.to_hdf("../DATA/scans/edm_scan.h5", key=keys[0], mode='a', complevel=9, complib="zlib", format="table", data_columns=True)
+            plt.savefig("../fig/scans/count_"+str(station)+scan_label+".png", dpi=300)
+    
         # get residuals for later plots 
         residuals_counts[i_station] = cu.residuals(x, y, cu.unblinded_wiggle_fixed, par)
         times_counts[i_station] = x
@@ -211,6 +232,16 @@ def plot_counts_theta(data):
         cu.textL(ax, 0.25, 0.12, leg_fit, fs=font_size, c="r")
         fig.savefig("../fig/bz_"+ds_name+"_S"+str(station)+".png", dpi=300)
 
+        if(args.scan==True):
+            par_dump=np.array([[t_min], t_max, chi2_ndf, ndf, N, station, ds_name, *par, *par_e])
+            par_dump_keys = ["start", "stop", "chi2", "ndf", "n", "station", "ds"]
+            par_dump_keys.extend(par_names_theta)
+            par_dump_keys.extend( [str(par)+"_e" for par in par_names_theta] )
+            dict_dump = dict(zip(par_dump_keys,par_dump))
+            df = pd.DataFrame.from_records(dict_dump, index='start')
+            df.to_hdf("../DATA/scans/edm_scan.h5", key=keys[1], mode='a', complevel=9, complib="zlib", format="table", data_columns=True)
+            plt.savefig("../fig/scans/count_"+str(station)+scan_label+".png", dpi=300)
+
 
         # get residuals for later plots 
         residuals_theta[i_station] = cu.residuals(x, y, cu.thetaY_phase, par)
@@ -247,15 +278,25 @@ def plot_counts_theta(data):
             ax.set_ylim(-np.amax(y)*1.8, np.amax(y)*2.1);
             fig.savefig("../fig/bz_truth_fit_S"+str(station)+".png", dpi=300)
 
+            if(args.scan==True):
+                par_dump=np.array([[t_min], t_max, chi2_ndf, ndf, N, station, ds_name, *par, *par_e])
+                par_dump_keys = ["start", "stop", "chi2", "ndf", "n", "station", "ds"]
+                par_dump_keys.extend(par_names_theta_truth)
+                par_dump_keys.extend( [str(par)+"_e" for par in par_names_theta_truth] )
+                dict_dump = dict(zip(par_dump_keys,par_dump))
+                df = pd.DataFrame.from_records(dict_dump, index='start')
+                df.to_hdf("../DATA/scans/edm_scan.h5", key=keys[2], mode='a', complevel=9, complib="zlib", format="table", data_columns=True)
+                plt.savefig("../fig/scans/count_"+str(station)+scan_label+".png", dpi=300)
+
         #-------end of looping over stations
 
     ### now if not scanning - get FFTs for both stations
     ## FFTs
     if(not args.scan):
-        residual_plots(times_counts, residuals_counts, sim=True, eL="count")
-        fft(residuals_counts, sim=True, eL="count")
-        residual_plots(times_theta, residuals_theta, sim=True, eL="theta")
-        fft(residuals_theta, sim=True, eL="theta")
+        cu.residual_plots(times_counts, residuals_counts, sim=True, eL="count")
+        cu.fft(residuals_counts, bin_w, sim=True, eL="count")
+        cu.residual_plots(times_theta, residuals_theta, sim=True, eL="theta")
+        cu.fft(residuals_theta, bin_w, sim=True, eL="theta")
 
 if __name__ == '__main__':
     main()
