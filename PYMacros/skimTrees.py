@@ -24,7 +24,8 @@ arg_parser.add_argument("--sim_skim", action='store_true', default=False)
 args=arg_parser.parse_args() 
 
 #read both track and vertices
-keys=('QualityTracks', 'QualityVertices')
+# keys=('QualityTracks', 'QualityVertices')
+keys=(['QualityTracks'])
 
 #counter for all and skimmed tracks/vertices
 total_tv, total_tv_skim = [0, 0], [0, 0]
@@ -69,7 +70,7 @@ def skim():
     for i_file, file in enumerate(sorted(os.listdir(args.trees))):
         for i_key, key in enumerate(keys):
             print("Opening", key, "data in", args.trees+"/"+file)
-            data_all = read_root(args.trees+"/"+file, key, columns=["station", "trackT0", "trackMomentum"])
+            data_all = read_root(args.trees+"/"+file, key, columns=["station", "trackT0", "trackMomentum", "trackMomentumY"])
             data_all['trackT0']=data_all['trackT0']*1e-3   # ns -> us
             total_tv[i_key]+=data_all.shape[0] # add to total from each file 
             print("Total of", data_all.shape[0], "entries")
