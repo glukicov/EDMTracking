@@ -20,7 +20,7 @@ arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("--all", action='store_true', default=False) # just run all 4 DS 
 arg_parser.add_argument("--start", action='store_true', default=False) 
 arg_parser.add_argument("--end", action='store_true', default=False) 
-arg_parser.add_argument("--plot", action='store_true', default=False) 
+arg_parser.add_argument("--plot_start", action='store_true', default=False) 
 arg_parser.add_argument("--plot_end", action='store_true', default=False) 
 arg_parser.add_argument("--corr", action='store_true', default=False) 
 args=arg_parser.parse_args()
@@ -30,6 +30,7 @@ DS_path = (["../DATA/HDF/Sim/Sim.h5"])
 stations=([1218])
 dss = (["Sim"])
 keys=["count", "theta", "truth"]
+key_names=["(count)", r"($\theta$)", "(truth)"]
 
 # DS_path = ("../DATA/HDF/EDM/60h.h5", "../DATA/HDF/EDM/9D.h5", "../DATA/HDF/EDM/HK.h5", "../DATA/HDF/EDM/EG.h5")
 # stations=(12, 18)
@@ -44,27 +45,30 @@ par_labels=[par_labels_count, par_labels_theta, par_labels_truth]
 par_names=[par_names_count, par_names_theta, par_names_theta_truth] 
 
 
-bin_w = 10*1e-3 # 150 ns
-factor=10
-step=bin_w*factor
-start=0
-stop_desired=5 # us 
-dt = stop_desired - start
-n_dt = int(dt/bin_w/factor) # how many whole (factor x bins) do we fit in that interval
-print("Will generate", n_dt+1, "start times between", start, "and", stop_desired, 'us')
-stop = n_dt*factor*bin_w+start
-print("Adjusted last start time ",stop)
+if(args.start): 
+    bin_w = 10*1e-3 # 150 ns
+    factor=40
+    step=bin_w*factor
+    start=0
+    stop_desired=10 # us 
+    dt = stop_desired - start
+    n_dt = int(dt/bin_w/factor) # how many whole (factor x bins) do we fit in that interval
+    print("Will generate", n_dt+1, "start times between", start, "and", stop_desired, 'us')
+    stop = n_dt*factor*bin_w+start
+    print("Adjusted last start time ",stop)
+    start_times = np.arange(start, stop, step, dtype=float)
+    print("Start times:", start_times)
 
-start_times = np.arange(start, stop, step, dtype=float)
-end_times = np.linspace(100, 300, 40, dtype=float)
+if(args.end):   
+    end_times = np.linspace(100, 300, 40, dtype=float)
+    print("End times:", end_times)
 
-start_times=[4.4, 5.5, 6.6]
-end_times=[100, 150, 200, 250, 300]
 
-print(start_times)
-print(end_times)
+# if(args.pmin):
+#     min_mom = np.linespace()
 
-in_=input("Start scans?")
+
+in_=input("Start scans/plots?")
 
 
 def main():
@@ -74,7 +78,7 @@ def main():
     if(args.all): all(DS_path)
     if(args.start): time_scan(DS_path, start_times)
     if(args.end): time_scan(DS_path, end_times)
-    if(args.plot): plot(direction="start")
+    if(args.plot_start): plot(direction="start")
     if(args.plot_end): plot(direction="stop")
     if(args.corr): corr()
 
@@ -93,7 +97,7 @@ def time_scan(DS_path, times):
              subprocess.call(["python3", "getLongitudinalField.py", "--hdf", path, "--scan", key_scan, str(time)])
 
 
-def plot(direction="start"):
+def plot(direction="start", bidir=False, second_direction=None):
     print("Making scan summary plot")
     subprocess.Popen( ["trash"] + glob.glob("../fig/scans_fom/*.png") )
     
@@ -105,8 +109,9 @@ def plot(direction="start"):
         data = pd.read_csv("../DATA/scans/edm_scan_"+key+".csv")
         
         par_n=-1
+        if(data.shape[1] == 18):  par_n=3 # theta 
         if(data.shape[1] == 17):  par_n=4 # count 
-        if(data.shape[1] == 15):  par_n=3 # theta, truth 
+        if(data.shape[1] == 15):  par_n=3 # truth 
         print("par_n =", par_n, "according to expected total columns")
         if(par_n!=len(par_names[i_key])): raise Exception("More parameters in scan data then expected names - expand!")
         if(par_n==--1): raise Exception("Scan data has less/more then expected parameters!")
@@ -118,10 +123,6 @@ def plot(direction="start"):
         par_names[i_key].insert(0, "chi2")
         par_labels[i_key].insert(0, r"$\frac{\chi^2}{\rm{DoF}}$")
 
-
-        # print(par_names[0])
-        # print(len(par_names[0]))
-        # sys.exit()
 
         for ds in dss:
             for station in stations:
@@ -150,13 +151,13 @@ def plot(direction="start"):
                         print( [x[i] for i, B in enumerate(y_s.isnull()) if B]) # y_s.isnull() list of T/F , B is on of T/F in that list, i is index of True, x[i] times of True
                     
                     #Plot 
-                    fig, ax = cu.plot(x, y, y_err=y_e, error=True, elw=2, label="S"+str(station)+": "+ds+" DS", tight=True)
+                    fig, ax = cu.plot(x, y, y_err=y_e, error=True, elw=2, label="S"+str(station)+": "+ds+" DS"+key_names[i_key], tight=True)
                     ax.plot(x, y, marker=".", ms=10, c="g", lw=0)
                     sigma_index=0; band_P=y[sigma_index]+y_s; band_M=y[sigma_index]-y_s;
                     if(args.plot_end): sigma_index=len(y)-1; band_P=y[sigma_index]-np.flip(y_s); band_M=y[sigma_index]+np.flip(y_s)
                     ax.plot(x, band_P, c="r", ls=":", lw=2, label=r"$\sigma_{\Delta_{21}}$")
                     ax.plot(x, band_M, c="r", ls=":", lw=2)
-                    if(par_names[i_key][i_par]=='tau'): ax.plot([np.min(x)-2, np.max(x)+2], [64.44, 64.44], c="k", ls="--"); ax.set_ylim(np.min(y)-0.1, 64.6);
+                    # if(par_names[i_key][i_par]=='tau'): ax.plot([np.min(x)-2, np.max(x)+2], [64.44, 64.44], c="k", ls="--"); ax.set_ylim(np.min(y)-0.1, 64.6);
                     if(par_names[i_key][i_par]=='chi2'): ax.plot([min(x)-2, max(x)+2], [1, 1], c="k", ls="--");
                     ax.set_xlim(min(x)-2, max(x)+2)
                     ax.set_xlabel(direction+r" time [$\rm{\mu}$s]", fontsize=font_size);

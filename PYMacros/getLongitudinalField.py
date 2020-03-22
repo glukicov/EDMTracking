@@ -68,7 +68,7 @@ p_max = args.p_max # MeV
 print("Momentum cuts:", p_min, "to", p_max, "MeV")
 
 #binning 
-bin_w = 10*1e-3 # 10 ns 
+bin_w = args.bin_w*1e-3 # 10 ns 
 # bin_n = 433 # TODO 
 bin_n = int( g2period/bin_w) # TODO 
 xy_bins=(bin_n, bin_n*2)
@@ -249,8 +249,8 @@ def plot_counts_theta(data):
             if(args.scan==False): fig.savefig("../fig/bz_"+ds_name+"_S"+str(station)+".png", dpi=300)
 
             if(args.scan==True):
-                par_dump=np.array([[t_min], t_max, p_min, p_max, chi2_ndf, ndf, N, station, ds_name, *par, *par_e])
-                par_dump_keys = ["start", "stop", "p_min", "p_max", "chi2", "ndf", "n", "station", "ds"]
+                par_dump=np.array([[t_min], t_max, p_min, p_max, chi2_ndf, ndf, g2period, xy_bins[0], xy_bins[1], N, station, ds_name, *par, *par_e])
+                par_dump_keys = ["start", "stop", "p_min", "p_max", "chi2", "ndf", "g2period", "ndf_x", "ndf_y", "n", "station", "ds"]
                 par_dump_keys.extend(par_names_theta)
                 par_dump_keys.extend( [str(par)+"_e" for par in par_names_theta] )
                 dict_dump = dict(zip(par_dump_keys,par_dump))
