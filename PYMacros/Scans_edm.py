@@ -20,6 +20,7 @@ arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("--all", action='store_true', default=False) # just run all 4 DS 
 arg_parser.add_argument("--start", action='store_true', default=False) 
 arg_parser.add_argument("--end", action='store_true', default=False) 
+arg_parser.add_argument("--p_min", action='store_true', default=False) 
 arg_parser.add_argument("--plot_start", action='store_true', default=False) 
 arg_parser.add_argument("--plot_end", action='store_true', default=False) 
 arg_parser.add_argument("--corr", action='store_true', default=False) 
@@ -38,7 +39,7 @@ key_names=["(count)", r"($\theta$)", "(truth)"]
 # keys=["count", "theta"] # HDF5 keys of input scan result files 
 
 #plotting and retrieving from HDF5 
-par_names_count= ["N", "tau", "A", "phi"]; par_labels_count= [r"$N$", r"$\tau$", r"$A$", r"$\phi$"];
+par_names_count= ["N", "tau", "A", "phi"]; par_labels_count= [r"$N$ (count)", r"$\tau$", r"$A$", r"$\phi$"];
 par_names_theta= ["A_Bz", "A_edm_blind", "c"]; par_labels_theta= [r"$A_{B_{z}}$", r"$A^{\rm{BLINDED}}_{\mathrm{EDM}}$", r"$c$"]; 
 par_names_theta_truth=par_names_theta.copy(); par_names_theta_truth[1]="A_edm"; par_labels_truth=par_labels_theta.copy(); par_labels_truth[1]=r"$A_{\mathrm{EDM}}$"
 par_labels=[par_labels_count, par_labels_theta, par_labels_truth]
@@ -60,12 +61,13 @@ if(args.start):
     print("Start times:", start_times)
 
 if(args.end):   
-    end_times = np.linspace(100, 300, 40, dtype=float)
+    end_times = np.linspace(100, 300, 15, dtype=float)
     print("End times:", end_times)
 
+if(args.p_min):   
+    p_min = np.linspace(1200, 2200, 10, dtype=float)
+    print("End times:", end_times)
 
-# if(args.pmin):
-#     min_mom = np.linespace()
 
 
 in_=input("Start scans/plots?")
@@ -123,6 +125,43 @@ def plot(direction="start", bidir=False, second_direction=None):
         par_names[i_key].insert(0, "chi2")
         par_labels[i_key].insert(0, r"$\frac{\chi^2}{\rm{DoF}}$")
 
+        #resolve NA parameters
+        par_names[i_key].insert(0, "n")
+        par_labels[i_key].insert(0, "N (stat)")
+        data['n_e']=np.zeros(data.shape[0]) # add no error on the number of entries
+
+        #resolve A for each key 
+        if(key=="count"):
+            data['NA2']=data['n']*(data['A']**2)
+            par_names[i_key].insert(0, "NA2")
+            par_labels[i_key].insert(0, r"NA$^2$")
+            data['NA2_e']=np.zeros(data.shape[0]) # add no error on the number of entries
+
+        if(key=="theta"):
+            data["NA_bz2"]=data['n']*(data['A_Bz']**2)
+            par_names[i_key].insert(0, "NA_bz2")
+            par_labels[i_key].insert(0, r"NA$_{B_{z}}^2$")
+            data['NA_bz2_e']=np.zeros(data.shape[0]) # add no error on the number of entries
+            
+            data["NA_edm2"]=data['n']*(data['A_edm_blind']**2)
+            par_names[i_key].insert(0, "NA_edm2")
+            par_labels[i_key].insert(0, r"NA$_{\rm{EDM}}^2$")
+            data['NA_edm2_e']=np.zeros(data.shape[0]) # add no error on the number of entries
+
+
+        if(key=="truth"):
+            data["NA_bz2"]=data['n']*(data['A_Bz']**2)
+            par_names[i_key].insert(0, "NA_bz2")
+            par_labels[i_key].insert(0, r"NA$_{B_{z}}^2$")
+            data['NA_bz2_e']=np.zeros(data.shape[0]) # add no error on the number of entries
+            
+            
+            data["NA_edm2"]=data['n']*(data['A_edm']**2)
+            par_names[i_key].insert(0, "NA_edm2")
+            par_labels[i_key].insert(0, r"NA$_{\rm{EDM}}^2$")
+            data['NA_edm2_e']=np.zeros(data.shape[0]) # add no error on the number of entries
+
+
 
         for ds in dss:
             for station in stations:
@@ -151,7 +190,7 @@ def plot(direction="start", bidir=False, second_direction=None):
                         print( [x[i] for i, B in enumerate(y_s.isnull()) if B]) # y_s.isnull() list of T/F , B is on of T/F in that list, i is index of True, x[i] times of True
                     
                     #Plot 
-                    fig, ax = cu.plot(x, y, y_err=y_e, error=True, elw=2, label="S"+str(station)+": "+ds+" DS"+key_names[i_key], tight=True)
+                    fig, ax = cu.plot(x, y, y_err=y_e, error=True, elw=2, label="S"+str(station)+": "+ds+" DS "+key_names[i_key], tight=False)
                     ax.plot(x, y, marker=".", ms=10, c="g", lw=0)
                     sigma_index=0; band_P=y[sigma_index]+y_s; band_M=y[sigma_index]-y_s;
                     if(args.plot_end): sigma_index=len(y)-1; band_P=y[sigma_index]-np.flip(y_s); band_M=y[sigma_index]+np.flip(y_s)

@@ -145,9 +145,9 @@ def plot(x, y, x_err=None, y_err=None, fs=14, c="green",
     plt.xticks(fontsize=fs-1)
     plt.yticks(fontsize=fs-1)
     if(tight):
-        # fig.tight_layout()
+        fig.tight_layout()
         #make space for the colour bar
-        fig.tight_layout(rect=[0.02, 0.02, 0.98, 0.98])
+        # fig.tight_layout(rect=[0.1, 0.1, 0.9, 0.95])
 
     return fig, ax
 
@@ -259,8 +259,7 @@ def residual_plots(times_binned, residuals, sim=False, eL="", file_label="", sca
         ax.set_ylabel(y_label, fontsize=14);
         ax.set_xlabel(r"Time [$\mathrm{\mu}$s]", fontsize=14)
         ax.legend(fontsize=14)
-        if(not sim): plt.savefig("../fig/res/res"+file_label[i_station]+".png", dpi=300)
-        if(sim): plt.savefig("../fig/res_sim_S1218_"+eL+".png", dpi=300); 
+        plt.savefig("../fig/res/res"+file_label[i_station]+"_"+eL+".png", dpi=300)
 
 
 def fft(residuals, bin_w, sim=False, eL="", file_label="", scan_label=""):
@@ -334,9 +333,7 @@ def fft(residuals, bin_w, sim=False, eL="", file_label="", scan_label=""):
         ax.legend(fontsize=14, loc="best")
         ax.set_ylabel("FFT magnitude (normalised)", fontsize=14)
         ax.set_xlabel("Frequency [MHz]", fontsize=14)
-        if(not sim): plt.savefig("../fig/fft/fft"+file_label[i_station]+".png", dpi=300)
-        if(sim): plt.savefig("../fig/fft_sim_S1218_"+eL+".png", dpi=300)
-
+        plt.savefig("../fig/fft/fft"+file_label[i_station]+"_"+eL+".png", dpi=300)
 
 def get_freq_bin_c_from_data(data, bin_w, bin_range):
     '''

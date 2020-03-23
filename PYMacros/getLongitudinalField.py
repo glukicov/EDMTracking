@@ -19,8 +19,8 @@ import argparse
 
 
 arg_parser = argparse.ArgumentParser()
-# arg_parser.add_argument("--t_min", type=float, default=4.365411) # us 
-arg_parser.add_argument("--t_min", type=float, default=30.0) # us 
+arg_parser.add_argument("--t_min", type=float, default=4.365411) # us 
+# arg_parser.add_argument("--t_min", type=float, default=30.0) # us 
 arg_parser.add_argument("--t_max", type=float, default=199.985411) # us 
 arg_parser.add_argument("--p_min", type=float, default=1800) # us 
 arg_parser.add_argument("--p_max", type=float, default=3100) # us 
@@ -170,7 +170,9 @@ def plot_counts_theta(data):
                                      prec=3)
         
         if(sim): cu.textL(ax, 0.48, 0.35, leg_fit, c="r", fs=font_size+2); cu.textL(ax, 0.80, 0.75, leg_data, fs=font_size+1)
-        if(not sim): cu.textL(ax, 0.6, 0.35, leg_fit, c="r", fs=font_size+2); cu.textL(ax, 0.2, 0.75, leg_data, fs=font_size+1)
+        if(not sim): 
+            # cu.textL(ax, 0.6, 0.35, leg_fit, c="r", fs=font_size+2); 
+            cu.textL(ax, 0.2, 0.75, leg_data, fs=font_size+1)
         ax.set_ylim(np.amin(y)*0.9, np.amax(y)*1.1);
         ax.set_xlim(0, g2period);
         if(args.scan==False): fig.savefig("../fig/count_"+ds_name+"_S"+str(station)+".png", dpi=300)
@@ -245,7 +247,7 @@ def plot_counts_theta(data):
             ax.set_ylim(-np.amax(y)*1.4, np.amax(y)*1.2);
             if(not sim): ax.set_ylim(-np.amax(y)*2.5, np.amax(y)*2.5);
             cu.textL(ax, 0.75, 0.15, leg_data, fs=font_size)
-            cu.textL(ax, 0.25, 0.12, leg_fit, fs=font_size, c="r")
+            # cu.textL(ax, 0.25, 0.12, leg_fit, fs=font_size, c="r")
             if(args.scan==False): fig.savefig("../fig/bz_"+ds_name+"_S"+str(station)+".png", dpi=300)
 
             if(args.scan==True):
@@ -315,10 +317,10 @@ def plot_counts_theta(data):
     if(not args.scan):
         if (not args.count):
             print("Plotting residuals and FFTs...")
-            cu.residual_plots(times_counts, residuals_counts, sim=sim, eL="count", file_label=file_label+"count")
-            cu.fft(residuals_counts, bin_w, sim=sim, eL="count")
-            cu.residual_plots(times_theta, residuals_theta, sim=sim, eL="theta",  file_label=file_label+"theta")
-            cu.fft(residuals_theta, bin_w, sim=sim, eL="theta")
+            cu.residual_plots(times_counts, residuals_counts, sim=sim, eL="count", file_label=file_label)
+            cu.fft(residuals_counts, bin_w, sim=sim, eL="count", file_label=file_label)
+            cu.residual_plots(times_theta, residuals_theta, sim=sim, eL="theta",  file_label=file_label)
+            cu.fft(residuals_theta, bin_w, sim=sim, eL="theta", file_label=file_label)
 
 if __name__ == '__main__':
     main()
