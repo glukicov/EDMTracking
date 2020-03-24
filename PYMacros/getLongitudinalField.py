@@ -25,6 +25,7 @@ arg_parser.add_argument("--t_max", type=float, default=199.985411) # us
 arg_parser.add_argument("--p_min", type=float, default=1800) # us 
 arg_parser.add_argument("--p_max", type=float, default=3100) # us 
 arg_parser.add_argument("--bin_w", type=int, default=10) # ns 
+arg_parser.add_argument("--g2period", type=float, default=None) # us 
 arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/Sim/Sim.h5") 
 # arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/60h.h5", help="input data")
 arg_parser.add_argument("--corr", action='store_true', default=False, help="Save covariance matrix for plotting")
@@ -54,10 +55,9 @@ if(ds_name == "Sim"):
     print("Simulation data is loaded!"); sim=True; stations=([1218])
 
 #Set gm2 period 
-g2period = round(2*np.pi / cu._omega,6)   # 4.365411 us 
+if(args.g2period is None): g2period = round(2*np.pi / cu._omega,6); else: g2period=args.g2period   # 4.365411 us 
 print("g-2 period ", g2period, "us")
-# if(t_min<g2period):
-#     raise Exception("Set t_min>g2period for EDM reflection blinding to work")
+
 
 #Cuts 
 t_min = args.t_min # us 
@@ -170,9 +170,7 @@ def plot_counts_theta(data):
                                      prec=3)
         
         if(sim): cu.textL(ax, 0.48, 0.35, leg_fit, c="r", fs=font_size+2); cu.textL(ax, 0.80, 0.75, leg_data, fs=font_size+1)
-        if(not sim): 
-            # cu.textL(ax, 0.6, 0.35, leg_fit, c="r", fs=font_size+2); 
-            cu.textL(ax, 0.2, 0.75, leg_data, fs=font_size+1)
+        if(not sim): cu.textL(ax, 0.6, 0.35, leg_fit, c="r", fs=font_size+2); cu.textL(ax, 0.2, 0.75, leg_data, fs=font_size+1)
         ax.set_ylim(np.amin(y)*0.9, np.amax(y)*1.1);
         ax.set_xlim(0, g2period);
         if(args.scan==False): fig.savefig("../fig/count_"+ds_name+"_S"+str(station)+".png", dpi=300)
@@ -245,9 +243,9 @@ def plot_counts_theta(data):
                                          prec=2)
             ax.set_xlim(0, g2period);
             ax.set_ylim(-np.amax(y)*1.4, np.amax(y)*1.2);
-            if(not sim): ax.set_ylim(-np.amax(y)*2.5, np.amax(y)*2.5);
+            if(not sim): ax.set_ylim(-np.amax(y)*2.5, np.amax(y)*2.5)
             cu.textL(ax, 0.75, 0.15, leg_data, fs=font_size)
-            # cu.textL(ax, 0.25, 0.12, leg_fit, fs=font_size, c="r")
+            cu.textL(ax, 0.25, 0.12, leg_fit, fs=font_size, c="r")
             if(args.scan==False): fig.savefig("../fig/bz_"+ds_name+"_S"+str(station)+".png", dpi=300)
 
             if(args.scan==True):

@@ -21,8 +21,13 @@ arg_parser.add_argument("--all", action='store_true', default=False) # just run 
 arg_parser.add_argument("--start", action='store_true', default=False) 
 arg_parser.add_argument("--end", action='store_true', default=False) 
 arg_parser.add_argument("--p_min", action='store_true', default=False) 
+arg_parser.add_argument("--p_both", action='store_true', default=False) 
+arg_parser.add_argument("--period", action='store_true', default=False) 
 arg_parser.add_argument("--plot_start", action='store_true', default=False) 
 arg_parser.add_argument("--plot_end", action='store_true', default=False) 
+arg_parser.add_argument("--plot_p_min", action='store_true', default=False) 
+arg_parser.add_argument("--plot_p_both", action='store_true', default=False) 
+arg_parser.add_argument("--plot_period", action='store_true', default=False) 
 arg_parser.add_argument("--corr", action='store_true', default=False) 
 args=arg_parser.parse_args()
 
@@ -65,10 +70,18 @@ if(args.end):
     print("End times:", end_times)
 
 if(args.p_min):   
-    p_min = np.linspace(1200, 2200, 10, dtype=float)
-    print("End times:", end_times)
+    p_min = np.linspace(1000, 2400, 15, dtype=float)
+    print("P min:", p_min)
 
+if(args.p_both):
+    p_min = np.linspace(0, 1000, 11, dtype=float)
+    p_max = np.linspace(3100, 2100, 11, dtype=float)
+    print("P min:", p_min)
+    print("P max:", p_max)
 
+if(args.period):
+    period=np.linspace(4.3, 4.4, 12, dtype=float)
+    print("period:", period)
 
 in_=input("Start scans/plots?")
 
@@ -80,8 +93,15 @@ def main():
     if(args.all): all(DS_path)
     if(args.start): time_scan(DS_path, start_times)
     if(args.end): time_scan(DS_path, end_times)
+    if(args.p_min): time_scan(DS_path, p_min)
+
+    if(args.p_both): both_scan(DS_path, p_min, p_max)
+    
     if(args.plot_start): plot(direction="start")
     if(args.plot_end): plot(direction="stop")
+    if(args.plot_p_min): plot(direction="p_min")
+    if(args.plot_p_min): plot(direction="")
+    if(args.plot_p_both): plot(direction="p_min", bidir=True, second_direction="p_max")
     if(args.corr): corr()
 
 
@@ -94,10 +114,17 @@ def time_scan(DS_path, times):
     subprocess.Popen( ["trash"] + glob.glob("../fig/scans/*.png") )
     if (args.start==True): key_scan = "--t_min"
     if (args.end==True): key_scan = "--t_max"
+    if (args.p_min==True): key_scan = "--p_min"
     for path in DS_path:
         for time in times:
              subprocess.call(["python3", "getLongitudinalField.py", "--hdf", path, "--scan", key_scan, str(time)])
 
+def both_scan(DS_path, p_min, p_max):
+    subprocess.call(["trash"] + glob.glob("../DATA/scans/edm_scan*"))
+    subprocess.Popen( ["trash"] + glob.glob("../fig/scans/*.png") )
+    for path in DS_path:
+        for i, mom in enumerate(p_min):
+            subprocess.call(["python3", "getLongitudinalField.py", "--hdf", path, "--scan", "--p_min", str(p_min[i]), "--p_max",  str(p_max[i])])
 
 def plot(direction="start", bidir=False, second_direction=None):
     print("Making scan summary plot")
@@ -177,12 +204,17 @@ def plot(direction="start", bidir=False, second_direction=None):
                 # resolve paramters for plotting 
                 x=plot_data[direction]
 
+                if(bidir==True):
+                    x1=plot_data[direction]; x2=plot_data[second_direction]
+                    x=[str(int(x1[i]))+"-"+str(int(x2[i])) for i, s in enumerate(x1)]        
+
                 #loop over all parameters 
                 for i_par in range(len(par_names[i_key])):
                     print(par_names[i_key][i_par])
                     y=plot_data[par_names[i_key][i_par]] 
                     y_e=plot_data[par_names[i_key][i_par]+'_e'] 
                     y_s = np.sqrt(y_e**2-y_e[0]**2) # 1sigma band
+                    # y_s = np.sqrt(np.abs(y_e**2-y_e[0]**2)) # 1sigma band
                     if(args.plot_end): y_s = np.sqrt(y_e[0]**2-y_e**2); # 1sigma band
 
                     if(y_s.isnull().sum()>0): 
@@ -197,13 +229,18 @@ def plot(direction="start", bidir=False, second_direction=None):
                     ax.plot(x, band_P, c="r", ls=":", lw=2, label=r"$\sigma_{\Delta_{21}}$")
                     ax.plot(x, band_M, c="r", ls=":", lw=2)
                     # if(par_names[i_key][i_par]=='tau'): ax.plot([np.min(x)-2, np.max(x)+2], [64.44, 64.44], c="k", ls="--"); ax.set_ylim(np.min(y)-0.1, 64.6);
-                    if(par_names[i_key][i_par]=='chi2'): ax.plot([min(x)-2, max(x)+2], [1, 1], c="k", ls="--");
-                    ax.set_xlim(min(x)-2, max(x)+2)
+                    if(par_names[i_key][i_par]=='chi2' and not args.plot_p_both): ax.plot([min(x)-2, max(x)+2], [1, 1], c="k", ls="--");
+                    if(not args.plot_p_both): ax.set_xlim(min(x)-2, max(x)+2);
                     ax.set_xlabel(direction+r" time [$\rm{\mu}$s]", fontsize=font_size);
+                    if(args.plot_p_min): ax.set_xlabel(r"$p_{\rm{min}}$ [MeV]", fontsize=font_size);
+                    if(args.plot_p_both): 
+                        ax.set_xlabel(r"$p$ [MeV]", fontsize=font_size) 
+                        for tick in ax.get_xticklabels():
+                            tick.set_rotation(45)
                     ax.set_ylabel(par_labels[i_key][i_par], fontsize=font_size);
-                    ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.5, 1.1))
-                    fig.subplots_adjust(left=0.15)
-                    fig.savefig("../fig/scans_fom/"+direction+"_"+key+"_"+par_names[i_key][i_par]+"_S"+str(station)+"_"+str(ds)+".png", dpi=300);
+                    # ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.5, 1.1))
+                    ax.legend(fontsize=font_size, loc="best")
+                    fig.savefig("../fig/scans_fom/"+direction+"_"+key+"_"+par_names[i_key][i_par]+"_S"+str(station)+"_"+str(ds)+".png", dpi=300, bbox_inches='tight');
 
                     # look into parameters
                     #if(par_names[i_key][i_par]=='A_cbo'): print(y, y_e, y_s); sys.exit()
