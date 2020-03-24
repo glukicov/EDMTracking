@@ -23,12 +23,15 @@ arg_parser.add_argument("--end", action='store_true', default=False)
 arg_parser.add_argument("--p_min", action='store_true', default=False) 
 arg_parser.add_argument("--p_both", action='store_true', default=False) 
 arg_parser.add_argument("--period", action='store_true', default=False) 
+arg_parser.add_argument("--bins", action='store_true', default=False) 
 arg_parser.add_argument("--plot_start", action='store_true', default=False) 
 arg_parser.add_argument("--plot_end", action='store_true', default=False) 
 arg_parser.add_argument("--plot_p_min", action='store_true', default=False) 
 arg_parser.add_argument("--plot_p_both", action='store_true', default=False) 
 arg_parser.add_argument("--plot_period", action='store_true', default=False) 
+arg_parser.add_argument("--plot_bins", action='store_true', default=False) 
 arg_parser.add_argument("--corr", action='store_true', default=False) 
+arg_parser.add_argument("--band_off", action='store_true', default=False) 
 args=arg_parser.parse_args()
 
 ### Constants 
@@ -37,6 +40,7 @@ stations=([1218])
 dss = (["Sim"])
 keys=["count", "theta", "truth"]
 key_names=["(count)", r"($\theta$)", "(truth)"]
+g2period = round(2*np.pi / cu._omega,6)
 
 # DS_path = ("../DATA/HDF/EDM/60h.h5", "../DATA/HDF/EDM/9D.h5", "../DATA/HDF/EDM/HK.h5", "../DATA/HDF/EDM/EG.h5")
 # stations=(12, 18)
@@ -44,8 +48,8 @@ key_names=["(count)", r"($\theta$)", "(truth)"]
 # keys=["count", "theta"] # HDF5 keys of input scan result files 
 
 #plotting and retrieving from HDF5 
-par_names_count= ["N", "tau", "A", "phi"]; par_labels_count= [r"$N$ (count)", r"$\tau$", r"$A$", r"$\phi$"];
-par_names_theta= ["A_Bz", "A_edm_blind", "c"]; par_labels_theta= [r"$A_{B_{z}}$", r"$A^{\rm{BLINDED}}_{\mathrm{EDM}}$", r"$c$"]; 
+par_names_count= ["N", "tau", "A", "phi"]; par_labels_count= [r"$N$ (count)", r"$\tau$"+r"[$\rm{\mu}$s]", r"$A$", r"$\phi$ [rad]"];
+par_names_theta= ["A_Bz", "A_edm_blind", "c"]; par_labels_theta= [r"$A_{B_{z}}$ [mrad]", r"$A^{\rm{BLINDED}}_{\mathrm{EDM}}$ [mrad]", r"$c$ [mrad]"]; 
 par_names_theta_truth=par_names_theta.copy(); par_names_theta_truth[1]="A_edm"; par_labels_truth=par_labels_theta.copy(); par_labels_truth[1]=r"$A_{\mathrm{EDM}}$"
 par_labels=[par_labels_count, par_labels_theta, par_labels_truth]
 par_names=[par_names_count, par_names_theta, par_names_theta_truth] 
@@ -79,9 +83,13 @@ if(args.p_both):
     print("P min:", p_min)
     print("P max:", p_max)
 
-if(args.period):
-    period=np.linspace(4.3, 4.4, 12, dtype=float)
+if(args.period): 
+    period=np.linspace(g2period*(1-30e-6), g2period*(1+30e-6), 10, dtype=float)
     print("period:", period)
+
+if(args.bins): 
+    bins=np.linspace(5, 105, 11, dtype=float)
+    print("bins width [ns]:", bins)
 
 in_=input("Start scans/plots?")
 
@@ -94,13 +102,16 @@ def main():
     if(args.start): time_scan(DS_path, start_times)
     if(args.end): time_scan(DS_path, end_times)
     if(args.p_min): time_scan(DS_path, p_min)
+    if(args.period): time_scan(DS_path, period)
+    if(args.bins): time_scan(DS_path, bins)
 
     if(args.p_both): both_scan(DS_path, p_min, p_max)
     
     if(args.plot_start): plot(direction="start")
     if(args.plot_end): plot(direction="stop")
     if(args.plot_p_min): plot(direction="p_min")
-    if(args.plot_p_min): plot(direction="")
+    if(args.plot_period): plot(direction="g2period")
+    if(args.plot_bins): plot(direction="bin_w")
     if(args.plot_p_both): plot(direction="p_min", bidir=True, second_direction="p_max")
     if(args.corr): corr()
 
@@ -112,9 +123,11 @@ def all(DS_path):
 def time_scan(DS_path, times):
     subprocess.call(["trash"] + glob.glob("../DATA/scans/edm_scan*"))
     subprocess.Popen( ["trash"] + glob.glob("../fig/scans/*.png") )
-    if (args.start==True): key_scan = "--t_min"
-    if (args.end==True): key_scan = "--t_max"
-    if (args.p_min==True): key_scan = "--p_min"
+    if (args.start): key_scan = "--t_min"
+    if (args.end): key_scan = "--t_max"
+    if (args.p_min): key_scan = "--p_min"
+    if (args.period): key_scan = "--g2period"
+    if (args.bins): key_scan = "--bin_w"
     for path in DS_path:
         for time in times:
              subprocess.call(["python3", "getLongitudinalField.py", "--hdf", path, "--scan", key_scan, str(time)])
@@ -138,9 +151,9 @@ def plot(direction="start", bidir=False, second_direction=None):
         data = pd.read_csv("../DATA/scans/edm_scan_"+key+".csv")
         
         par_n=-1
-        if(data.shape[1] == 18):  par_n=3 # theta 
-        if(data.shape[1] == 17):  par_n=4 # count 
-        if(data.shape[1] == 15):  par_n=3 # truth 
+        if(data.shape[1] == 20):  par_n=3 # theta 
+        if(data.shape[1] == 19):  par_n=4 # count 
+        if(data.shape[1] == 17):  par_n=3 # truth 
         print("par_n =", par_n, "according to expected total columns")
         if(par_n!=len(par_names[i_key])): raise Exception("More parameters in scan data then expected names - expand!")
         if(par_n==--1): raise Exception("Scan data has less/more then expected parameters!")
@@ -189,7 +202,6 @@ def plot(direction="start", bidir=False, second_direction=None):
             data['NA_edm2_e']=np.zeros(data.shape[0]) # add no error on the number of entries
 
 
-
         for ds in dss:
             for station in stations:
                 # apply cuts and select data
@@ -204,9 +216,12 @@ def plot(direction="start", bidir=False, second_direction=None):
                 # resolve paramters for plotting 
                 x=plot_data[direction]
 
-                if(bidir==True):
+                if(bidir):
                     x1=plot_data[direction]; x2=plot_data[second_direction]
-                    x=[str(int(x1[i]))+"-"+str(int(x2[i])) for i, s in enumerate(x1)]        
+                    x=[str(int(x1[i]))+"-"+str(int(x2[i])) for i, s in enumerate(x1)]
+                
+                if(args.plot_bins): x=x*1e3 # us to ns     
+
 
                 #loop over all parameters 
                 for i_par in range(len(par_names[i_key])):
@@ -226,12 +241,27 @@ def plot(direction="start", bidir=False, second_direction=None):
                     ax.plot(x, y, marker=".", ms=10, c="g", lw=0)
                     sigma_index=0; band_P=y[sigma_index]+y_s; band_M=y[sigma_index]-y_s;
                     if(args.plot_end): sigma_index=len(y)-1; band_P=y[sigma_index]-np.flip(y_s); band_M=y[sigma_index]+np.flip(y_s)
-                    ax.plot(x, band_P, c="r", ls=":", lw=2, label=r"$\sigma_{\Delta_{21}}$")
-                    ax.plot(x, band_M, c="r", ls=":", lw=2)
+                    if(not args.band_off): ax.plot(x, band_P, c="r", ls=":", lw=2, label=r"$\sigma_{\Delta_{21}}$"); ax.plot(x, band_M, c="r", ls=":", lw=2)
                     # if(par_names[i_key][i_par]=='tau'): ax.plot([np.min(x)-2, np.max(x)+2], [64.44, 64.44], c="k", ls="--"); ax.set_ylim(np.min(y)-0.1, 64.6);
                     if(par_names[i_key][i_par]=='chi2' and not args.plot_p_both): ax.plot([min(x)-2, max(x)+2], [1, 1], c="k", ls="--");
-                    if(not args.plot_p_both): ax.set_xlim(min(x)-2, max(x)+2);
+                    if(not args.plot_p_both ): ax.set_xlim(min(x)-2, max(x)+2);
                     ax.set_xlabel(direction+r" time [$\rm{\mu}$s]", fontsize=font_size);
+                    if(args.plot_period): 
+                        ax.set_xlabel(r"$T_{g-2}$ "+r"[$\rm{\mu}$s]", fontsize=font_size); ax.set_xlim(min(x)*0.99999, max(x)*1.00001)
+                        x_ppm= ( (plot_data[direction]-g2period)/g2period ) * 1e6; 
+                        ax2 = ax.twiny()
+                        ax2.set_xlabel(r"$T_{g-2}$ "+r"(ppm)", fontsize=font_size-2);
+                        ax2.plot(x_ppm, y, lw=0, label=r"$\Delta=$"+str( int((abs(max(y)-min(y)))/(np.mean(y))*1e6 ))+" ppm" )
+                    
+                    if(args.plot_bins):
+                        ax.set_xlabel("Bin width [ns]", fontsize=font_size); ax.set_xlim(min(x)*0.9, max(x)*1.1)
+                        ax2=ax.twiny()
+                        # x2=np.flip(plot_data["ndf"])
+                        x2=plot_data["ndf"]
+                        ax2.set_xlabel("DoF (number of bins)", fontsize=font_size-2)
+                        ax2.plot(x2, y, lw=0)
+
+
                     if(args.plot_p_min): ax.set_xlabel(r"$p_{\rm{min}}$ [MeV]", fontsize=font_size);
                     if(args.plot_p_both): 
                         ax.set_xlabel(r"$p$ [MeV]", fontsize=font_size) 

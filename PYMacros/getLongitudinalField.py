@@ -55,7 +55,10 @@ if(ds_name == "Sim"):
     print("Simulation data is loaded!"); sim=True; stations=([1218])
 
 #Set gm2 period 
-if(args.g2period is None): g2period = round(2*np.pi / cu._omega,6); else: g2period=args.g2period   # 4.365411 us 
+if(args.g2period is None): 
+    g2period = round(2*np.pi / cu._omega,6) 
+else: 
+    g2period=args.g2period;   # 4.365411 us 
 print("g-2 period ", g2period, "us")
 
 
@@ -71,7 +74,7 @@ print("Momentum cuts:", p_min, "to", p_max, "MeV")
 bin_w = args.bin_w*1e-3 # 10 ns 
 # bin_n = 433 # TODO 
 bin_n = int( g2period/bin_w) # TODO 
-xy_bins=(bin_n, bin_n*2)
+xy_bins=(bin_n*3, bin_n*3)
 print("Setting bin width of", bin_w*1e3, "ns with ~", bin_n, "bins")
 
 #starting fit parameters and their labels for plotting 
@@ -179,8 +182,8 @@ def plot_counts_theta(data):
         # dump the parameters to a unique file for summary plots
         scan_label="_"+str(t_min)+"_"+str(t_max)+"_"+str(p_min)+"_"+str(p_max)+"_"+str(ndf)
         if(args.scan==True):
-            par_dump=np.array([[t_min], t_max, p_min, p_max, chi2_ndf, ndf, N, station, ds_name, *par, *par_e])
-            par_dump_keys = ["start", "stop", "p_min", "p_max", "chi2", "ndf", "n", "station", "ds"]
+            par_dump=np.array([[t_min], t_max, p_min, p_max, chi2_ndf, ndf, g2period, bin_w, N, station, ds_name, *par, *par_e])
+            par_dump_keys = ["start", "stop", "p_min", "p_max", "chi2", "ndf", "g2period", "bin_w", "n", "station", "ds"]
             par_dump_keys.extend(par_names_count)
             par_dump_keys.extend( [str(par)+"_e" for par in par_names_count] )
             dict_dump = dict(zip(par_dump_keys,par_dump))
@@ -249,8 +252,8 @@ def plot_counts_theta(data):
             if(args.scan==False): fig.savefig("../fig/bz_"+ds_name+"_S"+str(station)+".png", dpi=300)
 
             if(args.scan==True):
-                par_dump=np.array([[t_min], t_max, p_min, p_max, chi2_ndf, ndf, g2period, xy_bins[0], xy_bins[1], N, station, ds_name, *par, *par_e])
-                par_dump_keys = ["start", "stop", "p_min", "p_max", "chi2", "ndf", "g2period", "ndf_x", "ndf_y", "n", "station", "ds"]
+                par_dump=np.array([[t_min], t_max, p_min, p_max, chi2_ndf, ndf, g2period, bin_w, bin_n, xy_bins[0], xy_bins[1], N, station, ds_name, *par, *par_e])
+                par_dump_keys = ["start", "stop", "p_min", "p_max", "chi2", "ndf", "g2period", "bin_w", "bin_n", "ndf_x", "ndf_y", "n", "station", "ds"]
                 par_dump_keys.extend(par_names_theta)
                 par_dump_keys.extend( [str(par)+"_e" for par in par_names_theta] )
                 dict_dump = dict(zip(par_dump_keys,par_dump))
@@ -298,8 +301,8 @@ def plot_counts_theta(data):
             if(args.scan==False): fig.savefig("../fig/bz_truth_fit_S"+str(station)+".png", dpi=300)
 
             if(args.scan==True):
-                par_dump=np.array([[t_min], t_max, p_min, p_max, chi2_ndf, ndf, N, station, ds_name, *par, *par_e])
-                par_dump_keys = ["start", "stop", "p_min", "p_max", "chi2", "ndf", "n", "station", "ds"]
+                par_dump=np.array([[t_min], t_max, p_min, p_max, chi2_ndf, ndf, g2period, bin_w, N, station, ds_name, *par, *par_e])
+                par_dump_keys = ["start", "stop", "p_min", "p_max", "chi2", "ndf", "g2period", "bin_w", "n",  "station", "ds"]
                 par_dump_keys.extend(par_names_theta_truth)
                 par_dump_keys.extend( [str(par)+"_e" for par in par_names_theta_truth] )
                 dict_dump = dict(zip(par_dump_keys,par_dump))
