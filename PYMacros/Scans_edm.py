@@ -24,6 +24,8 @@ arg_parser.add_argument("--end", action='store_true', default=False)
 arg_parser.add_argument("--p_min", action='store_true', default=False) 
 arg_parser.add_argument("--p_both", action='store_true', default=False) 
 arg_parser.add_argument("--period", action='store_true', default=False) 
+arg_parser.add_argument("--phase", action='store_true', default=False) 
+arg_parser.add_argument("--lt", action='store_true', default=False) 
 arg_parser.add_argument("--bins", action='store_true', default=False) 
 
 arg_parser.add_argument("--plot_start", action='store_true', default=False) 
@@ -31,10 +33,13 @@ arg_parser.add_argument("--plot_end", action='store_true', default=False)
 arg_parser.add_argument("--plot_p_min", action='store_true', default=False) 
 arg_parser.add_argument("--plot_p_both", action='store_true', default=False) 
 arg_parser.add_argument("--plot_period", action='store_true', default=False) 
+arg_parser.add_argument("--plot_phase", action='store_true', default=False) 
+arg_parser.add_argument("--plot_lt", action='store_true', default=False) 
 arg_parser.add_argument("--plot_bins", action='store_true', default=False) 
 
 arg_parser.add_argument("--corr", action='store_true', default=False) 
 arg_parser.add_argument("--band_off", action='store_true', default=False) 
+arg_parser.add_argument("--abs", action='store_true', default=False) 
 args=arg_parser.parse_args()
 
 ### Constants 
@@ -46,7 +51,8 @@ args=arg_parser.parse_args()
 key_names=["(count)", r"($\theta$)", "(truth)"]
 g2period = round(2*np.pi / cu._omega,6)
 
-DS_path = ("../DATA/HDF/EDM/60h.h5", "../DATA/HDF/EDM/9D.h5", "../DATA/HDF/EDM/HK.h5", "../DATA/HDF/EDM/EG.h5")
+DS_path = (["../DATA/HDF/EDM/60h.h5"])
+# DS_path = ("../DATA/HDF/EDM/60h.h5", "../DATA/HDF/EDM/9D.h5", "../DATA/HDF/EDM/HK.h5", "../DATA/HDF/EDM/EG.h5")
 stations=(12, 18)
 dss = (["60h"]) 
 keys=["count", "theta"] # HDF5 keys of input scan result files 
@@ -61,10 +67,10 @@ par_names=[par_names_count, par_names_theta, par_names_theta_truth]
 
 if(args.start): 
     bin_w = 10*1e-3 # 150 ns
-    factor=50
+    factor=400
     step=bin_w*factor
-    start=0
-    stop_desired=10 # us 
+    start=30.56
+    stop_desired=60 # us 
     dt = stop_desired - start
     n_dt = int(dt/bin_w/factor) # how many whole (factor x bins) do we fit in that interval
     print("Will generate", n_dt+1, "start times between", start, "and", stop_desired, 'us')
@@ -75,7 +81,7 @@ if(args.start):
     in_=input("Start scans?")
 
 if(args.end):   
-    end_times = np.linspace(100, 300, 15, dtype=float)
+    end_times = np.linspace(300, 450, 9, dtype=float)
     print("End times:", end_times)
     in_=input("Start scans?")
 
@@ -96,23 +102,34 @@ if(args.period):
     print("period:", period)
     in_=input("Start scans?")
 
+if(args.phase): 
+    phase=np.linspace(2.060, 2.090, 10, dtype=float)
+    print("phase:", phase)
+    in_=input("Start scans?")
+
+if(args.lt): 
+    lt=np.linspace(56, 68, 10, dtype=float)
+    print("lifetime:", lt)
+    in_=input("Start scans?")
+
 if(args.bins): 
     bins=np.linspace(5, 26, 21, dtype=float)
     print("bins width [ns]:", bins)
     in_=input("Start scans?")
 
 
-
 def main():
     '''
     As a quick solution use sub process 
     '''
-    if(args.all): all(DS_path)
-    if(args.start): time_scan(DS_path, start_times)
-    if(args.end): time_scan(DS_path, end_times)
-    if(args.p_min): time_scan(DS_path, p_min)
-    if(args.period): time_scan(DS_path, period)
-    if(args.bins): time_scan(DS_path, bins)
+    if(args.all): all("../DATA/HDF/EDM/60h.h5", "../DATA/HDF/EDM/9D.h5", "../DATA/HDF/EDM/HK.h5", "../DATA/HDF/EDM/EG.h5")
+    if(args.start): time_scan(DS_path, start_times, "--t_min")
+    if(args.end): time_scan(DS_path, end_times, "--t_max")
+    if(args.p_min): time_scan(DS_path, p_min, "--p_min")
+    if(args.period): time_scan(DS_path, period, "--g2period")
+    if(args.phase): time_scan(DS_path, phase, "--phase")
+    if(args.lt): time_scan(DS_path, lt, "--lt")
+    if(args.bins): time_scan(DS_path, bins,  "--bin_w")
 
     if(args.p_both): both_scan(DS_path, p_min, p_max)
     
@@ -120,6 +137,8 @@ def main():
     if(args.plot_end): plot(direction="stop")
     if(args.plot_p_min): plot(direction="p_min")
     if(args.plot_period): plot(direction="g2period")
+    if(args.plot_phase): plot(direction="phase")
+    if(args.plot_lt): plot(direction="lt")
     if(args.plot_bins): plot(direction="bin_w")
     if(args.plot_p_both): plot(direction="p_min", bidir=True, second_direction="p_max")
     if(args.corr): corr()
@@ -129,14 +148,9 @@ def all(DS_path):
     for path in DS_path:
         subprocess.Popen(["python3", "getLongitudinalField.py", "--hdf", path])
 
-def time_scan(DS_path, times):
+def time_scan(DS_path, times, key_scan):
     subprocess.call(["trash"] + glob.glob("../DATA/scans/edm_scan*"))
     subprocess.Popen( ["trash"] + glob.glob("../fig/scans/*.png") )
-    if (args.start): key_scan = "--t_min"
-    if (args.end): key_scan = "--t_max"
-    if (args.p_min): key_scan = "--p_min"
-    if (args.period): key_scan = "--g2period"
-    if (args.bins): key_scan = "--bin_w"
     for path in DS_path:
         for time in times:
              subprocess.call(["python3", "getLongitudinalField.py", "--hdf", path, "--scan", key_scan, str(time)])
@@ -152,20 +166,22 @@ def plot(direction="start", bidir=False, second_direction=None):
     print("Making scan summary plot")
     subprocess.Popen( ["trash"] + glob.glob("../fig/scans_fom/*.png") )
     
+
     for i_key, key in enumerate(keys):
 
         print("Opening", key)
+        if( (args.plot_lt or args.plot_phase) and key!="theta"): continue # skip counts of doing LT or phase
 
         #the HDF5 has 3 keys 
         data = pd.read_csv("../DATA/scans/edm_scan_"+key+".csv")
         
         par_n=-1
-        if(data.shape[1] == 20):  par_n=3 # theta 
+        if(data.shape[1] == 22):  par_n=3 # theta 
         if(data.shape[1] == 19):  par_n=4 # count 
         if(data.shape[1] == 17):  par_n=3 # truth 
         print("par_n =", par_n, "according to expected total columns")
-        if(par_n!=len(par_names[i_key])): raise Exception("More parameters in scan data then expected names - expand!")
-        if(par_n==--1): raise Exception("Scan data has less/more then expected parameters!")
+        #if(par_n!=len(par_names[i_key])): raise Exception("More parameters in scan data then expected names - expand!")
+        if(par_n==-1): raise Exception("Scan data has less/more then expected parameters!")
 
         #resolve chi2 - a special parameter and add to data
         chi2 = data['chi2']
@@ -238,7 +254,7 @@ def plot(direction="start", bidir=False, second_direction=None):
                     y=plot_data[par_names[i_key][i_par]] 
                     y_e=plot_data[par_names[i_key][i_par]+'_e'] 
                     y_s = np.sqrt(y_e**2-y_e[0]**2) # 1sigma band
-                    # y_s = np.sqrt(np.abs(y_e**2-y_e[0]**2)) # 1sigma band
+                    if(args.abs): y_s = np.sqrt(np.abs(y_e**2-y_e[0]**2)) # 1sigma band
                     if(args.plot_end): y_s = np.sqrt(y_e[0]**2-y_e**2); # 1sigma band
 
                     if(y_s.isnull().sum()>0): 
@@ -255,6 +271,10 @@ def plot(direction="start", bidir=False, second_direction=None):
                     if(par_names[i_key][i_par]=='chi2' and not args.plot_p_both): ax.plot([min(x)-2, max(x)+2], [1, 1], c="k", ls="--");
                     if(not args.plot_p_both ): ax.set_xlim(min(x)-2, max(x)+2);
                     ax.set_xlabel(direction+r" time [$\rm{\mu}$s]", fontsize=font_size);
+                    
+                    if(args.plot_lt): ax.set_xlabel(r"$\tau$"+r" [$\rm{\mu}$s]", fontsize=font_size); ax.set_xlim(min(x)*0.95, max(x)*1.05)
+                    if(args.plot_phase): ax.set_xlabel(r"$\phi$"+r" [rad]", fontsize=font_size); ax.set_xlim(min(x)*0.999, max(x)*1.001)
+
                     if(args.plot_period): 
                         ax.set_xlabel(r"$T_{g-2}$ "+r"[$\rm{\mu}$s]", fontsize=font_size); ax.set_xlim(min(x)*0.99999, max(x)*1.00001)
                         x_ppm= ( (plot_data[direction]-g2period)/g2period ) * 1e6; 

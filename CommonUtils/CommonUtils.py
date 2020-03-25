@@ -41,7 +41,7 @@ sigmaS=r"$\sigma$"
 chi2ndfS=r"$\frac{\chi^2}{DoF}$"
 
 
-def plotHist(data, n_bins=100, prec=2, fs=14, units="units", c="green", alpha=0.7):
+def plotHist(data, n_bins=100, prec=2, fs=14, units="units", c="green", alpha=0.7, label=""):
     '''
     Input is a 1D array
 
@@ -55,7 +55,7 @@ def plotHist(data, n_bins=100, prec=2, fs=14, units="units", c="green", alpha=0.
     legend = legend5(N, mean, meanE, sd, sdE, units, prec=prec) # return legend string 
 
     # seaborn hist plot with input pars
-    ax = sns.distplot(data, bins=n_bins, hist=True, kde=False, color=c, hist_kws={"alpha": alpha})
+    ax = sns.distplot(data, bins=n_bins, hist=True, kde=False, color=c, hist_kws={"alpha": alpha}, label=label)
    
     # make a nice looking plot as default 
     ax.set_xlabel(xlabel="", fontsize=fs)
@@ -70,7 +70,7 @@ def plotHist(data, n_bins=100, prec=2, fs=14, units="units", c="green", alpha=0.
     return ax, legend
 
 
-def plotHist2D(x, y, n_binsXY=(100, 100), prec=2, fs=14, units="units", figsize=(10, 10), cmap=plt.cm.jet, cmin=1):
+def plotHist2D(x, y, n_binsXY=(100, 100), prec=2, fs=14, unitsXY=("unitsX", "unitsY"), figsize=(10, 10), cmap=plt.cm.jet, cmin=1, label=""):
     '''
     Inputs are two 1D arrays
 
@@ -83,13 +83,13 @@ def plotHist2D(x, y, n_binsXY=(100, 100), prec=2, fs=14, units="units", figsize=
     '''
     # 4DoF stats in X and Y 
     Nx, meanx, meanEx, sdx, sdEx = stats5(x)
-    legendX = legend4(meanx, meanEx, sdx, sdEx, units, prec=prec) # return legend string x
+    legendX = legend4(meanx, meanEx, sdx, sdEx, unitsXY[0], prec=prec) # return legend string x
     Ny, meany, meanEy, sdy, sdEy = stats5(y)
-    legendY = legend4(meany, meanEy, sdy, sdEy, units, prec=prec) # return legend string y
+    legendY = legend4(meany, meanEy, sdy, sdEy, unitsXY[1], prec=prec) # return legend string y
 
     # the return in JointGrid (not axes)
     # fig : jg.fig, axes : jg.ax_joint
-    jg = sns.jointplot(x=x, y=y)
+    jg = sns.jointplot(x=x, y=y, label=label)
     jg.fig.set_size_inches(figsize[0], figsize[1])
     jg.ax_joint.cla() # clear 
     plt.sca(jg.ax_joint) # join 
@@ -577,7 +577,7 @@ def legend5(N, mean, meanE, sd, sdE, units, prec=4):
     form a string from 5 stats inputs with given precision
     '''
     # form raw string with Latex
-    legend = "N={0:d}".format(N)+"\n"+str(meanS)+"={0:.{prec}f}({1:d}) ".format(mean, int(round(meanE*10**prec)), prec=prec)+units+"\n"+str(sigmaS)+"={0:.{prec}f}({1:d}) ".format(sd, int(round(sdE*10**prec)), prec=prec)+units
+    legend = "N="+str(sci_notation(N))+"\n"+str(meanS)+"={0:.{prec}f}({1:d}) ".format(mean, int(round(meanE*10**prec)), prec=prec)+units+"\n"+str(sigmaS)+"={0:.{prec}f}({1:d}) ".format(sd, int(round(sdE*10**prec)), prec=prec)+units
     return legend
 
 def legend4(mean, meanE, sd, sdE, units, prec=4):

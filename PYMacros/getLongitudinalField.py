@@ -20,17 +20,20 @@ import argparse
 
 arg_parser = argparse.ArgumentParser()
 # arg_parser.add_argument("--t_min", type=float, default=4.3) # us 
-arg_parser.add_argument("--t_min", type=float, default=30.0) # us 
-arg_parser.add_argument("--t_max", type=float, default=450) # us 
+arg_parser.add_argument("--t_min", type=float, default=30.56) # us 
+arg_parser.add_argument("--t_max", type=float, default=420) # us 
 arg_parser.add_argument("--p_min", type=float, default=1800) # us 
 arg_parser.add_argument("--p_max", type=float, default=3100) # us 
 arg_parser.add_argument("--bin_w", type=float, default=10) # ns 
 arg_parser.add_argument("--g2period", type=float, default=None) # us 
+arg_parser.add_argument("--phase", type=float, default=None) # us 
+arg_parser.add_argument("--lt", type=float, default=None) # us 
 # arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/Sim/Sim.h5") 
 arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/60h.h5", help="input data")
 arg_parser.add_argument("--corr", action='store_true', default=False, help="Save covariance matrix for plotting")
 arg_parser.add_argument("--scan", action='store_true', default=False, help="if run externally for iterative scans - dump 𝝌2 and fitted pars to a file for summary plots") 
 arg_parser.add_argument("--count", action='store_true', default=False)
+arg_parser.add_argument("--hist", action='store_true', default=False)
 args=arg_parser.parse_args()
 
 ### Define constants and starting fit parameters
@@ -55,7 +58,7 @@ if(ds_name == "Sim"):
     print("Simulation data is loaded!"); sim=True; stations=([1218])
 
 #Set gm2 period 
-if(args.g2period is None): 
+if(args.g2period == None): 
     g2period = round(2*np.pi / cu._omega,6) 
 else: 
     g2period=args.g2period;   # 4.365411 us 
@@ -79,7 +82,7 @@ print("Setting bin width of", bin_w*1e3, "ns with ~", bin_n, "bins")
 par_names_count= ["N", "tau", "A", "phi"]; par_labels_count= [r"$N$", r"$\tau$", r"$A$", r"$\phi$"]; par_units_count=[" ",  r"$\rm{\mu}$s", " ", "rad"]
 par_names_theta= ["A_Bz", "A_edm_blind", "c"]; par_labels_theta= [r"$A_{B_{z}}$", r"$A^{\rm{BLINDED}}_{\mathrm{EDM}}$", r"$c$"]; par_units_theta=["mrad", "mrad", "mrad"]
 par_names_theta_truth=par_names_theta.copy(); par_names_theta_truth[1]="A_edm"; par_labels_truth=par_labels_theta.copy(); par_labels_truth[1]=r"$A_{\mathrm{EDM}}$"
-p0_count=[ [7000, 63.251, 0.339, 2.057], [12498, 64.183, 0.341, 2.074]]
+p0_count=[ [10000, 64.4, 0.339, 2.057], [12498, 64.4, 0.341, 2.074]]
 p0_theta_blinded=[ [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]
 if(sim): 
     p0_count=[ [3000, 64.4, -0.40, 6.240], [3000, 64.4, -0.40, 6.240]]
@@ -195,9 +198,15 @@ def plot_counts_theta(data):
         times_counts[i_station] = x
 
         ### Set constant phase for the next step
-        cu._LT=par[1]
+        if(args.lt == None): 
+            cu._LT=par[1]
+        else:
+            cu._LT=args.lt
         print("LT set to", round(cu._LT,2), "us")
-        cu._phi=par[-1]
+        if(args.phase == None):
+            cu._phi=par[-1]
+        else:
+            cu._phi=args.phase
         print("Phase set to", round(cu._phi,2), "rad")
 
         # cu._LT=64.44
@@ -241,17 +250,17 @@ def plot_counts_theta(data):
                                          legend_fit=r'Fit: $\langle \theta(t) \rangle =  A_{\mathrm{B_z}}\cos(\omega_a t + \phi) + A_{\mathrm{EDM}}\sin(\omega_a t + \phi) + c$',
                                          ylabel=r"$\langle\theta_y\rangle$ [mrad] per "+str(int(bin_w*1e3))+" ns",
                                          font_size=font_size,
-                                         prec=2)
+                                         prec=3)
             ax.set_xlim(0, g2period);
-            ax.set_ylim(-np.amax(y)*1.4, np.amax(y)*1.2);
-            if(not sim): ax.set_ylim(-np.amax(y)*2.5, np.amax(y)*2.5)
+            ax.set_ylim(ax.get_ylim()[0]*1.2, ax.get_ylim()[1]*1.2);
+            if(not sim): ax.set_ylim(ax.get_ylim()[0]*1.2, ax.get_ylim()[1]*1.2)
             cu.textL(ax, 0.75, 0.15, leg_data, fs=font_size)
             cu.textL(ax, 0.25, 0.12, leg_fit, fs=font_size, c="r")
             if(args.scan==False): fig.savefig("../fig/bz_"+ds_name+"_S"+str(station)+".png", dpi=300)
 
             if(args.scan==True):
-                par_dump=np.array([[t_min], t_max, p_min, p_max, chi2_ndf, ndf, g2period, bin_w, bin_n, xy_bins[0], xy_bins[1], N, station, ds_name, *par, *par_e])
-                par_dump_keys = ["start", "stop", "p_min", "p_max", "chi2", "ndf", "g2period", "bin_w", "bin_n", "ndf_x", "ndf_y", "n", "station", "ds"]
+                par_dump=np.array([[t_min], t_max, p_min, p_max, chi2_ndf, ndf, g2period, cu._LT, cu._phi,  bin_w, bin_n, xy_bins[0], xy_bins[1], N, station, ds_name, *par, *par_e])
+                par_dump_keys = ["start", "stop", "p_min", "p_max", "chi2", "ndf", "g2period", "lt", "phase", "bin_w", "bin_n", "ndf_x", "ndf_y", "n", "station", "ds"]
                 par_dump_keys.extend(par_names_theta)
                 par_dump_keys.extend( [str(par)+"_e" for par in par_names_theta] )
                 dict_dump = dict(zip(par_dump_keys,par_dump))
@@ -264,6 +273,37 @@ def plot_counts_theta(data):
             # get residuals for later plots 
             residuals_theta[i_station] = cu.residuals(x, y, cu.thetaY_phase, par)
             times_theta[i_station] = x
+
+
+        #make sanity plots 
+        if(not sim and args.hist):
+            
+            fig, _ = plt.subplots()
+            ax, legend = cu.plotHist(ang, n_bins=400, prec=3, units="mrad", label="S"+str(station) )
+            cu.textL(ax, 0.8, 0.85, str(legend), fs=14)
+            ax.set_xlim(-50,50)
+            ax.set_xlabel(r"$\theta_y$ [mrad]", fontsize=font_size);
+            ax.legend(fontsize=font_size, loc="upper left")
+            fig.savefig("../fig/theta_"+ds_name+"_S"+str(station)+".png", dpi=300, bbox_inches='tight')
+
+            fig, _ = plt.subplots()
+            jg, cb, legendX, legendY = cu.plotHist2D(data_station['trackT0'], ang, n_binsXY=(400,600), prec=3, unitsXY=(r"[$\rm{\mu}$s]", "mrad"), label="S"+str(station) )
+            cu.textL(ax, 0.8, 0.85, str(legend), fs=14)
+            jg.ax_joint.set_xlim(args.t_min, 140)
+            jg.ax_joint.set_ylim(-50, 50)
+            jg.ax_joint.set_ylabel(r"$\theta_y$ [mrad]", fontsize=font_size);
+            jg.ax_joint.set_xlabel(r"t [$\rm{\mu}$s]", fontsize=font_size);
+            plt.savefig("../fig/theta2D_"+ds_name+"_S"+str(station)+".png", dpi=300, bbox_inches='tight')
+
+
+            fig, _ = plt.subplots()
+            jg, cb, legendX, legendY = cu.plotHist2D(data_station['mod_times'], ang, n_binsXY=(400,600), prec=3, unitsXY=(r"[$\rm{\mu}$s]", "mrad"), label="S"+str(station) )
+            cu.textL(ax, 0.8, 0.85, str(legend), fs=14)
+            jg.ax_joint.set_xlim(0.5, g2period+0.5)
+            jg.ax_joint.set_ylim(-50, 50)
+            jg.ax_joint.set_ylabel(r"$\theta_y$ [mrad]", fontsize=font_size);
+            jg.ax_joint.set_xlabel(r"$t^{mod}_{g-2}$"+r"[$\rm{\mu}$s]", fontsize=font_size);
+            plt.savefig("../fig/theta2D_mod_"+ds_name+"_S"+str(station)+".png", dpi=300, bbox_inches='tight')
 
             
         #############
