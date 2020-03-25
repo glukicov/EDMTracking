@@ -19,15 +19,15 @@ import argparse
 
 
 arg_parser = argparse.ArgumentParser()
-arg_parser.add_argument("--t_min", type=float, default=4.365411) # us 
-# arg_parser.add_argument("--t_min", type=float, default=30.0) # us 
-arg_parser.add_argument("--t_max", type=float, default=199.985411) # us 
+# arg_parser.add_argument("--t_min", type=float, default=4.3) # us 
+arg_parser.add_argument("--t_min", type=float, default=30.0) # us 
+arg_parser.add_argument("--t_max", type=float, default=450) # us 
 arg_parser.add_argument("--p_min", type=float, default=1800) # us 
 arg_parser.add_argument("--p_max", type=float, default=3100) # us 
-arg_parser.add_argument("--bin_w", type=int, default=10) # ns 
+arg_parser.add_argument("--bin_w", type=float, default=10) # ns 
 arg_parser.add_argument("--g2period", type=float, default=None) # us 
-arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/Sim/Sim.h5") 
-# arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/60h.h5", help="input data")
+# arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/Sim/Sim.h5") 
+arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/60h.h5", help="input data")
 arg_parser.add_argument("--corr", action='store_true', default=False, help="Save covariance matrix for plotting")
 arg_parser.add_argument("--scan", action='store_true', default=False, help="if run externally for iterative scans - dump 𝝌2 and fitted pars to a file for summary plots") 
 arg_parser.add_argument("--count", action='store_true', default=False)
@@ -72,9 +72,7 @@ print("Momentum cuts:", p_min, "to", p_max, "MeV")
 
 #binning 
 bin_w = args.bin_w*1e-3 # 10 ns 
-# bin_n = 433 # TODO 
-bin_n = int( g2period/bin_w) # TODO 
-xy_bins=(bin_n*3, bin_n*3)
+bin_n = int( g2period/bin_w)
 print("Setting bin width of", bin_w*1e3, "ns with ~", bin_n, "bins")
 
 #starting fit parameters and their labels for plotting 
@@ -218,8 +216,8 @@ def plot_counts_theta(data):
             ang=data_station['theta_y_mrad']
 
             ### Digitise data with weights
-            # xy_bins=(bin_n, bin_n*2) # TODO 
-            h,xedges,yedges  = np.histogram2d(tmod_abs, ang, weights=weights, bins= xy_bins);
+            xy_bins=(bin_n, bin_n)
+            h,xedges,yedges  = np.histogram2d(tmod_abs, ang, weights=weights, bins=xy_bins);
             
             # expand 
             (x_w, y_w), binsXY, dBinXY = ru.hist2np(h, (xedges,yedges))

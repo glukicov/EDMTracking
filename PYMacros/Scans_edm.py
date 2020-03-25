@@ -18,34 +18,38 @@ import seaborn as sn
 #Input fitting parameters 
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("--all", action='store_true', default=False) # just run all 4 DS 
+
 arg_parser.add_argument("--start", action='store_true', default=False) 
 arg_parser.add_argument("--end", action='store_true', default=False) 
 arg_parser.add_argument("--p_min", action='store_true', default=False) 
 arg_parser.add_argument("--p_both", action='store_true', default=False) 
 arg_parser.add_argument("--period", action='store_true', default=False) 
 arg_parser.add_argument("--bins", action='store_true', default=False) 
+
 arg_parser.add_argument("--plot_start", action='store_true', default=False) 
 arg_parser.add_argument("--plot_end", action='store_true', default=False) 
 arg_parser.add_argument("--plot_p_min", action='store_true', default=False) 
 arg_parser.add_argument("--plot_p_both", action='store_true', default=False) 
 arg_parser.add_argument("--plot_period", action='store_true', default=False) 
 arg_parser.add_argument("--plot_bins", action='store_true', default=False) 
+
 arg_parser.add_argument("--corr", action='store_true', default=False) 
 arg_parser.add_argument("--band_off", action='store_true', default=False) 
 args=arg_parser.parse_args()
 
 ### Constants 
-DS_path = (["../DATA/HDF/Sim/Sim.h5"])
-stations=([1218])
-dss = (["Sim"])
-keys=["count", "theta", "truth"]
+# DS_path = (["../DATA/HDF/Sim/Sim.h5"])
+# stations=([1218])
+# dss = (["Sim"])
+# keys=["count", "theta", "truth"]
+
 key_names=["(count)", r"($\theta$)", "(truth)"]
 g2period = round(2*np.pi / cu._omega,6)
 
-# DS_path = ("../DATA/HDF/EDM/60h.h5", "../DATA/HDF/EDM/9D.h5", "../DATA/HDF/EDM/HK.h5", "../DATA/HDF/EDM/EG.h5")
-# stations=(12, 18)
-# dss = (["60h"]) 
-# keys=["count", "theta"] # HDF5 keys of input scan result files 
+DS_path = ("../DATA/HDF/EDM/60h.h5", "../DATA/HDF/EDM/9D.h5", "../DATA/HDF/EDM/HK.h5", "../DATA/HDF/EDM/EG.h5")
+stations=(12, 18)
+dss = (["60h"]) 
+keys=["count", "theta"] # HDF5 keys of input scan result files 
 
 #plotting and retrieving from HDF5 
 par_names_count= ["N", "tau", "A", "phi"]; par_labels_count= [r"$N$ (count)", r"$\tau$"+r"[$\rm{\mu}$s]", r"$A$", r"$\phi$ [rad]"];
@@ -57,7 +61,7 @@ par_names=[par_names_count, par_names_theta, par_names_theta_truth]
 
 if(args.start): 
     bin_w = 10*1e-3 # 150 ns
-    factor=40
+    factor=50
     step=bin_w*factor
     start=0
     stop_desired=10 # us 
@@ -68,30 +72,35 @@ if(args.start):
     print("Adjusted last start time ",stop)
     start_times = np.arange(start, stop, step, dtype=float)
     print("Start times:", start_times)
+    in_=input("Start scans?")
 
 if(args.end):   
     end_times = np.linspace(100, 300, 15, dtype=float)
     print("End times:", end_times)
+    in_=input("Start scans?")
 
 if(args.p_min):   
     p_min = np.linspace(1000, 2400, 15, dtype=float)
     print("P min:", p_min)
+    in_=input("Start scans?")
 
 if(args.p_both):
     p_min = np.linspace(0, 1000, 11, dtype=float)
     p_max = np.linspace(3100, 2100, 11, dtype=float)
     print("P min:", p_min)
     print("P max:", p_max)
+    in_=input("Start scans?")
 
 if(args.period): 
     period=np.linspace(g2period*(1-30e-6), g2period*(1+30e-6), 10, dtype=float)
     print("period:", period)
+    in_=input("Start scans?")
 
 if(args.bins): 
-    bins=np.linspace(5, 105, 11, dtype=float)
+    bins=np.linspace(5, 26, 21, dtype=float)
     print("bins width [ns]:", bins)
+    in_=input("Start scans?")
 
-in_=input("Start scans/plots?")
 
 
 def main():
