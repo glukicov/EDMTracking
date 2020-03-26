@@ -50,7 +50,7 @@ args=arg_parser.parse_args()
 # keys=["count", "theta", "truth"]
 
 key_names=["(count)", r"($\theta$)", "(truth)"]
-g2period = round(2*np.pi / cu._omega,6)
+g2period  = round(1/0.2290735,6) 
 
 DS_path = (["../DATA/HDF/EDM/60h.h5"])
 # DS_path = ("../DATA/HDF/EDM/60h.h5", "../DATA/HDF/EDM/9D.h5", "../DATA/HDF/EDM/HK.h5", "../DATA/HDF/EDM/EG.h5")
@@ -99,22 +99,23 @@ if(args.p_minp_max):
     in_=input("Start scans?")
 
 if(args.g2period): 
-    period=np.linspace(g2period*(1-30e-6), g2period*(1+30e-6), 10, dtype=float)
+    # period=np.linspace(4.2, 4.4, 11, dtype=float)
+    period=np.linspace(g2period*(1-30e-6), g2period*(1+30e-6), 11, dtype=float)
     print("period:", period)
     in_=input("Start scans?")
 
 if(args.phase): 
-    phase=np.linspace(2.060, 2.090, 10, dtype=float)
+    phase=np.linspace(2.060, 2.090, 11, dtype=float)
     print("phase:", phase)
     in_=input("Start scans?")
 
 if(args.lt): 
-    lt=np.linspace(56, 68, 10, dtype=float)
+    lt=np.linspace(56, 68, 11, dtype=float)
     print("lifetime:", lt)
     in_=input("Start scans?")
 
 if(args.bin_w): 
-    bins=np.linspace(5, 25, 11, dtype=float)
+    bins=np.linspace(5, 25, 21, dtype=float)
     print("bins width [ns]:", bins)
     in_=input("Start scans?")
 
@@ -244,6 +245,7 @@ def plot(direction="start", bidir=False, second_direction=None):
                 if(np.max(plot_data.isnull().sum()) > 0): raise Exception("NaNs detected, make method to treat those...")
 
                 # resolve paramters for plotting 
+                if(args.plot_bin_w):   plot_data=plot_data.sort_values(by=['ndf'],  ascending=False);  plot_data=plot_data.reset_index()
                 x=plot_data[direction]
                 dirName=direction
 
@@ -259,7 +261,8 @@ def plot(direction="start", bidir=False, second_direction=None):
 
                 
                 
-                if(args.plot_bin_w): x=x*1e3 # us to ns     
+                if(args.plot_bin_w): 
+                    x=x*1e3 # us to ns     
 
 
                 #loop over all parameters 
@@ -290,19 +293,25 @@ def plot(direction="start", bidir=False, second_direction=None):
                     if(args.plot_phase): ax.set_xlabel(r"$\phi$"+r" [rad]", fontsize=font_size); ax.set_xlim(min(x)*0.999, max(x)*1.001)
 
                     if(args.plot_g2period): 
-                        ax.set_xlabel(r"$T_{g-2}$ "+r"[$\rm{\mu}$s]", fontsize=font_size); ax.set_xlim(min(x)*0.99999, max(x)*1.00001)
+                        ax.set_xlabel(r"$T_{g-2}$ "+r"[$\rm{\mu}$s]", fontsize=font_size); ax.set_xlim(min(x)*0.99999, max(x)*1.00001); plt.xticks(fontsize=12)
                         x_ppm= ( (plot_data[direction]-g2period)/g2period ) * 1e6; 
                         ax2 = ax.twiny()
                         ax2.set_xlabel(r"$T_{g-2}$ "+r"(ppm)", fontsize=font_size-2);
                         ax2.plot(x_ppm, y, lw=0, label=r"$\Delta=$"+str( int((abs(max(y)-min(y)))/(np.mean(y))*1e6 ))+" ppm" )
                     
                     if(args.plot_bin_w):
-                        ax.set_xlabel("Bin width [ns]", fontsize=font_size); ax.set_xlim(min(x)*0.9, max(x)*1.1)
-                        # ax2=ax.twiny()
-                        # # x2=np.flip(plot_data["ndf"])
-                        # x2=plot_data["ndf"]
-                        # ax2.set_xlabel("DoF (number of bins)", fontsize=font_size-2)
-                        # ax2.plot(x2, y, lw=0)
+                        ax.set_xlabel("Bin width [ns]", fontsize=font_size); 
+                        ax2=ax.twiny()
+                        x2=np.array(plot_data["ndf"])
+                        #print(station, x2)
+                        #ax2.plot(np.flip(x2, y, lw)
+                        ax2.set_xticks(x)
+                        ax2.set_xticklabels(x2)
+                        ax2.set_xlabel("DoF (number of bins)", fontsize=font_size-2)
+                        
+                        # ax.set_xlim(min(x)*0.9, max(x)*1.1)
+                        ax2.set_xlim(min(x)*0.9, max(x)*1.1)
+    
 
 
                     if(args.plot_p_min): ax.set_xlabel(r"$p_{\rm{min}}$ [MeV]", fontsize=font_size);  ax.set_xlim(min(x)*0.95, max(x)*1.05)
@@ -319,8 +328,8 @@ def plot(direction="start", bidir=False, second_direction=None):
                     #if(par_names[i_key][i_par]=='A_cbo'): print(y, y_e, y_s); sys.exit()
 
     #when done reading the file - backup
-    subprocess.call(["mv", "../DATA/scans/edm_scan_count.csv", "../DATA/scans/edm_scan_count_"+dirName+".csv"]) # backup previous file
-    subprocess.call(["mv", "../DATA/scans/edm_scan_theta.csv", "../DATA/scans/edm_scan_theta_"+dirName+".csv"]) # backup previous file
+    # subprocess.call(["mv", "../DATA/scans/edm_scan_count.csv", "../DATA/scans/edm_scan_count_"+dirName+".csv"]) # backup previous file
+    # subprocess.call(["mv", "../DATA/scans/edm_scan_theta.csv", "../DATA/scans/edm_scan_theta_"+dirName+".csv"]) # backup previous file
             
 def corr():
     '''
