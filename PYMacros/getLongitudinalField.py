@@ -21,7 +21,7 @@ import argparse
 arg_parser = argparse.ArgumentParser()
 # arg_parser.add_argument("--t_min", type=float, default=4.3) # us 
 arg_parser.add_argument("--t_min", type=float, default=30.56) # us 
-arg_parser.add_argument("--t_max", type=float, default=420) # us 
+arg_parser.add_argument("--t_max", type=float, default=450) # us 
 arg_parser.add_argument("--p_min", type=float, default=1800) # us 
 arg_parser.add_argument("--p_max", type=float, default=3100) # us 
 arg_parser.add_argument("--bin_w", type=float, default=10) # ns 
@@ -59,11 +59,12 @@ if(ds_name == "Sim"):
 
 #Set gm2 period 
 if(args.g2period == None): 
-    g2period = round(2*np.pi / cu._omega,6) 
+    g2period = round(1/0.2290735,6) 
 else: 
     g2period=args.g2period;   # 4.365411 us 
 print("g-2 period ", g2period, "us")
-
+cu._omega=round(2*np.pi/g2period, 6) # rad/us (magic) 
+print("Magic omega set to", cu._omega, "MHz")
 
 #Cuts 
 t_min = args.t_min # us 
@@ -80,7 +81,7 @@ print("Setting bin width of", bin_w*1e3, "ns with ~", bin_n, "bins")
 
 #starting fit parameters and their labels for plotting 
 par_names_count= ["N", "tau", "A", "phi"]; par_labels_count= [r"$N$", r"$\tau$", r"$A$", r"$\phi$"]; par_units_count=[" ",  r"$\rm{\mu}$s", " ", "rad"]
-par_names_theta= ["A_Bz", "A_edm_blind", "c"]; par_labels_theta= [r"$A_{B_{z}}$", r"$A^{\rm{BLINDED}}_{\mathrm{EDM}}$", r"$c$"]; par_units_theta=["mrad", "mrad", "mrad"]
+par_names_theta= ["A_Bz", "A_edm_blind", "c"]; par_labels_theta= [r"$A_{B_{z}}$", r"$A^{\rm{BLINDED}}_{\mathrm{EDM}}$", r"$c$"]; par_units_theta=[r"$\rm{\mu}$rad", r"$\rm{\mu}$rad", r"$\rm{\mu}$rad"]
 par_names_theta_truth=par_names_theta.copy(); par_names_theta_truth[1]="A_edm"; par_labels_truth=par_labels_theta.copy(); par_labels_truth[1]=r"$A_{\mathrm{EDM}}$"
 p0_count=[ [10000, 64.4, 0.339, 2.057], [12498, 64.4, 0.341, 2.074]]
 p0_theta_blinded=[ [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]
@@ -129,7 +130,7 @@ def load_data(df_path):
     py=data_hdf['trackMomentumY']
     t=data_hdf['trackT0']
     theta_y_mrad = np.arctan2(py, p)*1e3 # rad -> mrad
-    mod_times = cu.get_g2_mod_time(t) # Module the g-2 oscillation time 
+    mod_times = cu.get_g2_mod_time(t, g2period) # Module the g-2 oscillation time 
     data_hdf['mod_times']=mod_times # add to the data frame 
     data_hdf['theta_y_mrad']=theta_y_mrad # add to the data frame 
     
@@ -221,7 +222,7 @@ def plot_counts_theta(data):
             #Blinded (EDM) fit for B_Z 
             ############      
             ### Resolve angle and times
-            tmod_abs, weights=cu.get_abs_times_weights(data_station['trackT0'])
+            tmod_abs, weights=cu.get_abs_times_weights(data_station['trackT0'], g2period)
             ang=data_station['theta_y_mrad']
 
             ### Digitise data with weights
@@ -250,7 +251,7 @@ def plot_counts_theta(data):
                                          legend_fit=r'Fit: $\langle \theta(t) \rangle =  A_{\mathrm{B_z}}\cos(\omega_a t + \phi) + A_{\mathrm{EDM}}\sin(\omega_a t + \phi) + c$',
                                          ylabel=r"$\langle\theta_y\rangle$ [mrad] per "+str(int(bin_w*1e3))+" ns",
                                          font_size=font_size,
-                                         prec=3)
+                                         prec=2, urad=True)
             ax.set_xlim(0, g2period);
             ax.set_ylim(ax.get_ylim()[0]*1.2, ax.get_ylim()[1]*1.2);
             if(not sim): ax.set_ylim(ax.get_ylim()[0]*1.2, ax.get_ylim()[1]*1.2)
@@ -279,32 +280,33 @@ def plot_counts_theta(data):
         if(not sim and args.hist):
             
             fig, _ = plt.subplots()
-            ax, legend = cu.plotHist(ang, n_bins=400, prec=3, units="mrad", label="S"+str(station) )
+            n_bins_ang=400
+            ax, _ = cu.plotHist(ang, n_bins=n_bins_ang, prec=3, units="mrad", label=ds_name+" dataset S"+str(station) )
+            legend=cu.legend3_sd(*cu.stats3_sd(ang), "mrad", prec=3)
             cu.textL(ax, 0.8, 0.85, str(legend), fs=14)
+            ax.set_ylim(ax.get_ylim()[0],ax.get_ylim()[1]*1.1)
             ax.set_xlim(-50,50)
             ax.set_xlabel(r"$\theta_y$ [mrad]", fontsize=font_size);
-            ax.legend(fontsize=font_size, loc="upper left")
+            ax.set_ylabel("Entries per "+str(round((max(ang)-min(ang))/n_bins_ang,3))+" mrad", fontsize=font_size);
+            ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.5, 1.1))
             fig.savefig("../fig/theta_"+ds_name+"_S"+str(station)+".png", dpi=300, bbox_inches='tight')
 
             fig, _ = plt.subplots()
-            jg, cb, legendX, legendY = cu.plotHist2D(data_station['trackT0'], ang, n_binsXY=(400,600), prec=3, unitsXY=(r"[$\rm{\mu}$s]", "mrad"), label="S"+str(station) )
-            cu.textL(ax, 0.8, 0.85, str(legend), fs=14)
-            jg.ax_joint.set_xlim(args.t_min, 140)
+            n_binsXY_ang=(575,575)
+            jg, cb, legendX, legendY = cu.plotHist2D(data_station['trackT0'], ang, n_binsXY=n_binsXY_ang, prec=2, unitsXY=(r"[$\rm{\mu}$s]", "mrad"), label="S"+str(station), cmin=5)
+            jg.ax_joint.set_xlim(30.6, 140)
             jg.ax_joint.set_ylim(-50, 50)
-            jg.ax_joint.set_ylabel(r"$\theta_y$ [mrad]", fontsize=font_size);
-            jg.ax_joint.set_xlabel(r"t [$\rm{\mu}$s]", fontsize=font_size);
+            jg.ax_joint.set_ylabel(r"$\theta_y$ [mrad]", fontsize=font_size+2);
+            jg.ax_joint.set_xlabel(r"t [$\rm{\mu}$s]", fontsize=font_size+2);
             plt.savefig("../fig/theta2D_"+ds_name+"_S"+str(station)+".png", dpi=300, bbox_inches='tight')
 
-
             fig, _ = plt.subplots()
-            jg, cb, legendX, legendY = cu.plotHist2D(data_station['mod_times'], ang, n_binsXY=(400,600), prec=3, unitsXY=(r"[$\rm{\mu}$s]", "mrad"), label="S"+str(station) )
-            cu.textL(ax, 0.8, 0.85, str(legend), fs=14)
-            jg.ax_joint.set_xlim(0.5, g2period+0.5)
+            jg, cb, legendX, legendY = cu.plotHist2D(data_station['mod_times'], ang, n_binsXY=n_binsXY_ang, prec=3, unitsXY=(r"[$\rm{\mu}$s]", "mrad"), label="S"+str(station), cmin=5 )
+            jg.ax_joint.set_xlim(0.0, g2period)
             jg.ax_joint.set_ylim(-50, 50)
-            jg.ax_joint.set_ylabel(r"$\theta_y$ [mrad]", fontsize=font_size);
-            jg.ax_joint.set_xlabel(r"$t^{mod}_{g-2}$"+r"[$\rm{\mu}$s]", fontsize=font_size);
+            jg.ax_joint.set_ylabel(r"$\theta_y$ [mrad]", fontsize=font_size+2);
+            jg.ax_joint.set_xlabel(r"$t^{mod}_{g-2}$"+r"[$\rm{\mu}$s]", fontsize=font_size+2);
             plt.savefig("../fig/theta2D_mod_"+ds_name+"_S"+str(station)+".png", dpi=300, bbox_inches='tight')
-
             
         #############
         # Make truth (un-blinded fits) if simulation

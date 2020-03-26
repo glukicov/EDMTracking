@@ -28,9 +28,10 @@ np.set_printoptions(precision=9)
 stations=(12,18)
 
 #Set constants from fit (e.g. cu._phi=x)
-_f_a=0.2290735 # MHz BNL (arXiv:hep-ex/0602035) 
-_omega=round(_f_a*2*np.pi,7) # rad/us (magic) 
-print("Magic omega set to", _omega, "MHz")
+# _f_a=0.2290735 # MHz BNL (arXiv:hep-ex/0602035) 
+# _omega=round(_f_a*2*np.pi,7) # rad/us (magic) 
+# print("Magic omega set to", _omega, "MHz")
+_omega=-1
 _phi=-1
 _LT=-1
 _DS=-1
@@ -231,13 +232,15 @@ def plot_edm(x, y, y_e, func, par, par_e, chi2_ndf, ndf, bin_w, N,
              legend_data="Data", font_size=14, ylabel="y", 
              xlabel=r"$t^{mod}_{g-2} \ \mathrm{[\mu}$s]",
              legend_fit="Fit",
-             prec=3
+             prec=3,
+             urad=False
              ):
     fig, ax = plot(x, y, y_err=y_e, error=True, elw=1, fs=font_size, tight=False, 
                       label=legend_data, xlabel=xlabel, ylabel=ylabel)
     ax.plot(x, func(x, *par), c="red", label=legend_fit, lw=2)
     leg_fit=legend_chi2(chi2_ndf, ndf, par)
     legned_par=legend_par(leg_fit,  parNames, par, par_e, units, prec=prec)
+    if(urad): legned_par=legend_par(leg_fit,  parNames, par*1e3, par_e*1e3, units, prec=1, urad=urad)
     leg_data="N="+sci_notation(N)+"\n"+str(int(p_min))+r"<$p$<"+str(int(p_max))+" MeV\n"+str(round(t_min,1))+r"<$t$<"+str(round(t_max,1))+r" $\mathrm{\mu}$s"
     ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.5, 1.1));
     fig.tight_layout()
@@ -347,31 +350,26 @@ def get_freq_bin_c_from_data(data, bin_w, bin_range):
     assert( len(freq) == len(bin_c) ==  bin_n)
     return bin_c, freq, np.sqrt(freq) # Poissson error 
 
-def get_g2_mod_time(times):
+def get_g2_mod_time(times, g2_period):
     '''
     modulate time data by the gm2 period
     '''
-    omega_a_magic=_omega
-    if(omega_a_magic==-1): raise Exception("Set omega_a via cu._omega=x")
-
-    g2_period=np.pi*2/omega_a_magic # 2pi/rad/s -> 1/Mhz
+ 
     g2_frac_time = times / g2_period
     g2_frac_time_int = g2_frac_time.astype(int)
     mod_g2_time = (g2_frac_time - g2_frac_time_int) * g2_period
 
     return mod_g2_time
 
-def get_edm_mod_times(times):
+def get_edm_mod_times(times, g2_period):
     '''
     modulate time data by the gm2 period for edm blinding
     '''
-    omega_a_magic=_omega 
+    
     phi=_phi
     if (phi == -1): raise Exception("Set constants phase via cu._phi=x")
-    if(omega_a_magic==-1): raise Exception("Set omega_a via cu._omega=x")
 
-    g2_period=np.pi*2/omega_a_magic # 2pi/rad/s -> 1/Mhz -> us
-    phase_offset = phi / omega_a_magic # us 
+    phase_offset = phi / _omega  # us 
     edm_mod_times = np.fmod(times - phase_offset, 2 * g2_period) - g2_period
 
     return edm_mod_times
@@ -388,12 +386,12 @@ def get_edm_weights(edm_mod_times):
     
     return weights
 
-def get_abs_times_weights(times):
+def get_abs_times_weights(times, g2_period):
     '''
     Combine the above two functions
     and return the absolute times
     '''
-    edm_mod_times = get_edm_mod_times(times)
+    edm_mod_times = get_edm_mod_times(times, g2_period)
     weights = get_edm_weights(edm_mod_times)
     
     return np.abs(edm_mod_times), weights
@@ -580,12 +578,20 @@ def legend5(N, mean, meanE, sd, sdE, units, prec=4):
     legend = "N="+str(sci_notation(N))+"\n"+str(meanS)+"={0:.{prec}f}({1:d}) ".format(mean, int(round(meanE*10**prec)), prec=prec)+units+"\n"+str(sigmaS)+"={0:.{prec}f}({1:d}) ".format(sd, int(round(sdE*10**prec)), prec=prec)+units
     return legend
 
+def legend3_sd(N, sd, sdE, units, prec=4):
+    '''
+    form a string from 5 stats inputs with given precision
+    '''
+    # form raw string with Latex
+    legend = "N="+str(sci_notation(N))+"\n"+str(sigmaS)+"={0:.{prec}f}({1:d}) ".format(sd, int(round(sdE*10**prec)), prec=prec)+units
+    return legend
+
 def legend4(mean, meanE, sd, sdE, units, prec=4):
     '''
     form a string from 4 stats inputs with given precision
     '''
     # form raw string with Latex
-    legend = "  "+str(meanS)+"={0:.{prec}f}({1:d}) ".format(mean, int(round(meanE*10**prec)), prec=prec)+units+str(sigmaS)+"={0:.{prec}f}({1:d})".format(sd, int(round(sdE*10**prec)), prec=prec)+units
+    legend = "  "+str(meanS)+"={0:.{prec}f}({1:d}) ".format(mean, int(round(meanE*10**prec)), prec=prec)+units+"\n"+str(sigmaS)+"={0:.{prec}f}({1:d})".format(sd, int(round(sdE*10**prec)), prec=prec)+units
     return legend
 
 def legend4_fit(chi2ndf, mean, meanE, sd, sdE, units, prec=2):
@@ -605,9 +611,11 @@ def legend_chi2(chi2ndf, ndf, par, prec=2):
     legend = "  "+str(chi2ndfS)+"={0:.{prec}f}".format(chi2ndf, prec=prec)+"({0:d})".format( int( round( chi2_ndf_e(par, ndf) *10**prec ) ) )
     return legend+"\n"
 
-def legend_par(legend, parNames, par, par_e, units, prec=2):
+def legend_par(legend, parNames, par, par_e, units, prec=2, urad=False):
     for i, i_name in enumerate(parNames):
-        if (par_e[i] < 1):
+        if(urad):
+            value=i_name+"={0:+.{prec}f}".format(par[i], prec=prec)+"({0:.{prec}f})".format( par_e[i], prec=prec)+" "+units[i]
+        elif (par_e[i] < 1):
             value=i_name+"={0:+.{prec}f}".format(par[i], prec=prec)+"({0:d})".format( int(round(par_e[i]*10**prec)), prec=prec)+" "+units[i]
         else:
             value=i_name+"={0:d}".format(int(round(par[i])))+"({0:d})".format( int(round(par_e[i])))+" "+units[i] 
@@ -633,6 +641,16 @@ def stats5(data):
     sd = np.std(data)
     sdE = np.sqrt(sd**2/ (2*N) )
     return N, mean, meanE, sd, sdE 
+
+def stats3_sd(data):
+    '''
+    Input is a 1D array 
+    '''
+    N = len(data)
+    sd = np.std(data)
+    sdE = np.sqrt(sd**2/ (2*N) )
+    return N, sd, sdE 
+
 
 def stats3(data):
     '''
