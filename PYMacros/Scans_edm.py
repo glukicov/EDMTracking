@@ -67,22 +67,31 @@ par_names=[par_names_count, par_names_theta, par_names_theta_truth]
 
 
 if(args.start): 
-    bin_w = 10*1e-3 # 150 ns
-    factor=400
-    step=bin_w*factor
+    factor=1
+    step=g2period*factor
     start=30.56
-    stop_desired=60 # us 
+    stop_desired=80 # us 
     dt = stop_desired - start
-    n_dt = int(dt/bin_w/factor) # how many whole (factor x bins) do we fit in that interval
+    n_dt = int(dt/g2period/factor) # how many whole (factor x bins) do we fit in that interval
     print("Will generate", n_dt+1, "start times between", start, "and", stop_desired, 'us')
-    stop = n_dt*factor*bin_w+start
+    stop = n_dt*factor*g2period+start
     print("Adjusted last start time ",stop)
     start_times = np.arange(start, stop, step, dtype=float)
     print("Start times:", start_times)
     in_=input("Start scans?")
 
 if(args.stop):   
-    end_times = np.linspace(300, 450, 9, dtype=float)
+    # end_times = np.linspace(300, 450, 9, dtype=float)
+    factor=3
+    step=g2period*factor
+    start=323.04
+    stop_desired=480 # us 
+    dt = stop_desired - start
+    n_dt = int(dt/g2period/factor) # how many whole (factor x bins) do we fit in that interval
+    print("Will generate", n_dt+1, "start times between", start, "and", stop_desired, 'us')
+    stop = n_dt*factor*g2period+start
+    print("Adjusted last start time ",stop)
+    end_times = np.arange(start, stop, step, dtype=float)
     print("End times:", end_times)
     in_=input("Start scans?")
 
@@ -124,7 +133,7 @@ def main():
     '''
     As a quick solution use sub process 
     '''
-    if(args.all): all("../DATA/HDF/EDM/60h.h5", "../DATA/HDF/EDM/9D.h5", "../DATA/HDF/EDM/HK.h5", "../DATA/HDF/EDM/EG.h5")
+    if(args.all): all(["../DATA/HDF/EDM/60h.h5", "../DATA/HDF/EDM/9D.h5", "../DATA/HDF/EDM/HK.h5", "../DATA/HDF/EDM/EG.h5"])
     if(args.start): time_scan(DS_path, start_times, "--t_min")
     if(args.stop): time_scan(DS_path, end_times, "--t_max")
     if(args.p_min): time_scan(DS_path, p_min, "--p_min")
@@ -151,7 +160,7 @@ def all(DS_path):
         subprocess.Popen(["python3", "getLongitudinalField.py", "--hdf", path])
 
 def time_scan(DS_path, times, key_scan):
-    subprocess.call(["trash"] + glob.glob("../DATA/scans/edm_scan*"))
+    # subprocess.call(["trash"] + glob.glob("../DATA/scans/edm_scan*"))
     #subprocess.Popen( ["trash"] + glob.glob("../fig/scans/*.png") )
     for path in DS_path:
         for time in times:
@@ -159,7 +168,7 @@ def time_scan(DS_path, times, key_scan):
              timeMod.sleep(5)
 
 def both_scan(DS_path, p_min, p_max):
-    subprocess.call(["trash"] + glob.glob("../DATA/scans/edm_scan*"))
+    # subprocess.call(["trash"] + glob.glob("../DATA/scans/edm_scan*"))
     #subprocess.Popen( ["trash"] + glob.glob("../fig/scans/*.png") )
     for path in DS_path:
         for i, mom in enumerate(p_min):
@@ -301,19 +310,14 @@ def plot(direction="start", bidir=False, second_direction=None):
                     
                     if(args.plot_bin_w):
                         ax.set_xlabel("Bin width [ns]", fontsize=font_size); 
+                        x2=plot_data["ndf"]
                         ax2=ax.twiny()
-                        x2=np.array(plot_data["ndf"])
-                        #print(station, x2)
-                        #ax2.plot(np.flip(x2, y, lw)
-                        ax2.set_xticks(x)
-                        ax2.set_xticklabels(x2)
-                        ax2.set_xlabel("DoF (number of bins)", fontsize=font_size-2)
-                        
-                        # ax.set_xlim(min(x)*0.9, max(x)*1.1)
-                        ax2.set_xlim(min(x)*0.9, max(x)*1.1)
+                        ax2.set_xticks(x[0::2]);
+                        ax2.set_xticklabels(x2[0::2]);
+                        ax2.set_xlim(ax.get_xlim()[0], ax.get_xlim()[1])
+                        ax2.set_xlabel("Number of bins", fontsize=font_size-2)
+
     
-
-
                     if(args.plot_p_min): ax.set_xlabel(r"$p_{\rm{min}}$ [MeV]", fontsize=font_size);  ax.set_xlim(min(x)*0.95, max(x)*1.05)
                     if(args.plot_p_minp_max): 
                         ax.set_xlabel(r"$p$ [MeV]", fontsize=font_size) 
@@ -328,8 +332,8 @@ def plot(direction="start", bidir=False, second_direction=None):
                     #if(par_names[i_key][i_par]=='A_cbo'): print(y, y_e, y_s); sys.exit()
 
     #when done reading the file - backup
-    # subprocess.call(["mv", "../DATA/scans/edm_scan_count.csv", "../DATA/scans/edm_scan_count_"+dirName+".csv"]) # backup previous file
-    # subprocess.call(["mv", "../DATA/scans/edm_scan_theta.csv", "../DATA/scans/edm_scan_theta_"+dirName+".csv"]) # backup previous file
+    subprocess.call(["mv", "../DATA/scans/edm_scan_count.csv", "../DATA/scans/edm_scan_count_"+dirName+".csv"]) # backup previous file
+    subprocess.call(["mv", "../DATA/scans/edm_scan_theta.csv", "../DATA/scans/edm_scan_theta_"+dirName+".csv"]) # backup previous file
             
 def corr():
     '''

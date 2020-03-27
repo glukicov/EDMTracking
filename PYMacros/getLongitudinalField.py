@@ -21,10 +21,10 @@ import argparse
 arg_parser = argparse.ArgumentParser()
 # arg_parser.add_argument("--t_min", type=float, default=4.3) # us 
 arg_parser.add_argument("--t_min", type=float, default=30.56) # us 
-arg_parser.add_argument("--t_max", type=float, default=450) # us 
+arg_parser.add_argument("--t_max", type=float, default=454.00) # us 
 arg_parser.add_argument("--p_min", type=float, default=1800) # us 
 arg_parser.add_argument("--p_max", type=float, default=3100) # us 
-arg_parser.add_argument("--bin_w", type=float, default=10) # ns 
+arg_parser.add_argument("--bin_w", type=float, default=15) # ns 
 arg_parser.add_argument("--g2period", type=float, default=None) # us 
 arg_parser.add_argument("--phase", type=float, default=None) # us 
 arg_parser.add_argument("--lt", type=float, default=None) # us 
@@ -83,7 +83,7 @@ print("Setting bin width of", bin_w*1e3, "ns with ~", bin_n, "bins")
 par_names_count= ["N", "tau", "A", "phi"]; par_labels_count= [r"$N$", r"$\tau$", r"$A$", r"$\phi$"]; par_units_count=[" ",  r"$\rm{\mu}$s", " ", "rad"]
 par_names_theta= ["A_Bz", "A_edm_blind", "c"]; par_labels_theta= [r"$A_{B_{z}}$", r"$A^{\rm{BLINDED}}_{\mathrm{EDM}}$", r"$c$"]; par_units_theta=[r"$\rm{\mu}$rad", r"$\rm{\mu}$rad", r"$\rm{\mu}$rad"]
 par_names_theta_truth=par_names_theta.copy(); par_names_theta_truth[1]="A_edm"; par_labels_truth=par_labels_theta.copy(); par_labels_truth[1]=r"$A_{\mathrm{EDM}}$"
-p0_count=[ [10000, 64.4, 0.339, 2.057], [12498, 64.4, 0.341, 2.074]]
+p0_count=[ [15000, 63.4, 0.339, 2.057], [12000, 64.4, 0.341, 2.074]]
 p0_theta_blinded=[ [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]
 if(sim): 
     p0_count=[ [3000, 64.4, -0.40, 6.240], [3000, 64.4, -0.40, 6.240]]
