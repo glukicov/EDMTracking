@@ -257,6 +257,7 @@ def plot_counts_theta(data):
             if(not sim): ax.set_ylim(ax.get_ylim()[0]*1.2, ax.get_ylim()[1]*1.2)
             cu.textL(ax, 0.75, 0.15, leg_data, fs=font_size)
             cu.textL(ax, 0.25, 0.12, leg_fit, fs=font_size, c="r")
+            print("Fit in "+ds_name+" S:"+str(station), leg_fit)
             if(args.scan==False): fig.savefig("../fig/bz_"+ds_name+"_S"+str(station)+".png", dpi=300)
 
             if(args.scan==True):

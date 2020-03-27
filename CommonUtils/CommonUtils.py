@@ -258,7 +258,7 @@ def residual_plots(times_binned, residuals, sim=False, eL="", file_label="", sca
         if(not sim):ax.plot(x, residual, c='g', label="Run-1: "+ds_name+" dataset S"+str(stations[i_station])+" data-fit"); 
         if(sim):    ax.plot(x, residual, c='g', label="Sim: data-fit"); 
         y_label=r"Fit residuals (counts, $N$)"
-        if(sim and eL is "theta"): y_label=r"Fit residuals ($\theta_y$ [mrad])"
+        if(eL == "theta"): y_label=r"Fit residuals ($\theta_y$ [mrad])"
         ax.set_ylabel(y_label, fontsize=14);
         ax.set_xlabel(r"Time [$\mathrm{\mu}$s]", fontsize=14)
         ax.legend(fontsize=14)

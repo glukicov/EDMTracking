@@ -346,7 +346,7 @@ def corr():
             df_corr = pd.DataFrame(corr, columns=par_labels[i_key], index=par_labels[i_key])
             fig,ax = plt.subplots()
             ax=sn.heatmap(df_corr, annot=True, fmt='.2f', linewidths=.5, cmap="bwr")
-            cu.textL(ax, 0.5, 1.1, "S"+str(station)+": "+key)
+            cu.textL(ax, 0.5, 1.1, "S"+str(station))
             fig.savefig("../fig/corr_"+key+"_S"+str(station)+".png", dpi=300)
 
 
