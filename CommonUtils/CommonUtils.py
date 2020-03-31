@@ -156,26 +156,35 @@ def plot(x, y, x_err=None, y_err=None, fs=14, c="green",
 def plot_fom(x, y, y_e, ds_colors, ds_markers,
              ax=None, fig=None,
              y_label=r"$A_{B_z}$"+r" [$\rm{\mu}$rad]",
+             units=r"$\rm{\mu}$rad",
              x_label="Dataset",
-             eL=None,
+             eL="",
              font_size=14,
              ):
     if(ax==None and fig == None): 
         fig, ax = plt.subplots()
     for i in range(len(x)):
-        ax.scatter(x[i], y[i], marker=ds_markers[i], color=ds_colors[i], lw=0,  label=eL+x[i]+": "+str(round(y[i],1))+"("+str(round(y_e[i],1))+r") $\rm{\mu}$rad")
-    ax.errorbar(x, y, yerr=y_e, elinewidth=2, linewidth=0, ecolor=ds_colors)
+        if(y_e[0]==None): 
+            label_y=eL+x[i]+": "+str(round(y[i],1))+" "+units
+        else:
+            label_y=eL+x[i]+": "+str(round(y[i],1))+"("+str(round(y_e[i],1))+r") "+units
+        ax.scatter(x[i], y[i], marker=ds_markers[i], color=ds_colors[i], lw=0,  label=label_y)
+    
+    if(y_e[0]!=None): ax.errorbar(x, y, yerr=y_e, elinewidth=2, linewidth=0, ecolor=ds_colors)
+    
     ax.set_xlabel("Dataset", fontsize=font_size);
     ax.set_ylabel(y_label, fontsize=font_size);
     ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.9, 1.25));
     ax.tick_params(axis='x', which='both', bottom=True, top=True, direction='inout')
     ax.tick_params(axis='y', which='both', left=True, right=True, direction='inout')
-    ax.minorticks_on()
+    # ax.minorticks_on()
     plt.xticks(fontsize=font_size-1)
     plt.yticks(fontsize=font_size-1)
-    if(eL != None):
+    if(eL != ""):
         for i in range(len(x)):
-            ax.annotate(text=eL, xy=(x[i], y[i]), fontsize=font_size)
+            eH=0.0
+            if (eL == "S12 "): eH=1
+            ax.annotate(eL, xy=(x[i], y[i]+eH), fontsize=font_size)
 
     return fig, ax 
 
