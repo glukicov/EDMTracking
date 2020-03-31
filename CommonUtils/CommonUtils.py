@@ -153,6 +153,35 @@ def plot(x, y, x_err=None, y_err=None, fs=14, c="green",
     return fig, ax
 
 
+def plot_fom(x, y, y_e, ds_colors, ds_markers,
+             ax=None, fig=None,
+             y_label=r"$A_{B_z}$"+r" [$\rm{\mu}$rad]",
+             x_label="Dataset",
+             eL=None,
+             font_size=14,
+             ):
+    if(ax==None and fig == None): 
+        fig, ax = plt.subplots()
+    for i in range(len(x)):
+        ax.scatter(x[i], y[i], marker=ds_markers[i], color=ds_colors[i], lw=0,  label=eL+x[i]+": "+str(round(y[i],1))+"("+str(round(y_e[i],1))+r") $\rm{\mu}$rad")
+    ax.errorbar(x, y, yerr=y_e, elinewidth=2, linewidth=0, ecolor=ds_colors)
+    ax.set_xlabel("Dataset", fontsize=font_size);
+    ax.set_ylabel(y_label, fontsize=font_size);
+    ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.9, 1.25));
+    ax.tick_params(axis='x', which='both', bottom=True, top=True, direction='inout')
+    ax.tick_params(axis='y', which='both', left=True, right=True, direction='inout')
+    ax.minorticks_on()
+    plt.xticks(fontsize=font_size-1)
+    plt.yticks(fontsize=font_size-1)
+    if(eL != None):
+        for i in range(len(x)):
+            ax.annotate(text=eL, xy=(x[i], y[i]), fontsize=font_size)
+
+    return fig, ax 
+
+
+
+
 def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, ndf, t_mod, t_max, t_min, binW, N,
                                 prec=3, # set custom precision 
                                 show_cbo_terms=False, 
