@@ -160,14 +160,17 @@ def plot_fom(x, y, y_e, ds_colors, ds_markers,
              x_label="Dataset",
              eL="",
              font_size=14,
+             prec=1,
              ):
     if(ax==None and fig == None): 
         fig, ax = plt.subplots()
     for i in range(len(x)):
         if(y_e[0]==None): 
-            label_y=eL+x[i]+": "+str(round(y[i],1))+" "+units
+            label_y=eL+x[i]+": "+str(round(y[i],prec))+" "+units
         else:
-            label_y=eL+x[i]+": "+str(round(y[i],1))+"("+str(round(y_e[i],1))+r") "+units
+            label_y=eL+x[i]+": "+str(round(y[i],prec))+"("+str(round(y_e[i],prec))+r") "+units
+        if(prec==0 and y_e[0]!=None):
+            label_y=eL+x[i]+": "+str(int(round(y[i],prec)))+"("+str(int(round(y_e[i],prec)))+r") "+units
         ax.scatter(x[i], y[i], marker=ds_markers[i], color=ds_colors[i], lw=0,  label=label_y)
     
     if(y_e[0]!=None): ax.errorbar(x, y, yerr=y_e, elinewidth=2, linewidth=0, ecolor=ds_colors)
