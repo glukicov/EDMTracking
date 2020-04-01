@@ -116,7 +116,7 @@ def plotHist2D(x, y, n_binsXY=(100, 100), prec=2, fs=14, unitsXY=("unitsX", "uni
     return jg, cb, legendX, legendY
 
 def plot(x, y, x_err=None, y_err=None, fs=14, c="green", 
-         figsize=(7,5), label=None, lw=1, elw=2, lc='g', ls="-", tight=False, 
+         figsize=(7,5), label=None, lw=1, elw=2, lc='g', ls="-", marker=None, tight=False, 
          step=False, scatter=False, error=False, plot=False,
          xlabel=None, ylabel=None):
     '''
@@ -130,7 +130,7 @@ def plot(x, y, x_err=None, y_err=None, fs=14, c="green",
     elif (scatter):
         ax.scatter(x, y, c=c, label=label, lw=lw, ls=ls)
     elif (error):
-        ax.errorbar(x, y, xerr=x_err, yerr=y_err, linewidth=0, elinewidth=elw, color=c, marker=None, label=label)
+        ax.errorbar(x, y, xerr=x_err, yerr=y_err, linewidth=0, elinewidth=elw, color=c, marker=marker, label=label)
     elif (plot):
         ax.plot(x, y, c=c, label=label, lw=lw, ls=ls)
     else:
@@ -274,16 +274,19 @@ def plot_edm(x, y, y_e, func, par, par_e, chi2_ndf, ndf, bin_w, N,
              xlabel=r"$t^{mod}_{g-2} \ \mathrm{[\mu}$s]",
              legend_fit="Fit",
              prec=3,
-             urad=False
+             urad=False,
+             marker=".",
              ):
     fig, ax = plot(x, y, y_err=y_e, error=True, elw=1, fs=font_size, tight=False, 
-                      label=legend_data, xlabel=xlabel, ylabel=ylabel)
+                      label=legend_data, xlabel=xlabel, ylabel=ylabel, marker=marker)
     ax.plot(x, func(x, *par), c="red", label=legend_fit, lw=2)
     leg_fit=legend_chi2(chi2_ndf, ndf, par)
     legned_par=legend_par(leg_fit,  parNames, par, par_e, units, prec=prec)
     if(urad): legned_par=legend_par(leg_fit,  parNames, par*1e3, par_e*1e3, units, prec=1, urad=urad)
     leg_data="N="+sci_notation(N)+"\n"+str(int(p_min))+r"<$p$<"+str(int(p_max))+" MeV\n"+str(round(t_min,1))+r"<$t$<"+str(round(t_max,1))+r" $\mathrm{\mu}$s"
-    ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.5, 1.1));
+    lgnd = ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.5, 1.1));
+    # for handle in lgnd.legendHandles: 
+    #     if(type(handle)!=Line2D): handle.set_sizes([6.0])
     fig.tight_layout()
     return fig, ax, leg_data, legned_par
 
@@ -609,7 +612,10 @@ def textL(ax, x, y, legend, fs=14, c="green", weight="normal"):
     '''
     return a good formatted plot legend
     '''
-    return ax.text(x, y, str(legend),  fontsize=fs, transform=ax.transAxes, horizontalalignment='center', verticalalignment='center', color=c, weight=weight)
+    return ax.text(x, y, str(legend),  fontsize=fs, transform=ax.transAxes, horizontalalignment='center', 
+                   verticalalignment='center', color=c, weight=weight,
+                   bbox=dict(edgecolor=c, boxstyle='round', facecolor='white', alpha=0.5)
+                   )
 
 def legend5(N, mean, meanE, sd, sdE, units, prec=4):
     '''
@@ -660,7 +666,8 @@ def legend_par(legend, parNames, par, par_e, units, prec=2, urad=False):
             value=i_name+"={0:+.{prec}f}".format(par[i], prec=prec)+"({0:d})".format( int(round(par_e[i]*10**prec)), prec=prec)+" "+units[i]
         else:
             value=i_name+"={0:d}".format(int(round(par[i])))+"({0:d})".format( int(round(par_e[i])))+" "+units[i] 
-        legend+=value+"\n"
+        legend+=value
+        if(i_name!=parNames[-1]): legend+="\n"
     return legend
 
 def legend_1par(legend, parName, par, par_e, units, prec=2):
