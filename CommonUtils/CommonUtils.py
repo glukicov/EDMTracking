@@ -164,6 +164,10 @@ def plot_fom(x, y, y_e, ds_colors, ds_markers,
              ):
     if(ax==None and fig == None): 
         fig, ax = plt.subplots()
+        x_step=[0.85, 1.8, 2.8, 3.85]
+    else:
+        x_step=[1.15, 2.2, 3.2, 4.15]
+
     for i in range(len(x)):
         if(y_e[0]==None): 
             label_y=eL+x[i]+": "+str(round(y[i],prec))+" "+units
@@ -171,24 +175,23 @@ def plot_fom(x, y, y_e, ds_colors, ds_markers,
             label_y=eL+x[i]+": "+str(round(y[i],prec))+"("+str(round(y_e[i],prec))+r") "+units
         if(prec==0 and y_e[0]!=None):
             label_y=eL+x[i]+": "+str(int(round(y[i],prec)))+"("+str(int(round(y_e[i],prec)))+r") "+units
-        ax.scatter(x[i], y[i], marker=ds_markers[i], color=ds_colors[i], lw=0,  label=label_y)
+        ax.scatter(x_step[i], y[i], marker=ds_markers[i], color=ds_colors[i], lw=0,  label=label_y)
     
-    if(y_e[0]!=None): ax.errorbar(x, y, yerr=y_e, elinewidth=2, linewidth=0, ecolor=ds_colors)
+    if(y_e[0]!=None): ax.errorbar(x_step, y, yerr=y_e, elinewidth=2, linewidth=0, ecolor=ds_colors)
     
     ax.set_xlabel("Dataset", fontsize=font_size);
     ax.set_ylabel(y_label, fontsize=font_size);
     ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.9, 1.25));
     ax.tick_params(axis='x', which='both', bottom=True, top=True, direction='inout')
     ax.tick_params(axis='y', which='both', left=True, right=True, direction='inout')
+    ax.set_xticks([1, 2, 3, 4])
+    ax.set_xticklabels(x)
     # ax.minorticks_on()
     plt.xticks(fontsize=font_size-1)
     plt.yticks(fontsize=font_size-1)
     if(eL != ""):
         for i in range(len(x)):
-            eH=0.0
-            if (eL == "S12 "): eH=1
-            ax.annotate(eL, xy=(x[i], y[i]+eH), fontsize=font_size)
-
+            ax.annotate(eL, xy=(x_step[i], y[i]), fontsize=font_size)
     return fig, ax 
 
 
