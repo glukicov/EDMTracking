@@ -278,10 +278,11 @@ def plot_counts_theta(data):
 
 
         #make sanity plots 
-        if(not sim and args.hist):
+        if(args.hist):
+        # if(not sim and args.hist):
             
             fig, _ = plt.subplots()
-            n_bins_ang=400
+            n_bins_ang=400*5
             ax, _ = cu.plotHist(ang, n_bins=n_bins_ang, prec=3, units="mrad", label=ds_name+" dataset S"+str(station) )
             legend=cu.legend3_sd(*cu.stats3_sd(ang), "mrad", prec=3)
             cu.textL(ax, 0.8, 0.85, str(legend), fs=14)
@@ -289,7 +290,7 @@ def plot_counts_theta(data):
             ax.set_xlim(-50,50)
             ax.set_xlabel(r"$\theta_y$ [mrad]", fontsize=font_size);
             ax.set_ylabel("Entries per "+str(round((max(ang)-min(ang))/n_bins_ang,3))+" mrad", fontsize=font_size);
-            ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.5, 1.1))
+            ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.3, 1.0))
             fig.savefig("../fig/theta_"+ds_name+"_S"+str(station)+".png", dpi=300, bbox_inches='tight')
 
             fig, _ = plt.subplots()

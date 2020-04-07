@@ -245,21 +245,21 @@ def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, ndf, t_mod, t_max, 
 
     #Put legend and pars values 
     N_str=sci_notation(N)
-    textL(ax, 0.83, 0.65, label_data+ r"$p$"+" > 1.8 GeV \n"+str(round(t_min,1))+r" $\rm{\mu}$s < t < "+str(round(t_max,1))+r" $\rm{\mu}$s"+"\n N="+N_str, fs=fs-3,  weight="normal")
+    textL(ax, 0.830, 0.65, label_data+ r"$p$"+" > 1.8 GeV \n"+str(round(t_min,1))+r" $\rm{\mu}$s < t < "+str(round(t_max,1))+r" $\rm{\mu}$s"+"\n N="+N_str, fs=fs-3,  weight="normal")
     # deal with fitted parameters (to display nicely)
     parNames=[r"$N$", r"$\tau$", r"$A$", r"$R$", r"$\phi$"]
     units=["", r"$\rm{\mu}$s", "", "ppm",  "rad"]
     legned_par=legend_chi2(chi2_ndf, ndf, par)
     legned_par=legend_par(legned_par,  parNames, par, par_e, units, prec=prec)
-    textL(ax, 0.148, 0.63, "Fit: "+legned_par, fs=fs-3, c="red", weight="normal")
+    textL(ax, 0.145, 0.63, "Fit: "+legned_par, fs=fs-3, c="red", weight="normal")
     if(show_cbo_terms):
         parNames=[r"$\rm{A_{CBO}}$", r"$\omega_{\rm{CBO}}$", r"$\phi_{\rm{CBO}}$", r"$\rm{\tau_{CBO}}$"]
         units=[" ", r"$\rm{\mu}$s", r"rad/$\rm{\mu}$s", r"$\rm{\mu}$s"]
         legned_cbo=legend_par("",  parNames, par[5:], par_e[5:], units, prec=prec)
-        textL(ax, 0.478, 0.65, r"CBO, $C(t)$"+":\n "+legned_cbo, fs=fs-3, c="red", weight="normal")
+        textL(ax, 0.473, 0.65, r"CBO, $C(t)$"+":\n "+legned_cbo, fs=fs-3, c="red", weight="normal")
     if(show_loss_terms):
         legned_par=legend_1par("", r"$K_{\rm{LM}}$", par[9], par_e[9], " ", prec=prec)
-        textL(ax, 0.72, 0.04, "Fit: "+legned_par, fs=fs-3, c="red", weight="normal")
+        textL(ax, 0.65, 0.046, legned_par, fs=fs-3, c="red", weight="normal")
 
     #axis labels and ticks
     plt.ylabel(r"Counts ($N$) per "+str(int(binW*1e3))+" ns", fontsize=fs)
@@ -684,7 +684,7 @@ def legend_1par(legend, parName, par, par_e, units, prec=2):
         value=parName+"={0:+.{prec}f}".format(par, prec=prec)+"({0:d})".format( int(round(par_e*10**prec)), prec=prec)+" "+units
     else:
         value=parName+"={0:d}".format(int(round(par)))+"({0:d})".format( int(round(par_e)))+" "+units 
-    legend+=value+"\n"
+    legend+=value
     return legend
 
 
