@@ -253,7 +253,13 @@ def plot_counts_theta(data):
                                          font_size=font_size,
                                          prec=2, urad=True)
             ax.set_xlim(0, g2period);
-            ax.set_ylim(ax.get_ylim()[0]*1.6, ax.get_ylim()[1]*1.2);
+            
+            if(ds_name=="9D"): 
+                ax.set_ylim(-0.75, 0.30)
+            elif(ds_name=="EG"): 
+                ax.set_ylim(-0.65, 0.15)
+            else:
+                ax.set_ylim(ax.get_ylim()[0]*1.6, ax.get_ylim()[1]*1.2);
             if(not sim): ax.set_ylim(ax.get_ylim()[0]*1.23, ax.get_ylim()[1]*1.4)
             cu.textL(ax, 0.75, 0.15, leg_data, fs=font_size)
             cu.textL(ax, 0.25, 0.17, leg_fit, fs=font_size, c="r")
