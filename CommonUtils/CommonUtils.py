@@ -607,6 +607,9 @@ def thetaY_phase(t, *pars):
 def sin(t, A, b, p, c):
     return A * np.sin(b * t+p)+c
 
+def edm_sim(t, A, b, c):
+    return A * np.sin(b * t)+c
+
 def cos(t, A, b, p, c):
     return A * np.cos(b * t+p)+c
 
