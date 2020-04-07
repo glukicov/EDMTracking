@@ -287,7 +287,7 @@ def plot_edm(x, y, y_e, func, par, par_e, chi2_ndf, ndf, bin_w, N,
     legned_par=legend_par(leg_fit,  parNames, par, par_e, units, prec=prec)
     if(urad): legned_par=legend_par(leg_fit,  parNames, par*1e3, par_e*1e3, units, prec=1, urad=urad)
     leg_data="N="+sci_notation(N)+"\n"+str(int(p_min))+r"<$p$<"+str(int(p_max))+" MeV\n"+str(round(t_min,1))+r"<$t$<"+str(round(t_max,1))+r" $\mathrm{\mu}$s"
-    lgnd = ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.5, 1.1));
+    lgnd = ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.5, 1.0));
     # for handle in lgnd.legendHandles: 
     #     if(type(handle)!=Line2D): handle.set_sizes([6.0])
     fig.tight_layout()

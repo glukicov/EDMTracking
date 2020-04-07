@@ -175,8 +175,8 @@ def plot_counts_theta(data):
                                      prec=3)
         
         if(sim): cu.textL(ax, 0.48, 0.35, leg_fit, c="r", fs=font_size+1); cu.textL(ax, 0.80, 0.75, leg_data, fs=font_size+1)
-        if(not sim): cu.textL(ax, 0.65, 0.30, leg_fit, c="r", fs=font_size+1); cu.textL(ax, 0.2, 0.75, leg_data, fs=font_size+1)
-        ax.set_ylim(np.amin(y)*0.9, np.amax(y)*1.1);
+        if(not sim): cu.textL(ax, 0.65, 0.30, leg_fit, c="r", fs=font_size+1); cu.textL(ax, 0.23, 0.6, leg_data, fs=font_size+1)
+        ax.set_ylim(np.amin(y)*0.9, np.amax(y)*1.15);
         ax.set_xlim(0, g2period);
         if(args.scan==False): fig.savefig("../fig/count_"+ds_name+"_S"+str(station)+".png", dpi=300)
 
@@ -253,10 +253,10 @@ def plot_counts_theta(data):
                                          font_size=font_size,
                                          prec=2, urad=True)
             ax.set_xlim(0, g2period);
-            ax.set_ylim(ax.get_ylim()[0]*1.5, ax.get_ylim()[1]*1.2);
-            if(not sim): ax.set_ylim(ax.get_ylim()[0]*1.2, ax.get_ylim()[1]*1.2)
+            ax.set_ylim(ax.get_ylim()[0]*1.6, ax.get_ylim()[1]*1.2);
+            if(not sim): ax.set_ylim(ax.get_ylim()[0]*1.23, ax.get_ylim()[1]*1.4)
             cu.textL(ax, 0.75, 0.15, leg_data, fs=font_size)
-            cu.textL(ax, 0.25, 0.15, leg_fit, fs=font_size, c="r")
+            cu.textL(ax, 0.25, 0.17, leg_fit, fs=font_size, c="r")
             print("Fit in "+ds_name+" S:"+str(station), leg_fit)
             if(args.scan==False): fig.savefig("../fig/bz_"+ds_name+"_S"+str(station)+".png", dpi=300)
 
