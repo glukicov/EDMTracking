@@ -1,12 +1,12 @@
 # Fdb version 3
-["bibtex analysis_note"] 1586218267 "analysis_note.aux" "analysis_note.bbl" "analysis_note" 1586218439
+["bibtex analysis_note"] 1586218267 "analysis_note.aux" "analysis_note.bbl" "analysis_note" 1586219226
   "/Users/gleb/software/gm2code/thesis/ref.bib" 1586202458 18791 adbe4fe99ed26946769de0d6620876e9 ""
   "/usr/local/texlive/2018/texmf-dist/bibtex/bst/beebe/phreport.bst" 1480098434 60882 df4111b88b2a966621b4f936c14a63f6 ""
-  "analysis_note.aux" 1586218439 6367 e723e87874cb01b1e1757be2cf2ebba0 ""
+  "analysis_note.aux" 1586219225 6367 e723e87874cb01b1e1757be2cf2ebba0 ""
   (generated)
-  "analysis_note.bbl"
   "analysis_note.blg"
-["pdflatex"] 1586218436 "analysis_note.tex" "analysis_note.pdf" "analysis_note" 1586218439
+  "analysis_note.bbl"
+["pdflatex"] 1586219222 "analysis_note.tex" "analysis_note.pdf" "analysis_note" 1586219226
   "/Users/gleb/software/gm2code/thesis/Commands.tex" 1582762641 1398 2431e67b7590deb56a30541da9fccd08 ""
   "/Users/gleb/software/gm2code/thesis/MainPackages.tex" 1583954783 7423 416887abf5912c6a7facac9b174d524d ""
   "/usr/local/texlive/2018/texmf-dist/fonts/map/fontname/texfonts.map" 1511824771 3332 103109f5612ad95229751940c61aada0 ""
@@ -163,10 +163,10 @@
   "/usr/local/texlive/2018/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1523934492 2717033 f61a5287d9c22a39a74f1979fe3f905c ""
   "/usr/local/texlive/2018/texmf-var/web2c/pdftex/pdflatex.fmt" 1541649596 4220280 d2453d9f7edd928d24af905777c71c4a ""
   "/usr/local/texlive/2018/texmf.cnf" 1523934483 577 0b39adfd7c93507ff20c9c14c2f1a33f ""
-  "analysis_note.aux" 1586218439 6367 e723e87874cb01b1e1757be2cf2ebba0 ""
+  "analysis_note.aux" 1586219225 6367 e723e87874cb01b1e1757be2cf2ebba0 ""
   "analysis_note.bbl" 1586218267 774 df04bb1ffbee02c826469fe17a7f8d7d "bibtex analysis_note"
-  "analysis_note.tex" 1586218436 8021 78858df052a99763f39cd7e4804d1920 ""
-  "analysis_note.toc" 1586218439 218 b1b1a93f9aa19fc3465ee92540594866 ""
+  "analysis_note.tex" 1586219003 8025 83ba252c4256eb2868d76c8641d1a2b4 ""
+  "analysis_note.toc" 1586219225 218 b1b1a93f9aa19fc3465ee92540594866 ""
   "bz_60h_S12.png" 1586203017 223651 a112fe8a8dd4b882066ccf469ef28b45 ""
   "count_60h_S12.png" 1586203017 247682 91d2357534cb9a6fd98a20a5108bb030 ""
   "fig/mf_1.png" 1586192668 41830 f43ef50ef83bd3873ecbed9333a06d2c ""
@@ -176,8 +176,8 @@
   "fig/s12S18_sum_bz.png" 1586206078 99942 8f1621dd9b4bd63c154574b6a3eccf0a ""
   "fig/sum_bz.png" 1586205775 97144 f1e76137615cfa18e8b1f8d32642dfcb ""
   (generated)
+  "analysis_note.pdf"
   "analysis_note.out"
+  "analysis_note.aux"
   "analysis_note.toc"
   "analysis_note.log"
-  "analysis_note.pdf"
-  "analysis_note.aux"

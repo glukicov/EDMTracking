@@ -69,7 +69,7 @@ using a constant value of \SI{1.439311}{\MHz} for $\omega_a$, as measured at the
 \begin{equation}
     \theta(t) =  A_{\mathrm{B_z}}\cos(\omega_a t + \phi) + A_{\mathrm{EDM}}\sin(\omega_a t + \phi) + c,
 \end{equation}
-where $A_{\mathrm{B_z}}$ is the amplitude due to the longitudinal magnetic field, $A_{\mathrm{EDM}}$ is the EDM amplitude, $c$ is the overall offset. This is shown in~\cref{fig:s12_bz_2}. $A_{\mathrm{EDM}}$ is blinded with data, as discussed in DocDB:22201~\cite{Gleb_docdb}.
+where $A_{\mathrm{B_z}}$ is the amplitude due to the longitudinal magnetic field, $A_{\mathrm{EDM}}$ is the EDM amplitude, and $c$ is the overall offset. This is shown in~\cref{fig:s12_bz_2}. $A_{\mathrm{EDM}}$ is blinded with data, as discussed in DocDB:22201~\cite{Gleb_docdb}.
 
 Parameter stability scans with fit start time, fit end time, momentum cuts, bin width, and a choice of $T_{g-2}$ (i.e. $\omega_a$) and $\phi$ are also presented in DocDB:22201~\cite{Gleb_docdb}, and are found to be stable.
 \clearpage
@@ -101,13 +101,13 @@ The observed (i.e. fitted) amplitudes of the vertical angle oscillation due to $
 
 \clearpage
 \thispagestyle{plain}
-Joe has posted a great and comprehensive note~\cite{Joe_Gleb}, which deals with a conversion from an observed amplitude to an estimated value for $B_z$. The conversion steps are as follows. Asymmetry term, $A=0.1$, is connecting the observed amplitude ($A_{\mathrm{B_z}}$) with the actual precession plane tilt in the lab frame ($\delta '$)
+Joe has posted a great and comprehensive note~\cite{Joe_Gleb}, which deals with a conversion from an observed amplitude to an estimated value of $B_z$. The conversion steps are as follows. Asymmetry term, $A=0.1$, is connecting the observed amplitude ($A_{\mathrm{B_z}}$) with the actual precession plane tilt in the lab frame ($\delta '$)
 \begin{equation}
     A_{B_z}=0.1\delta '.
 \end{equation}
 Asymmetry is accounting for the fact that not all positrons are emitted in the direction of polarisation vector~\cite{Joe_Gleb}. Given that the muon motion is along $z$ (c.f.~\cref{fig:mf_tilt}), there is no Lorentz boost in this direction. Therefore, the estimate of $B_z$ is directly available from the measured angle in the lab frame, after the asymmetry term is taken into account. Hence, 
 \begin{equation}
-    \delta ' = \tan(\frac{B_z}{B_y})  \approx \frac{B_z}{B_y}
+    \delta ' = \tan(\frac{B_z}{B_y})  \approx \frac{B_z}{B_y}.
     \label{eq:bz_ppm}
 \end{equation}
 Finally, the corresponding systematic uncertainty on $\omega_a$ can be estimated using the formula in Bill's note~\cite{Bill}
