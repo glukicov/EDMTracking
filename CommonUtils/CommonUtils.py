@@ -164,7 +164,10 @@ def plot_fom(x, y, y_e, ds_colors, ds_markers,
              ):
     if(ax==None and fig == None): 
         fig, ax = plt.subplots()
-        x_step=[0.85, 1.8, 2.8, 3.85]
+        if(eL == ""):
+            x_step=[1, 2, 3, 4]
+        else:
+            x_step=[0.85, 1.8, 2.8, 3.85]
     else:
         x_step=[1.15, 2.2, 3.2, 4.15]
 
@@ -181,7 +184,7 @@ def plot_fom(x, y, y_e, ds_colors, ds_markers,
     
     ax.set_xlabel("Dataset", fontsize=font_size);
     ax.set_ylabel(y_label, fontsize=font_size);
-    ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.9, 1.25));
+    ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(1.32, 0.73));
     ax.tick_params(axis='x', which='both', bottom=True, top=True, direction='inout')
     ax.tick_params(axis='y', which='both', left=True, right=True, direction='inout')
     ax.set_xticks([1, 2, 3, 4])

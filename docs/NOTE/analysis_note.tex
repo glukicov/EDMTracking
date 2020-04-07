@@ -50,11 +50,11 @@ It is therefore imperative to estimate this systematic effect on $\omega_a$.
     \subfloat[]{\includegraphics[width=0.45\linewidth]{mf_1.png}} 
     \subfloat[]{\hspace*{0.08\linewidth}\includegraphics[width=0.45\linewidth]{mf_2.png}} 
     \vspace{-0.2cm}
-    \caption{The tilt in the precession plane due to field components: a) radial ($B_x$) b) longitudinal ($B_z$). The momentum vector ($\beta$) is along the $z$-axis. The tilt due to the radial field - towards the centre of the ring - is analogous to an effect due to an EDM. The longitudinal field, however, would produce a tilt towards the direction of the stored beam, by an angle $\delta$.}
+    \caption{The tilt in the precession plane due to field components: a) radial ($B_x$) b) longitudinal ($B_z$). The momentum vector ($\beta$) is along the $z$-axis. The tilt due to the radial field - towards the centre of the ring - is analogous to an effect due to an EDM. The longitudinal field, however, would produce a tilt towards the direction of the muon motion, by an angle $\delta$.}
     \label{fig:mf_tilt}
 \end{figure}
 
-This tilt due to $B_z$ can be used in the measurement of the average vertical angle of muon decay as a function of time: an up-down oscillation in-phase with $\omega_a$ would be indicative of a longitudinal field.
+This potential tilt due to $B_z$ can be used in the measurement of the average vertical angle of muon decay as a function of time: an up-down oscillation in-phase with $\omega_a$ would be indicative of a longitudinal field.
 
 \clearpage
 \thispagestyle{plain}
@@ -65,11 +65,11 @@ In this study, the measurement of the vertical angle, $\theta_y$, is coming from
      N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)],
      \label{eq:N}
 \end{equation}
-using a constant value of \SI{1.439311}{\MHz} for $\omega_a$, as measured at the BNL $g-2$~\cite{BNL_AMM}. This is shown in~\cref{fig:s12_bz_1}. The value of $\phi$ from~\cref{eq:N} is then used in the fit to the vertical angle oscillation
+using a constant value of \SI{1.439311}{\MHz} for $\omega_a$, as measured at the BNL $g-2$~\cite{BNL_AMM}. This fit is shown in~\cref{fig:s12_bz_1}. The value of $\phi$ from~\cref{eq:N} is then used in the fit to the vertical angle oscillation
 \begin{equation}
     \theta(t) =  A_{\mathrm{B_z}}\cos(\omega_a t + \phi) + A_{\mathrm{EDM}}\sin(\omega_a t + \phi) + c,
 \end{equation}
-where $A_{\mathrm{B_z}}$ is the amplitude due to the longitudinal magnetic field, $A_{\mathrm{EDM}}$ is the EDM amplitude, and $c$ is the overall offset. This is shown in~\cref{fig:s12_bz_2}. $A_{\mathrm{EDM}}$ is blinded with data, as discussed in DocDB:22201~\cite{Gleb_docdb}.
+where $A_{\mathrm{B_z}}$ is the amplitude due to the longitudinal magnetic field, $A_{\mathrm{EDM}}$ is the EDM amplitude, and $c$ is the overall offset. This fit is shown in~\cref{fig:s12_bz_2}. $A_{\mathrm{EDM}}$ is blinded with data, as discussed in DocDB:22201~\cite{Gleb_docdb}.
 
 Parameter stability scans with fit start time, fit end time, momentum cuts, bin width, and a choice of $T_{g-2}$ (i.e. $\omega_a$) and $\phi$ are also presented in DocDB:22201~\cite{Gleb_docdb}, and are found to be stable.
 \clearpage
@@ -77,10 +77,10 @@ Parameter stability scans with fit start time, fit end time, momentum cuts, bin 
 
 \begin{figure}[htpb]
     \centering
-    \subfloat[]{\includegraphics[width=0.85\linewidth]{count_60h_S12.png}\label{fig:s12_bz_1}} \\ 
-    \subfloat[]{\includegraphics[width=0.85\linewidth]{bz_60h_S12.png}\label{fig:s12_bz_2}} 
+    \subfloat[]{\includegraphics[width=0.82\linewidth]{count_60h_S12.png}\label{fig:s12_bz_1}} \\ 
+    \subfloat[]{\includegraphics[width=0.82\linewidth]{bz_60h_S12.png}\label{fig:s12_bz_2}} 
     \vspace{-0.2cm}
-    \caption{Fitting results in the 60h dataset for S12: a) number oscillation, and b) average vertical angle oscillation.}
+    \caption{Fitting results in the 60h dataset for S12: a) number oscillation, and b) average vertical angle oscillation as a function of the modulated period, $t^{mod}_{g-2} = (\frac{t}{T_{g-2}} - \mathrm{int}[\frac{t}{T_{g-2}}])T_{g-2}$.}
     \label{fig:s12_bz}
 \end{figure}
 
@@ -92,16 +92,16 @@ The observed (i.e. fitted) amplitudes of the vertical angle oscillation due to $
 
 \begin{figure}[htpb]
     \centering
-    \subfloat[]{\includegraphics[width=0.65\linewidth]{s12S18_sum_bz.png}\label{fig:bz_1}} \\  
-    \subfloat[]{\hspace{1cm}\includegraphics[width=0.75\linewidth]{sum_bz.png}\label{fig:bz_2}} 
+    \subfloat[]{\hspace{-0.2cm}\includegraphics[width=0.95\linewidth]{s12S18_sum_bz.png}\label{fig:bz_1}} \\  
+    \subfloat[]{\hspace{-1cm}\includegraphics[width=0.9\linewidth]{sum_bz.png}\label{fig:bz_2}} 
     \vspace{-0.2cm}
-    \caption{Fitting results in all \R1 datasets: a) S12 and S18 separately, and b) mean of the two stations. The individual fit results are summarised in DocDB:22201~\cite{Gleb_docdb}.}
+    \caption{Fitting results in all \R1 datasets: a) S12 and S18 separately, and b) mean of the two stations. The plotted fit parameter $A_{\mathrm{B_z}}$ was extracted from~\cref{fig:s12_bz} for all datasets. The individual fit results are summarised in DocDB:22201~\cite{Gleb_docdb}.}
     \label{fig:bz}
 \end{figure}
 
 \clearpage
 \thispagestyle{plain}
-Joe has posted a great and comprehensive note~\cite{Joe_Gleb}, which deals with a conversion from an observed amplitude to an estimated value of $B_z$. The conversion steps are as follows. Asymmetry term, $A=0.1$, is connecting the observed amplitude ($A_{\mathrm{B_z}}$) with the actual precession plane tilt in the lab frame ($\delta '$)
+Joe has posted a great and comprehensive note~\cite{Joe_Gleb}, which deals with a conversion from an observed amplitude to an estimated value of $B_z$. The conversion steps are as follows. Asymmetry term, $A=0.1$, is connecting $A_{\mathrm{B_z}}$ with the actual precession plane tilt in the lab frame, $\delta '$
 \begin{equation}
     A_{B_z}=0.1\delta '.
 \end{equation}
@@ -122,8 +122,8 @@ The final results of the application of~\cref{eq:bz_ppm,eq:omega_ppm} to \R1 ver
 
 \begin{figure}[htpb]
     \centering
-    \subfloat[]{\includegraphics[width=0.75\linewidth]{ppm_bz.png}\label{fig:felina_1}} \\
-    \subfloat[]{\includegraphics[width=0.7\linewidth]{ppm_omega.png}\label{fig:felina_2}} 
+    \subfloat[]{\includegraphics[width=\linewidth]{ppm_bz.png}\label{fig:felina_1}} \\
+    \subfloat[]{\includegraphics[width=0.95\linewidth]{ppm_omega.png}\label{fig:felina_2}} 
     \vspace{-0.2cm}
     \caption{\R1 systematic uncertainty results: a) $B_z$ in ppm and b) $\omega_a$ in ppm.}
     \label{fig:felina}
