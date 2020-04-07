@@ -181,7 +181,7 @@ def fit():
                                                 key=data_type[0]+" "+data_type[1],
                                                 legend_data="Run-1: "+ds_name+" dataset S"+str(station)
                                                 )
-        plt.legend(fontsize=font_size-3, loc='upper center', bbox_to_anchor=(0.5, 1.1) )
+        plt.legend(fontsize=font_size-3, loc='upper center', bbox_to_anchor=(0.5, 1.0) )
         if(args.scan==False): plt.savefig("../fig/wiggle/wiggle"+file_label[i_station]+".png", dpi=300)
 
         # Get residuals for next set of plots

@@ -217,7 +217,7 @@ def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, ndf, t_mod, t_max, 
 
     #log the y and set axis scales 
     plt.yscale("log")
-    ax.set_ylim(min(y)*0.90, max(y)*150)
+    ax.set_ylim(min(y)*0.90, max(y)*3e3)
     ax.set_xlim(0, t_mod)
     label_data="Data: \n"+key+"\n"
     plot_name="_data"
@@ -245,21 +245,21 @@ def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, ndf, t_mod, t_max, 
 
     #Put legend and pars values 
     N_str=sci_notation(N)
-    textL(ax, 0.822, 0.78, label_data+ r"$p$"+" > 1.8 GeV \n"+str(round(t_min,1))+r" $\rm{\mu}$s < t < "+str(round(t_max,1))+r" $\rm{\mu}$s"+"\n N="+N_str, fs=fs-2.5,  weight="normal")
+    textL(ax, 0.83, 0.65, label_data+ r"$p$"+" > 1.8 GeV \n"+str(round(t_min,1))+r" $\rm{\mu}$s < t < "+str(round(t_max,1))+r" $\rm{\mu}$s"+"\n N="+N_str, fs=fs-3,  weight="normal")
     # deal with fitted parameters (to display nicely)
     parNames=[r"$N$", r"$\tau$", r"$A$", r"$R$", r"$\phi$"]
     units=["", r"$\rm{\mu}$s", "", "ppm",  "rad"]
     legned_par=legend_chi2(chi2_ndf, ndf, par)
     legned_par=legend_par(legned_par,  parNames, par, par_e, units, prec=prec)
-    textL(ax, 0.17, 0.73, "Fit: "+legned_par, fs=fs-2, c="red", weight="normal")
+    textL(ax, 0.148, 0.63, "Fit: "+legned_par, fs=fs-3, c="red", weight="normal")
     if(show_cbo_terms):
         parNames=[r"$\rm{A_{CBO}}$", r"$\omega_{\rm{CBO}}$", r"$\phi_{\rm{CBO}}$", r"$\rm{\tau_{CBO}}$"]
         units=[" ", r"$\rm{\mu}$s", r"rad/$\rm{\mu}$s", r"$\rm{\mu}$s"]
         legned_cbo=legend_par("",  parNames, par[5:], par_e[5:], units, prec=prec)
-        textL(ax, 0.477, 0.75, r"CBO, $C(t)$"+":\n "+legned_cbo, fs=fs-3, c="red", weight="normal")
+        textL(ax, 0.478, 0.65, r"CBO, $C(t)$"+":\n "+legned_cbo, fs=fs-3, c="red", weight="normal")
     if(show_loss_terms):
         legned_par=legend_1par("", r"$K_{\rm{LM}}$", par[9], par_e[9], " ", prec=prec)
-        textL(ax, 0.73, 0.04, "Fit: "+legned_par, fs=fs-2, c="red", weight="normal")
+        textL(ax, 0.72, 0.04, "Fit: "+legned_par, fs=fs-3, c="red", weight="normal")
 
     #axis labels and ticks
     plt.ylabel(r"Counts ($N$) per "+str(int(binW*1e3))+" ns", fontsize=fs)
@@ -312,7 +312,7 @@ def residual_plots(times_binned, residuals, sim=False, eL="", file_label="", sca
         ax.set_ylabel(y_label, fontsize=14);
         ax.set_xlabel(r"Time [$\mathrm{\mu}$s]", fontsize=14)
         ax.legend(fontsize=14)
-        plt.savefig("../fig/res/res"+file_label[i_station]+"_"+eL+".png", dpi=300)
+        plt.savefig("../fig/res/res"+file_label[i_station]+eL+".png", dpi=300)
 
 
 def fft(residuals, bin_w, sim=False, eL="", file_label="", scan_label=""):
@@ -386,7 +386,7 @@ def fft(residuals, bin_w, sim=False, eL="", file_label="", scan_label=""):
         ax.legend(fontsize=14, loc="best")
         ax.set_ylabel("FFT magnitude (normalised)", fontsize=14)
         ax.set_xlabel("Frequency [MHz]", fontsize=14)
-        plt.savefig("../fig/fft/fft"+file_label[i_station]+"_"+eL+".png", dpi=300)
+        plt.savefig("../fig/fft/fft"+file_label[i_station]+eL+".png", dpi=300)
 
 def get_freq_bin_c_from_data(data, bin_w, bin_range):
     '''
