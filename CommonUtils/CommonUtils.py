@@ -603,6 +603,8 @@ def thetaY_phase(t, *pars):
     
     return A_bz * np.cos(omega * t + phi) + A_edm * np.sin(omega * t + phi) + c
 
+def na2(x, a, b, c, d, e):
+    return a*x**4 + b*x**3 + c*x**2 + d*x + e 
 
 def sin(t, A, b, p, c):
     return A * np.sin(b * t+p)+c

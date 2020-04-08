@@ -54,6 +54,7 @@ cu._DS=ds_name
 print("Setting tune parameters for ", ds_name, "DS")
 
 sim=False
+urad_bool=True
 if(ds_name == "Sim"):
     print("Simulation data is loaded!"); sim=True; stations=([1218])
 
@@ -88,6 +89,7 @@ p0_theta_blinded=[ [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]
 if(sim): 
     p0_count=[ [3000, 64.4, -0.40, 6.240], [3000, 64.4, -0.40, 6.240]]
     p0_theta_blinded=[ [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]
+    urad_bool=False
 print("Starting pars theta blinded", *par_names_theta, *p0_theta_blinded)
 print("Starting pars count",*par_names_count, *p0_count)
 p0_theta_truth=[ [0.00, 0.17, 0.0], [0.00, 0.17, 0.0] ]; print("Starting pars TRUTH theta", *par_names_theta_truth, *p0_theta_truth)
@@ -174,9 +176,9 @@ def plot_counts_theta(data):
                                      font_size=font_size,
                                      prec=3)
         
-        if(sim): cu.textL(ax, 0.48, 0.35, leg_fit, c="r", fs=font_size+1); cu.textL(ax, 0.80, 0.75, leg_data, fs=font_size+1)
-        if(not sim): cu.textL(ax, 0.65, 0.30, leg_fit, c="r", fs=font_size+1); cu.textL(ax, 0.23, 0.6, leg_data, fs=font_size+1)
         ax.set_ylim(np.amin(y)*0.9, np.amax(y)*1.15);
+        if(sim): ax.set_ylim(np.amin(y)*0.9, np.amax(y)*1.4); cu.textL(ax, 0.5, 0.2, leg_fit, c="r", fs=font_size+1); cu.textL(ax, 0.80, 0.70, leg_data, fs=font_size+1)
+        if(not sim): cu.textL(ax, 0.65, 0.20, leg_fit, c="r", fs=font_size+1); cu.textL(ax, 0.23, 0.65, leg_data, fs=font_size+1)
         ax.set_xlim(0, g2period);
         if(args.scan==False): fig.savefig("../fig/count_"+ds_name+"_S"+str(station)+".png", dpi=300)
 
@@ -251,7 +253,7 @@ def plot_counts_theta(data):
                                          legend_fit=r'Fit: $\langle \theta(t) \rangle =  A_{\mathrm{B_z}}\cos(\omega_a t + \phi) + A_{\mathrm{EDM}}\sin(\omega_a t + \phi) + c$',
                                          ylabel=r"$\langle\theta_y\rangle$ [mrad] per "+str(int(bin_w*1e3))+" ns",
                                          font_size=font_size,
-                                         prec=2, urad=True)
+                                         prec=2, urad=urad_bool)
             ax.set_xlim(0, g2period);
             
             if(ds_name=="9D"): 
@@ -260,7 +262,7 @@ def plot_counts_theta(data):
                 ax.set_ylim(-0.65, 0.15)
             else:
                 ax.set_ylim(ax.get_ylim()[0]*1.6, ax.get_ylim()[1]*1.2);
-            if(not sim): ax.set_ylim(ax.get_ylim()[0]*1.23, ax.get_ylim()[1]*1.4)
+            if(sim): ax.set_ylim(-2.9, 2.5)
             cu.textL(ax, 0.75, 0.15, leg_data, fs=font_size)
             cu.textL(ax, 0.25, 0.17, leg_fit, fs=font_size, c="r")
             print("Fit in "+ds_name+" S:"+str(station), leg_fit)
@@ -342,9 +344,9 @@ def plot_counts_theta(data):
                                      font_size=font_size,
                                      prec=2)
             cu.textL(ax, 0.74, 0.15, leg_data, fs=font_size)
-            cu.textL(ax, 0.23, 0.12, leg_fit, fs=font_size, c="r")
+            cu.textL(ax, 0.23, 0.15, leg_fit, fs=font_size, c="r")
             ax.set_xlim(0, g2period);
-            ax.set_ylim(-np.amax(y)*1.8, np.amax(y)*2.1);
+            ax.set_ylim(-2.9, 2.5);
             if(not sim): ax.set_ylim(-np.amax(y)*2.5, np.amax(y)*2.5);
             if(args.scan==False): fig.savefig("../fig/bz_truth_fit_S"+str(station)+".png", dpi=300)
 

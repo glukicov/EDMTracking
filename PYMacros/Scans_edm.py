@@ -57,14 +57,19 @@ DS_path = (["../DATA/HDF/EDM/60h.h5"])
 # DS_path = ("../DATA/HDF/EDM/60h.h5", "../DATA/HDF/EDM/9D.h5", "../DATA/HDF/EDM/HK.h5", "../DATA/HDF/EDM/EG.h5")
 stations=(12, 18)
 dss = (["60h"]) 
-keys=["count", "theta"] # HDF5 keys of input scan result files 
 
+# keys=["count", "theta"] # HDF5 keys of input scan result files 
 #plotting and retrieving from HDF5 
-par_names_count= ["N", "tau", "A", "phi"]; par_labels_count= [r"$N$ (count)", r"$\tau$"+r"[$\rm{\mu}$s]", r"$A$", r"$\phi$ [rad]"];
-par_names_theta= ["A_Bz", "A_edm_blind", "c"]; par_labels_theta= [r"$A_{B_{z}}$ [mrad]", r"$A^{\rm{BLINDED}}_{\mathrm{EDM}}$ [mrad]", r"$c$ [mrad]"]; 
-par_names_theta_truth=par_names_theta.copy(); par_names_theta_truth[1]="A_edm"; par_labels_truth=par_labels_theta.copy(); par_labels_truth[1]=r"$A_{\mathrm{EDM}}$"
-par_labels=[par_labels_count, par_labels_theta, par_labels_truth]
-par_names=[par_names_count, par_names_theta, par_names_theta_truth] 
+# par_names_count= ["N", "tau", "A", "phi"]; par_labels_count= [r"$N$ (count)", r"$\tau$"+r"[$\rm{\mu}$s]", r"$A$", r"$\phi$ [rad]"];
+# par_names_theta= ["A_Bz", "A_edm_blind", "c"]; par_labels_theta= [r"$A_{B_{z}}$ [mrad]", r"$A^{\rm{BLINDED}}_{\mathrm{EDM}}$ [mrad]", r"$c$ [mrad]"]; 
+# par_names_theta_truth=par_names_theta.copy(); par_names_theta_truth[1]="A_edm"; par_labels_truth=par_labels_theta.copy(); par_labels_truth[1]=r"$A_{\mathrm{EDM}}$"
+# par_labels=[par_labels_count, par_labels_theta, par_labels_truth]
+# par_names=[par_names_count, par_names_theta, par_names_theta_truth] 
+
+par_names_count= ["A"];    par_labels_count= [r"$N$ (count)"];
+par_names_theta= ["A_Bz"]; par_labels_theta= [r"$A_{B_{z}}$ [mrad]"]; 
+par_labels=[par_labels_count, par_labels_theta]; par_names=[par_names_count, par_names_theta]; 
+keys=["count", "theta"] # HDF5 keys of input scan result files 
 
 
 if(args.start): 
@@ -198,18 +203,18 @@ def plot(direction="start", bidir=False, second_direction=None):
         if(par_n==-1): raise Exception("Scan data has less/more then expected parameters!")
 
         #resolve chi2 - a special parameter and add to data
-        chi2 = data['chi2']
-        # print(chi2)
-        chi2_e=np.sqrt(2/ (data['ndf']-par_n) ) #number of bins - number of fit parameters
-        # print(chi2_e)          
-        data['chi2_e']=chi2_e # add chi2_e to the dataframe
-        par_names[i_key].insert(0, "chi2")
-        par_labels[i_key].insert(0, r"$\frac{\chi^2}{\rm{DoF}}$")
+        # chi2 = data['chi2']
+        # # print(chi2)
+        # chi2_e=np.sqrt(2/ (data['ndf']-par_n) ) #number of bins - number of fit parameters
+        # # print(chi2_e)          
+        # data['chi2_e']=chi2_e # add chi2_e to the dataframe
+        # par_names[i_key].insert(0, "chi2")
+        # par_labels[i_key].insert(0, r"$\frac{\chi^2}{\rm{DoF}}$")
 
-        #resolve NA parameters
-        par_names[i_key].insert(0, "n")
-        par_labels[i_key].insert(0, "N (stat)")
-        data['n_e']=np.zeros(data.shape[0]) # add no error on the number of entries
+        # #resolve NA parameters
+        # par_names[i_key].insert(0, "n")
+        # par_labels[i_key].insert(0, "N (stat)")
+        # data['n_e']=np.zeros(data.shape[0]) # add no error on the number of entries
 
         #resolve A for each key 
         if(key=="count"):
@@ -218,29 +223,29 @@ def plot(direction="start", bidir=False, second_direction=None):
             par_labels[i_key].insert(0, r"NA$^2$")
             data['NA2_e']=np.zeros(data.shape[0]) # add no error on the number of entries
 
-        if(key=="theta"):
-            data["NA_bz2"]=data['n']*(data['A_Bz']**2)
-            par_names[i_key].insert(0, "NA_bz2")
-            par_labels[i_key].insert(0, r"NA$_{B_{z}}^2$")
-            data['NA_bz2_e']=np.zeros(data.shape[0]) # add no error on the number of entries
+        # if(key=="theta"):
+        #     data["NA_bz2"]=data['n']*(data['A_Bz']**2)
+        #     par_names[i_key].insert(0, "NA_bz2")
+        #     par_labels[i_key].insert(0, r"NA$_{B_{z}}^2$")
+        #     data['NA_bz2_e']=np.zeros(data.shape[0]) # add no error on the number of entries
             
-            data["NA_edm2"]=data['n']*(data['A_edm_blind']**2)
-            par_names[i_key].insert(0, "NA_edm2")
-            par_labels[i_key].insert(0, r"NA$_{\rm{EDM}}^2$")
-            data['NA_edm2_e']=np.zeros(data.shape[0]) # add no error on the number of entries
+        #     data["NA_edm2"]=data['n']*(data['A_edm_blind']**2)
+        #     par_names[i_key].insert(0, "NA_edm2")
+        #     par_labels[i_key].insert(0, r"NA$_{\rm{EDM}}^2$")
+        #     data['NA_edm2_e']=np.zeros(data.shape[0]) # add no error on the number of entries
 
 
-        if(key=="truth"):
-            data["NA_bz2"]=data['n']*(data['A_Bz']**2)
-            par_names[i_key].insert(0, "NA_bz2")
-            par_labels[i_key].insert(0, r"NA$_{B_{z}}^2$")
-            data['NA_bz2_e']=np.zeros(data.shape[0]) # add no error on the number of entries
+        # if(key=="truth"):
+        #     data["NA_bz2"]=data['n']*(data['A_Bz']**2)
+        #     par_names[i_key].insert(0, "NA_bz2")
+        #     par_labels[i_key].insert(0, r"NA$_{B_{z}}^2$")
+        #     data['NA_bz2_e']=np.zeros(data.shape[0]) # add no error on the number of entries
             
             
-            data["NA_edm2"]=data['n']*(data['A_edm']**2)
-            par_names[i_key].insert(0, "NA_edm2")
-            par_labels[i_key].insert(0, r"NA$_{\rm{EDM}}^2$")
-            data['NA_edm2_e']=np.zeros(data.shape[0]) # add no error on the number of entries
+        #     data["NA_edm2"]=data['n']*(data['A_edm']**2)
+        #     par_names[i_key].insert(0, "NA_edm2")
+        #     par_labels[i_key].insert(0, r"NA$_{\rm{EDM}}^2$")
+        #     data['NA_edm2_e']=np.zeros(data.shape[0]) # add no error on the number of entries
 
 
         for ds in dss:
@@ -283,20 +288,22 @@ def plot(direction="start", bidir=False, second_direction=None):
                     y_s = np.sqrt(y_e**2-y_e[0]**2) # 1sigma band
                     if(args.abs): y_s = np.sqrt(np.abs(y_e**2-y_e[0]**2)) # 1sigma band
                     if(args.plot_stop): y_s = np.sqrt(y_e[0]**2-y_e**2); # 1sigma band
+                    if(args.plot_stop and args.abs): y_s = np.sqrt(np.abs(y_e[0]**2-y_e**2)); # 1sigma band
 
                     if(y_s.isnull().sum()>0): 
                         print("Error at later times are smaller - not physical, check for bad fit at these times [us]:")
                         print( [x[i] for i, B in enumerate(y_s.isnull()) if B]) # y_s.isnull() list of T/F , B is on of T/F in that list, i is index of True, x[i] times of True
                     
                     #Plot 
-                    fig, ax = cu.plot(x, y, y_err=y_e, error=True, elw=2, label="S"+str(station)+": "+ds+" DS "+key_names[i_key], tight=False)
+                    fig, ax = cu.plot(x, y, y_err=y_e, error=True, elw=2, label="S"+str(station)+": "+ds+" DS", tight=False)
                     ax.plot(x, y, marker=".", ms=10, c="g", lw=0)
                     sigma_index=0; band_P=y[sigma_index]+y_s; band_M=y[sigma_index]-y_s;
                     if(args.plot_stop): sigma_index=len(y)-1; band_P=y[sigma_index]-np.flip(y_s); band_M=y[sigma_index]+np.flip(y_s)
                     if(not args.band_off): ax.plot(x, band_P, c="r", ls=":", lw=2, label=r"$\sigma_{\Delta_{21}}$"); ax.plot(x, band_M, c="r", ls=":", lw=2)
                     # if(par_names[i_key][i_par]=='tau'): ax.plot([np.min(x)-2, np.max(x)+2], [64.44, 64.44], c="k", ls="--"); ax.set_ylim(np.min(y)-0.1, 64.6);
                     if(par_names[i_key][i_par]=='chi2' and not args.plot_p_minp_max): ax.plot([min(x)-2, max(x)+2], [1, 1], c="k", ls="--");
-                    if(not args.plot_p_minp_max ): ax.set_xlim(min(x)-2, max(x)+2);
+                    if(not args.plot_p_minp_max ): ax.set_xlim(min(x)-200, max(x)+200);
+                    if(not args.plot_p_min ): ax.set_xlim(min(x)-200, max(x)+200);
                     ax.set_xlabel(direction+r" time [$\rm{\mu}$s]", fontsize=font_size);
                     
                     if(args.plot_lt): ax.set_xlabel(r"$\tau$"+r" [$\rm{\mu}$s]", fontsize=font_size); ax.set_xlim(min(x)*0.95, max(x)*1.05)
@@ -318,6 +325,14 @@ def plot(direction="start", bidir=False, second_direction=None):
                         ax2.set_xlim(ax.get_xlim()[0], ax.get_xlim()[1])
                         ax2.set_xlabel("Number of bins", fontsize=font_size-2)
 
+                    if(args.plot_p_min and par_names[i_key][i_par]=='NA2'):
+                        # par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x, y,  cu.parab, (-1.0, 2400, 1000))
+                        par, pcov = optimize.curve_fit(cu.na2, x, y, p0=(-1.0, 1.0, 1.0, 1.0, 1.0), method='lm')
+                        print(*par)
+                        max_x = optimize.fminbound(lambda x: -cu.na2(x, *par), 1000, 2000) 
+                        print(max_x)
+                        ax.plot(x, cu.na2(x, *par), c="red", label="Numerical max: "+str(int(max_x))+" MeV", lw=2)
+
     
                     if(args.plot_p_min): ax.set_xlabel(r"$p_{\rm{min}}$ [MeV]", fontsize=font_size);  ax.set_xlim(min(x)*0.95, max(x)*1.05)
                     if(args.plot_p_minp_max): 
@@ -333,8 +348,8 @@ def plot(direction="start", bidir=False, second_direction=None):
                     #if(par_names[i_key][i_par]=='A_cbo'): print(y, y_e, y_s); sys.exit()
 
     #when done reading the file - backup
-    subprocess.call(["mv", "../DATA/scans/edm_scan_count.csv", "../DATA/scans/edm_scan_count_"+dirName+".csv"]) # backup previous file
-    subprocess.call(["mv", "../DATA/scans/edm_scan_theta.csv", "../DATA/scans/edm_scan_theta_"+dirName+".csv"]) # backup previous file
+    # subprocess.call(["mv", "../DATA/scans/edm_scan_count.csv", "../DATA/scans/edm_scan_count_"+dirName+".csv"]) # backup previous file
+    # subprocess.call(["mv", "../DATA/scans/edm_scan_theta.csv", "../DATA/scans/edm_scan_theta_"+dirName+".csv"]) # backup previous file
             
 def corr():
     '''
