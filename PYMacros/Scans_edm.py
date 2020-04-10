@@ -40,7 +40,7 @@ arg_parser.add_argument("--plot_lt", action='store_true', default=False)
 arg_parser.add_argument("--plot_bin_w", action='store_true', default=False) 
 
 arg_parser.add_argument("--corr", action='store_true', default=False) 
-arg_parser.add_argument("--band_off", action='store_true', default=True) 
+arg_parser.add_argument("--band_off", action='store_true', default=False) 
 arg_parser.add_argument("--abs", action='store_true', default=False) 
 args=arg_parser.parse_args()
 
@@ -66,10 +66,15 @@ dss = (["60h"])
 # par_labels=[par_labels_count, par_labels_theta, par_labels_truth]
 # par_names=[par_names_count, par_names_theta, par_names_theta_truth] 
 
-par_names_count= ["A"];    par_labels_count= [r"$N$ (count)"];
-par_names_theta= ["A_Bz"]; par_labels_theta= [r"$A_{B_{z}}$ [mrad]"]; 
-par_labels=[par_labels_count, par_labels_theta]; par_names=[par_names_count, par_names_theta]; 
-keys=["count", "theta"] # HDF5 keys of input scan result files 
+# par_names_count= ["A"];    par_labels_count= [r"$N$ (count)"];
+# par_names_theta= ["A_Bz"]; par_labels_theta= [r"$A_{B_{z}}$ [mrad]"]; 
+# par_labels=[par_labels_count, par_labels_theta]; par_names=[par_names_count, par_names_theta]; 
+# keys=["count", "theta"] # HDF5 keys of input scan result files 
+
+par_names_theta= ["A_Bz"]; par_labels_theta= [r"$A_{B_{z}}$ ["+r"$\rm{\mu}$rad]"]; 
+par_labels=[par_labels_theta]; par_names=[par_names_theta]; 
+keys=["theta"] # HDF5 keys of input scan result files 
+
 
 
 if(args.start): 
@@ -217,11 +222,11 @@ def plot(direction="start", bidir=False, second_direction=None):
         # data['n_e']=np.zeros(data.shape[0]) # add no error on the number of entries
 
         #resolve A for each key 
-        if(key=="count"):
-            data['NA2']=data['n']*(data['A']**2)
-            par_names[i_key].insert(0, "NA2")
-            par_labels[i_key].insert(0, r"NA$^2$")
-            data['NA2_e']=np.zeros(data.shape[0]) # add no error on the number of entries
+        # if(key=="count"):
+        #     data['NA2']=data['n']*(data['A']**2)
+        #     par_names[i_key].insert(0, "NA2")
+        #     par_labels[i_key].insert(0, r"NA$^2$")
+        #     data['NA2_e']=np.zeros(data.shape[0]) # add no error on the number of entries
 
         # if(key=="theta"):
         #     data["NA_bz2"]=data['n']*(data['A_Bz']**2)
@@ -285,6 +290,11 @@ def plot(direction="start", bidir=False, second_direction=None):
                     print(par_names[i_key][i_par])
                     y=plot_data[par_names[i_key][i_par]] 
                     y_e=plot_data[par_names[i_key][i_par]+'_e'] 
+                    if(par_names[i_key][i_par]=='A_Bz'):
+                        #mrad to urad
+                        y=y*1e3
+                        y_e=y_e*1e3
+
                     y_s = np.sqrt(y_e**2-y_e[0]**2) # 1sigma band
                     if(args.abs): y_s = np.sqrt(np.abs(y_e**2-y_e[0]**2)) # 1sigma band
                     if(args.plot_stop): y_s = np.sqrt(y_e[0]**2-y_e**2); # 1sigma band
@@ -295,35 +305,70 @@ def plot(direction="start", bidir=False, second_direction=None):
                         print( [x[i] for i, B in enumerate(y_s.isnull()) if B]) # y_s.isnull() list of T/F , B is on of T/F in that list, i is index of True, x[i] times of True
                     
                     #Plot 
-                    fig, ax = cu.plot(x, y, y_err=y_e, error=True, elw=2, label="S"+str(station)+": "+ds+" DS", tight=False)
-                    ax.plot(x, y, marker=".", ms=10, c="g", lw=0)
+                    fig, ax = cu.plot(x, y, y_err=y_e, error=True, elw=2, label="S"+str(station)+": "+ds+" DS", tight=False,  marker=".")
+                    # ax.plot(x, y, marker=".", ms=10, c="g", lw=0)
                     sigma_index=0; band_P=y[sigma_index]+y_s; band_M=y[sigma_index]-y_s;
+                    if(args.plot_start):
+                        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]+7)
+                        ax.set_xlim(28, 79)
+
                     if(args.plot_stop): sigma_index=len(y)-1; band_P=y[sigma_index]-np.flip(y_s); band_M=y[sigma_index]+np.flip(y_s)
                     if(not args.band_off): ax.plot(x, band_P, c="r", ls=":", lw=2, label=r"$\sigma_{\Delta_{21}}$"); ax.plot(x, band_M, c="r", ls=":", lw=2)
                     # if(par_names[i_key][i_par]=='tau'): ax.plot([np.min(x)-2, np.max(x)+2], [64.44, 64.44], c="k", ls="--"); ax.set_ylim(np.min(y)-0.1, 64.6);
                     if(par_names[i_key][i_par]=='chi2' and not args.plot_p_minp_max): ax.plot([min(x)-2, max(x)+2], [1, 1], c="k", ls="--");
-                    if(not args.plot_p_minp_max ): ax.set_xlim(min(x)-200, max(x)+200);
-                    if(not args.plot_p_min ): ax.set_xlim(min(x)-200, max(x)+200);
+                    if(args.plot_p_minp_max ): ax.set_xlim(min(x)-200, max(x)+200);
+                    if(args.plot_p_min ): ax.set_xlim(min(x)-200, max(x)+200);
                     ax.set_xlabel(direction+r" time [$\rm{\mu}$s]", fontsize=font_size);
                     
-                    if(args.plot_lt): ax.set_xlabel(r"$\tau$"+r" [$\rm{\mu}$s]", fontsize=font_size); ax.set_xlim(min(x)*0.95, max(x)*1.05)
-                    if(args.plot_phase): ax.set_xlabel(r"$\phi$"+r" [rad]", fontsize=font_size); ax.set_xlim(min(x)*0.999, max(x)*1.001)
+                    if(args.plot_lt): 
+                        ax.set_xlabel(r"$\tau$"+r" [$\rm{\mu}$s]", fontsize=font_size); ax.set_xlim(min(x)*0.95, max(x)*1.05)
+
+                        par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x, y, y_e, cu.line, (1.0, 1.0) )
+                        print(par)
+                        ax.plot(x, cu.line(x, *par), c="red", label=r"$\frac{\Delta A_{B_{z}}}{\Delta \tau}$="+str(int(par[0]*1e3))+r"$\times 10^{-3} \ \rm{\mu}$rad/$\rm{\mu}$s", lw=2)
+                        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]+5)
+                        ax.set_xlim(54, 69)
+
+                    if(args.plot_phase): 
+                        ax.set_xlabel(r"$\phi$"+r" [rad]", fontsize=font_size); ax.set_xlim(min(x)*0.999, max(x)*1.001)
+                        par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x, y, y_e, cu.line, (1.0, 1.0) )
+                        print(par)
+                        ax.plot(x, cu.line(x, *par), c="red", label=r"$\frac{\Delta A_{B_{z}}}{\Delta \phi}$="+str(int(par[0]*1e3))+r"$\times 10^{-3} \ \rm{\mu}$rad/rad", lw=2)
+                        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]+5)
 
                     if(args.plot_g2period): 
                         ax.set_xlabel(r"$T_{g-2}$ "+r"[$\rm{\mu}$s]", fontsize=font_size); ax.set_xlim(min(x)*0.99999, max(x)*1.00001); plt.xticks(fontsize=12)
-                        x_ppm= ( (plot_data[direction]-g2period)/g2period ) * 1e6; 
+                        x2= ( (plot_data["g2period"]-g2period)/g2period ) * 1e6; 
+                        x2=x2.astype(int)
                         ax2 = ax.twiny()
-                        ax2.set_xlabel(r"$T_{g-2}$ "+r"(ppm)", fontsize=font_size-2);
-                        ax2.plot(x_ppm, y, lw=0, label=r"$\Delta=$"+str( int((abs(max(y)-min(y)))/(np.mean(y))*1e6 ))+" ppm" )
-                    
+                        ax2.set_xticks(x);
+                        ax2.set_xticklabels(x2);
+                        ax2.set_xlim(ax.get_xlim()[0], ax.get_xlim()[1])
+                        ax2.set_xlabel(r"$T_{g-2}$ "+r"(ppm)", fontsize=font_size-4);
+                        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]+5)
+
+                        par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x2, y, y_e, cu.line, (1.0, 1.0) )
+                        print(par)
+                        ax.plot(x2, cu.line(x2, *par), c="red", label=r"$\frac{\Delta A_{B_{z}}}{\Delta T_{g-2}}$="+str(int(par[0]*1e3))+r"$\times 10^{-3} \ \rm{\mu}$rad/ppm", lw=2)
+                        
+
                     if(args.plot_bin_w):
+
                         ax.set_xlabel("Bin width [ns]", fontsize=font_size); 
                         x2=plot_data["ndf"]
                         ax2=ax.twiny()
                         ax2.set_xticks(x[0::2]);
                         ax2.set_xticklabels(x2[0::2]);
-                        ax2.set_xlim(ax.get_xlim()[0], ax.get_xlim()[1])
+                        
                         ax2.set_xlabel("Number of bins", fontsize=font_size-2)
+
+                        par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x, y, y_e, cu.line, (1.0, 1.0) )
+                        print(par)
+                        ax.plot(x, cu.line(x, *par), c="red", label=r"$\frac{\Delta A_{B_{z}}}{\Delta \rm{Bin \ width}}$="+str(int(par[0]*1e3))+r"$\times 10^{-3} \ \rm{\mu}$rad/ns", lw=2)
+
+                        ax.set_xlim(3, 28)
+                        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]+5)
+                        ax2.set_xlim(ax.get_xlim()[0], ax.get_xlim()[1])
 
                     if(args.plot_p_min and par_names[i_key][i_par]=='NA2'):
                         # par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x, y,  cu.parab, (-1.0, 2400, 1000))
@@ -348,7 +393,7 @@ def plot(direction="start", bidir=False, second_direction=None):
                     #if(par_names[i_key][i_par]=='A_cbo'): print(y, y_e, y_s); sys.exit()
 
     #when done reading the file - backup
-    # subprocess.call(["mv", "../DATA/scans/edm_scan_count.csv", "../DATA/scans/edm_scan_count_"+dirName+".csv"]) # backup previous file
+    # subprocess.call(["mv", "../DATA/cans/edm_scan_count.csv", "../DATA/scans/edm_scan_count_"+dirName+".csv"]) # backup previous file
     # subprocess.call(["mv", "../DATA/scans/edm_scan_theta.csv", "../DATA/scans/edm_scan_theta_"+dirName+".csv"]) # backup previous file
             
 def corr():
