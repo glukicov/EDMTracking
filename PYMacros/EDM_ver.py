@@ -11,6 +11,7 @@ from ROOT import TFile
 #Define constants
 stations = ("12", "18")
 colors = ("red", "blue")
+markers = ("+", "o")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--path", type=str) # offset scale (SD) [um]
@@ -51,7 +52,8 @@ for i_station, station in enumerate(stations):
 ### Plotting 
 def makePlots(name, y_title, value, value_error, both=False):
     fig, ax = plt.subplots()
-    x_ticks=np.char.replace(files, '.root', '')
+    # x_ticks=np.char.replace(files, '.root', '')
+    x_ticks=("Nominal", "High", "Low")
     print("Making plot:", name)
     if (both==False):
         ax.scatter(x_ticks, value, label=label, color=color)
@@ -59,19 +61,23 @@ def makePlots(name, y_title, value, value_error, both=False):
     else:
         #then the passed value is 2D array 
         for i_station, station in enumerate(stations):
-            ax.scatter(x_ticks, value[i_station], label="S"+station, color=colors[i_station])
-            plt.errorbar(x_ticks, value[i_station], yerr=value_error[i_station],  color=colors[i_station], markersize=12, elinewidth=1, capsize=2, linewidth=0)
+            # ax.scatter(x_ticks, value[i_station], label="S"+station, color=colors[i_station])
+            plt.errorbar(x_ticks, value[i_station], yerr=value_error[i_station],  color=colors[i_station], markersize=5, elinewidth=1, capsize=0, linewidth=0, label="S"+station, marker=markers[i_station])
 
     #massaging plot 
-    ax.set_ylabel(y_title, fontsize=14, fontweight='bold')
-    ax.set_xlabel("Setting/Run", fontsize=14, fontweight='bold')
-    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), prop={'size': 12}) # outside (R) of the plot 
+    ax.set_ylabel(y_title, fontsize=15)
+    ax.set_xlabel("Setting", fontsize=15)
+    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), prop={'size': 13}) # outside (R) of the plot 
+    ax.tick_params(labelsize=14)
     plt.tight_layout()
-    plt.savefig("../fig/vertical_"+str(name)+".png", dpi=100)
+    ax.minorticks_on()
+    ax.tick_params(axis='x', which='both', bottom=True, top=True, direction='inout')
+    ax.tick_params(axis='y', which='both', left=True, right=True, direction='inout')
+    plt.savefig("../fig/vertical_"+str(name)+".png", dpi=300)
 
 
 #S12 and S18 
-y_title="Vertical Beam position [mm]"
+y_title=r"$\langle y \rangle$ [mm]"
 name="both"
 makePlots(name, y_title, vertical, vertical_error, both=True)
 

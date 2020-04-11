@@ -302,18 +302,18 @@ def plot_counts_theta(data):
             fig.savefig("../fig/theta_"+ds_name+"_S"+str(station)+".png", dpi=300, bbox_inches='tight')
 
             fig, _ = plt.subplots()
-            n_binsXY_ang=(575,575)
-            jg, cb, legendX, legendY = cu.plotHist2D(data_station['trackT0'], ang, n_binsXY=n_binsXY_ang, prec=2, unitsXY=(r"[$\rm{\mu}$s]", "mrad"), label="S"+str(station), cmin=5)
-            jg.ax_joint.set_xlim(30.6, 140)
-            jg.ax_joint.set_ylim(-50, 50)
+            n_binsXY_ang=(192,575)
+            jg, cb, legendX, legendY = cu.plotHist2D(data_station['trackT0'], ang, n_binsXY=n_binsXY_ang, prec=2, unitsXY=(r"[$\rm{\mu}$s]", "mrad"), label="S"+str(station), cmin=0)
+            jg.ax_joint.set_xlim(0, 100)
+            jg.ax_joint.set_ylim(-60, 60)
             jg.ax_joint.set_ylabel(r"$\theta_y$ [mrad]", fontsize=font_size+2);
             jg.ax_joint.set_xlabel(r"t [$\rm{\mu}$s]", fontsize=font_size+2);
             plt.savefig("../fig/theta2D_"+ds_name+"_S"+str(station)+".png", dpi=300, bbox_inches='tight')
 
             fig, _ = plt.subplots()
-            jg, cb, legendX, legendY = cu.plotHist2D(data_station['mod_times'], ang, n_binsXY=n_binsXY_ang, prec=3, unitsXY=(r"[$\rm{\mu}$s]", "mrad"), label="S"+str(station), cmin=5 )
+            jg, cb, legendX, legendY = cu.plotHist2D(data_station['mod_times'], ang, n_binsXY=n_binsXY_ang, prec=3, unitsXY=(r"[$\rm{\mu}$s]", "mrad"), label="S"+str(station), cmin=0 )
             jg.ax_joint.set_xlim(0.0, g2period)
-            jg.ax_joint.set_ylim(-50, 50)
+            jg.ax_joint.set_ylim(-60, 60)
             jg.ax_joint.set_ylabel(r"$\theta_y$ [mrad]", fontsize=font_size+2);
             jg.ax_joint.set_xlabel(r"$t^{mod}_{g-2}$"+r"[$\rm{\mu}$s]", fontsize=font_size+2);
             plt.savefig("../fig/theta2D_mod_"+ds_name+"_S"+str(station)+".png", dpi=300, bbox_inches='tight')

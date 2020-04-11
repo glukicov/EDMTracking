@@ -243,18 +243,17 @@ def plotData(db_collection, gps_collection, rescale_db, rescale_gps, i_bin, mode
         slope_array.append(slope) # per station 
         chi2_array.append(chi2) # per station
         slopeE_array.append(slopeE) # per station 
-        ax[i_station].plot(x_gen, fit, color="red", linestyle="--", label="Fit:\n"+r"$\chi^2/ndf$="+str(round(chi2,2))+"\n Slope="+str(round(slope,3))+r" $\pm$ "+str(round(slopeE,3))+r" mm$\cdot$kV")
+        ax[i_station].plot(x_gen, fit, color="red", linestyle="-", linewidth=2, label=r"$\frac{\chi^2}{DoF}$="+str(round(chi2,2))+"\n"+r"$\Delta \langle y \rangle \Delta QHV$"+"="+str(round(slope,3))+r" $\pm$ "+str(round(slopeE,3))+r" mm$\cdot$kV")
 
         #plot data 
-        ax[i_station].minorticks_on()
-        ax[i_station].grid()
-        ax[i_station].scatter(qhv, ver[i_station], color='green', label=station+": Number of bins="+str(i_bin))
-        ax[i_station].errorbar(qhv, ver[i_station], yerr=error[i_station], elinewidth=1, linewidth=0, capsize=2, color='green')  
-        ax[i_station].set_ylabel("<Y>: "+station + " [mm]", fontsize=font+2, fontweight='bold')
-        ax[i_station].set_xlabel(x_label, fontsize=font+2, fontweight='bold')
-        ax[i_station].tick_params(axis='x', which='both', bottom=True, direction='inout')
-        ax[i_station].tick_params(axis='y', which='both', left=True, direction='inout')
-        ax[i_station].legend(loc='upper center', bbox_to_anchor=(0.9, 1.2), prop={'size': 14}) # outside (R) of the plot 
+        ax[i_station].minorticks_on()    
+        ax[i_station].tick_params(axis='x', which='both', bottom=True, top=False, direction='inout')
+        ax[i_station].tick_params(axis='y', which='both', left=True, right=False, direction='inout')
+        ax[i_station].errorbar(qhv, ver[i_station], yerr=error[i_station], elinewidth=1, linewidth=0, capsize=0, color='green', label=station, marker="o")  
+        ax[i_station].set_ylabel(r"$\langle y \rangle$"+": "+station + " [mm]", fontsize=font+2)
+        ax[i_station].set_xlabel(x_label, fontsize=font+2)
+        ax[i_station].legend(loc='upper center', bbox_to_anchor=(0.5, 1.0), prop={'size': 15}) # outside (R) of the plot 
+        ax[i_station].set_ylim(-0.08, 0.12)
         
         print("station:", station)
         print("slope [mm]:", round(slope,3),"+-",round(slopeE,3))
@@ -267,7 +266,7 @@ def plotData(db_collection, gps_collection, rescale_db, rescale_gps, i_bin, mode
     #write to disk if only passing a single bin number
     if (len(bins) == 1 ): 
         plt.tight_layout()
-        plt.savefig("YvsQHV_"+str(i_bin)+".png", dpi=100)
+        plt.savefig("../fig/YvsQHV_"+str(i_bin)+".png", dpi=300)
 
     return chi2_array, slope_array, slopeE_array
 
@@ -300,7 +299,7 @@ def plotFinal(bins, data_array, slopeE_array, slope=False):
         ax[i_station].legend(loc='upper center', bbox_to_anchor=(0.9, 1.2), prop={'size': 14}) # outside (R) of the plot    
     #write to disk
     plt.tight_layout()
-    plt.savefig("Final_"+str(word[slope])+".png", dpi=100)
+    plt.savefig("../fig/Final_"+str(word[slope])+".png", dpi=100)
 
 if __name__ == "__main__":
     main()

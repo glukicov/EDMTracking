@@ -141,12 +141,13 @@ def plot(direction="start"):
                 ax.plot(x, band_M, c="r", ls=":", lw=2)
                 if(par_names[i_par]=='tau'): ax.plot([np.min(x)-2, np.max(x)+2], [64.44, 64.44], c="k", ls="--"); ax.set_ylim(np.min(y)-0.1, 64.6);
                 if(par_names[i_par]=='chi2'): ax.plot([min(x)-2, max(x)+2], [1, 1], c="k", ls="--");
+                # ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.)
                 ax.set_xlim(min(x)-2, max(x)+2)
                 ax.set_xlabel(direction+r" time [$\rm{\mu}$s]", fontsize=font_size);
                 ax.set_ylabel(par_labels[i_par], fontsize=font_size);
-                ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.5, 1.1))
+                ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.5, 1.0))
                 fig.subplots_adjust(left=0.15)
-                fig.savefig("../fig/scans_fom/"+direction+"_"+par_names[i_par]+"_S"+str(station)+"_"+str(ds)+".png", dpi=300);
+                fig.savefig("../fig/scans_fom/"+direction+"_"+par_names[i_par]+"_S"+str(station)+"_"+str(ds)+".png", dpi=300, bbox_inches='tight');
 
                 # look into parameters
                 #if(par_names[i_par]=='A_cbo'): print(y, y_e, y_s); sys.exit()
