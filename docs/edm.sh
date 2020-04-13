@@ -16,4 +16,4 @@ convert +append count_HK_S18.png  bz_HK_S18.png HK_S18.png # row (3, 4)
 convert +append count_EG_S18.png  bz_EG_S18.png EG_S18.png # row (3, 4)
 convert -append 60h_S18.png 9D_S18.png HK_S18.png  EG_S18.png S18.png # stuck columns
 
-convert +append S12.png S18.png EDM.png
+convert append S12.png S18.png EDM.png

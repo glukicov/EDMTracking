@@ -61,7 +61,7 @@ def main():
     As a quick solution use sub process 
     TODO: import and run module properly
     '''
-    if(args.all): all(DS_path)
+    if(args.all): all(("../DATA/HDF/MMA/60h.h5", "../DATA/HDF/MMA/9D.h5", "../DATA/HDF/MMA/HK.h5", "../DATA/HDF/MMA/EG.h5"))
     if(args.start): time_scan(DS_path, start_times)
     if(args.end): time_scan(DS_path, end_times)
     if(args.plot): plot(direction="start")

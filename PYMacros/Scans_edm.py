@@ -58,22 +58,23 @@ DS_path = (["../DATA/HDF/EDM/60h.h5"])
 stations=(12, 18)
 dss = (["60h"]) 
 
-# keys=["count", "theta"] # HDF5 keys of input scan result files 
-#plotting and retrieving from HDF5 
-# par_names_count= ["N", "tau", "A", "phi"]; par_labels_count= [r"$N$ (count)", r"$\tau$"+r"[$\rm{\mu}$s]", r"$A$", r"$\phi$ [rad]"];
+keys=["count", "theta"] # HDF5 keys of input scan result files 
+##plotting and retrieving from HDF5 
+par_names_count= ["N", "tau", "A", "phi"]; par_labels_count= [r"$N$ (count)", r"$\tau$"+r"[$\rm{\mu}$s]", r"$A$", r"$\phi$ [rad]"];
+par_names_theta= ["A_Bz", "A_edm_blind", "c"]; par_labels_theta= [r"$A_{B_{z}}$", r"$A^{\rm{BLINDED}}_{\mathrm{EDM}}$", r"$c$"]; 
 # par_names_theta= ["A_Bz", "A_edm_blind", "c"]; par_labels_theta= [r"$A_{B_{z}}$ [mrad]", r"$A^{\rm{BLINDED}}_{\mathrm{EDM}}$ [mrad]", r"$c$ [mrad]"]; 
-# par_names_theta_truth=par_names_theta.copy(); par_names_theta_truth[1]="A_edm"; par_labels_truth=par_labels_theta.copy(); par_labels_truth[1]=r"$A_{\mathrm{EDM}}$"
-# par_labels=[par_labels_count, par_labels_theta, par_labels_truth]
-# par_names=[par_names_count, par_names_theta, par_names_theta_truth] 
+par_names_theta_truth=par_names_theta.copy(); par_names_theta_truth[1]="A_edm"; par_labels_truth=par_labels_theta.copy(); par_labels_truth[1]=r"$A_{\mathrm{EDM}}$"
+par_labels=[par_labels_count, par_labels_theta, par_labels_truth]
+par_names=[par_names_count, par_names_theta, par_names_theta_truth] 
 
 # par_names_count= ["A"];    par_labels_count= [r"$N$ (count)"];
 # par_names_theta= ["A_Bz"]; par_labels_theta= [r"$A_{B_{z}}$ [mrad]"]; 
 # par_labels=[par_labels_count, par_labels_theta]; par_names=[par_names_count, par_names_theta]; 
 # keys=["count", "theta"] # HDF5 keys of input scan result files 
 
-par_names_theta= ["A_Bz"]; par_labels_theta= [r"$A_{B_{z}}$ ["+r"$\rm{\mu}$rad]"]; 
-par_labels=[par_labels_theta]; par_names=[par_names_theta]; 
-keys=["theta"] # HDF5 keys of input scan result files 
+# par_names_theta= ["A_Bz"]; par_labels_theta= [r"$A_{B_{z}}$ ["+r"$\rm{\mu}$rad]"]; 
+# par_labels=[par_labels_theta]; par_names=[par_names_theta]; 
+# keys=["theta"] # HDF5 keys of input scan result files 
 
 
 

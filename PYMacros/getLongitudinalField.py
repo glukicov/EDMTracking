@@ -25,6 +25,8 @@ arg_parser.add_argument("--t_max", type=float, default=454.00) # us
 arg_parser.add_argument("--p_min", type=float, default=1800) # us 
 arg_parser.add_argument("--p_max", type=float, default=3100) # us 
 arg_parser.add_argument("--bin_w", type=float, default=15) # ns 
+# arg_parser.add_argument("--bin_w", type=float, default=150.5314) # ns 
+# arg_parser.add_argument("--bin_w", type=float, default=149.2) # ns 
 arg_parser.add_argument("--g2period", type=float, default=None) # us 
 arg_parser.add_argument("--phase", type=float, default=None) # us 
 arg_parser.add_argument("--lt", type=float, default=None) # us 
@@ -95,7 +97,7 @@ print("Starting pars count",*par_names_count, *p0_count)
 p0_theta_truth=[ [0.00, 0.17, 0.0], [0.00, 0.17, 0.0] ]; print("Starting pars TRUTH theta", *par_names_theta_truth, *p0_theta_truth)
 
 ### Define global variables
-residuals_counts, residuals_theta, times_counts, times_theta=[[],[]], [[],[]], [[],[]] , [[],[]]
+residuals_counts, residuals_theta, times_counts, times_theta, errors_theta =[[],[]], [[],[]], [[],[]] , [[],[]], [[],[]]
 if(sim): residuals_counts, residuals_theta, times_counts, times_theta=[ [] ], [ [] ], [ [] ], [ [] ]
 
 # output scan file HDF5 keys 
@@ -257,11 +259,13 @@ def plot_counts_theta(data):
             ax.set_xlim(0, g2period);
             
             if(ds_name=="9D"): 
-                ax.set_ylim(-0.75, 0.30)
+                ax.set_ylim(-0.75, 0.40)
             elif(ds_name=="EG"): 
-                ax.set_ylim(-0.65, 0.15)
+                ax.set_ylim(-0.75, 0.15)
+            elif(ds_name=="HK"): 
+                ax.set_ylim(-0.60, 0.40)
             else:
-                ax.set_ylim(ax.get_ylim()[0]*1.6, ax.get_ylim()[1]*1.2);
+                ax.set_ylim(-0.80, 0.55);
             if(sim): ax.set_ylim(-2.9, 2.5)
             cu.textL(ax, 0.75, 0.15, leg_data, fs=font_size)
             cu.textL(ax, 0.25, 0.17, leg_fit, fs=font_size, c="r")
@@ -283,6 +287,7 @@ def plot_counts_theta(data):
             # get residuals for later plots 
             residuals_theta[i_station] = cu.residuals(x, y, cu.thetaY_phase, par)
             times_theta[i_station] = x
+            errors_theta[i_station] = y_e
 
 
         #make sanity plots 
@@ -363,15 +368,16 @@ def plot_counts_theta(data):
 
         #-------end of looping over stations
 
-    ### now if not scanning - get FFTs for both stations
-    # ## FFTs
-    # if(not args.scan):
-    #     if (not args.count):
-    #         print("Plotting residuals and FFTs...")
-    #         cu.residual_plots(times_counts, residuals_counts, sim=sim, eL="count", file_label=file_label)
-    #         cu.fft(residuals_counts, bin_w, sim=sim, eL="count", file_label=file_label)
-    #         cu.residual_plots(times_theta, residuals_theta, sim=sim, eL="theta",  file_label=file_label)
-    #         cu.fft(residuals_theta, bin_w, sim=sim, eL="theta", file_label=file_label)
+    ## now if not scanning - get FFTs for both stations
+    ## FFTs
+    if(not args.scan):
+        if (not args.count):
+            print("Plotting residuals and FFTs...")
+            cu.residual_plots(times_counts, residuals_counts, sim=sim, eL="count", file_label=file_label)
+            cu.fft(residuals_counts, bin_w, sim=sim, eL="count", file_label=file_label)
+            cu.residual_plots(times_theta, residuals_theta, sim=sim, eL="theta",  file_label=file_label)
+            cu.fft(residuals_theta, bin_w, sim=sim, eL="theta", file_label=file_label)
+            cu.pull_plots(residuals_theta, errors_theta, file_label=file_label)
 
 if __name__ == '__main__':
     main()

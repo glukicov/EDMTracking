@@ -314,6 +314,21 @@ def residual_plots(times_binned, residuals, sim=False, eL="", file_label="", sca
         ax.legend(fontsize=14)
         plt.savefig("../fig/res/res"+file_label[i_station]+eL+".png", dpi=300)
 
+def pull_plots(residuals_theta, errors_theta, file_label=""):
+    '''
+    loop over the two lists to fill residual plots
+    '''
+    ds_name=_DS
+    if(ds_name==-1): raise Exception("DS not set via cu._DS=x")
+
+    for i_station, (residuals, errors) in enumerate(zip(residuals_theta, errors_theta)):
+        fig, ax = plt.subplots(figsize=(8, 5))
+        ax, lg = plotHist(residuals/errors, n_bins=10, prec=2, fs=14, units="", c="green", alpha=0.7,  label="Run-1: "+ds_name+" dataset S"+str(stations[i_station])+" pulls")
+        textL(ax, 0.15, 0.85, str(lg), fs=14)
+        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.4)
+        ax.set_xlabel("Fit pulls", fontsize=14)
+        ax.legend(fontsize=14)
+        plt.savefig("../fig/pull/pull"+file_label[i_station]+".png", dpi=300)
 
 def fft(residuals, bin_w, sim=False, eL="", file_label="", scan_label=""):
     '''
