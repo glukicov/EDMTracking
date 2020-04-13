@@ -618,6 +618,20 @@ def thetaY_phase(t, *pars):
     
     return A_bz * np.cos(omega * t + phi) + A_edm * np.sin(omega * t + phi) + c
 
+def Bz_only_phase(t, *pars):  
+    '''
+    \langle \theta(t) \rangle =  A_{\mathrm{B_z}}\cos(\omega t + \phi) + A_{\mathrm{EDM}}\sin(\omega t + \phi) + c
+    '''  
+    phi=_phi
+    if (phi == -1): raise Exception("Set constants phase via cu._phi=x")
+    omega=_omega
+    if(omega==-1): raise Exception("Set omega_a via cu._omega=x")
+
+    A_bz  = pars[0]      
+    c     = pars[1]    
+    
+    return A_bz * np.cos(omega * t + phi) + c
+
 def line(x, a, b):
     return a*x+b
 
