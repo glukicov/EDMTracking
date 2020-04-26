@@ -34,14 +34,17 @@ args=arg_parser.parse_args()
 if(args.loss==True): args.cbo = True 
 
 ### Constants
-stations=(12, 18)
+# stations=(12, 18)
+stations=([1218])
 expected_DSs = ("60h", "9D", "HK", "EG", "Sim")
+official_DSs = ("1a", "1c", "1b", "1e", "Sim")
 par_names= ["N", "tau", "A", "R", "phi"]
 
 
 ### Get ds_name from filename
 ds_name=args.hdf.replace(".","/").split("/")[-2] # if all special chars are "/" the DS name is just after extension
-print("Detected DS name:", ds_name, "from the input file!")
+ds_name_official=official_DSs[expected_DSs.index(ds_name)]
+print("Detected DS name:", ds_name, ds_name_official, "from the input file!")
 if(not ds_name in expected_DSs):
     raise Exception("Unexpected input HDF name: if using Run-1 data, rename your file to DS.h5 (e.g. 60h.h5); Otherwise, modify functionality of this programme...exiting...")
 
@@ -55,7 +58,7 @@ p0_s12=[15000, 64.44, 0.34, -60, 2.080]
 p0_s18=[13000, 64.44, 0.34, -90, 2.080]
 func = cu.blinded_wiggle_function # standard blinded function from CommonUtils
 func_label="5par"
-legend_fit=r'Fit: $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]$'
+legend_fit=r'Fit: $N(t)=N_{0}e^{-t/\tau}[1+A\cos(\omega_at+\phi)]$'
 show_cbo_terms=False
 show_loss_terms=False
 
@@ -148,12 +151,15 @@ def fit():
     print("Fitting from", min_t, "to", max_t,"[μs] using", func_label)
 
     #define station cuts to loop over
-    s12_cut = (data['station'] == stations[0])
-    s18_cut = (data['station'] == stations[1])
-    station_cut = (s12_cut, s18_cut)
+    if (len(stations)==2):
+        s12_cut = (data['station'] == stations[0])
+        s18_cut = (data['station'] == stations[1])
+        station_cut = (s12_cut, s18_cut)
 
     for i_station, station in enumerate(stations):
-        data_station=data[station_cut[i_station]]
+        if (len(stations)==2):  data_station=data[station_cut[i_station]]
+        if (len(stations)==1): data_station=data
+        
         # resolve into t variable for ease for a station
         t = data_station['trackT0'] # already expected in us (or can just *1e-3 here if not)
         N=data_station.shape[0]
@@ -179,10 +185,10 @@ def fit():
                                                 legend_fit=legend_fit,
                                                 prec=3,
                                                 key=data_type[0]+" "+data_type[1],
-                                                legend_data="Run-1: "+ds_name+" dataset S"+str(station)
+                                                legend_data="Run-"+ds_name_official+" dataset S"+str(station)
                                                 )
         plt.legend(fontsize=font_size-3, loc='upper center', bbox_to_anchor=(0.5, 1.0) )
-        if(args.scan==False): plt.savefig("../fig/wiggle/wiggle"+file_label[i_station]+".png", dpi=300)
+        if(args.scan==False): plt.savefig("../fig/wiggle/wiggle"+file_label[i_station]+".png", dpi=200)
 
         # Get residuals for next set of plots
         residuals[i_station] = cu.residuals(x, y, func, par)

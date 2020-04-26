@@ -19,8 +19,8 @@ import argparse
 
 
 arg_parser = argparse.ArgumentParser()
-# arg_parser.add_argument("--t_min", type=float, default=4.3) # us 
-arg_parser.add_argument("--t_min", type=float, default=30.56) # us 
+arg_parser.add_argument("--t_min", type=float, default=4.3) # us 
+# arg_parser.add_argument("--t_min", type=float, default=30.56) # us 
 arg_parser.add_argument("--t_max", type=float, default=454.00) # us 
 arg_parser.add_argument("--p_min", type=float, default=1800) # us 
 arg_parser.add_argument("--p_max", type=float, default=3100) # us 
@@ -30,8 +30,9 @@ arg_parser.add_argument("--bin_w", type=float, default=15) # ns
 arg_parser.add_argument("--g2period", type=float, default=None) # us 
 arg_parser.add_argument("--phase", type=float, default=None) # us 
 arg_parser.add_argument("--lt", type=float, default=None) # us 
+arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/Sim/Bz.h5") 
 # arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/Sim/Sim.h5") 
-arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/60h.h5", help="input data")
+# arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/60h.h5", help="input data")
 arg_parser.add_argument("--corr", action='store_true', default=False, help="Save covariance matrix for plotting")
 arg_parser.add_argument("--scan", action='store_true', default=False, help="if run externally for iterative scans - dump 𝝌2 and fitted pars to a file for summary plots") 
 arg_parser.add_argument("--count", action='store_true', default=False)
@@ -41,7 +42,7 @@ args=arg_parser.parse_args()
 ### Define constants and starting fit parameters
 font_size=14 # for plots
 stations=(12, 18)
-expected_DSs = ("60h", "9D", "HK", "EG", "Sim")
+expected_DSs = ("60h", "9D", "HK", "EG", "Sim", "Bz")
 
 ### Get ds_name from filename
 ds_name=args.hdf.replace(".","/").split("/")[-2] # if all special chars are "/" the DS name is just after extension
@@ -57,7 +58,7 @@ print("Setting tune parameters for ", ds_name, "DS")
 
 sim=False
 urad_bool=True
-if(ds_name == "Sim"):
+if(ds_name == "Sim" or ds_name=="Bz"):
     print("Simulation data is loaded!"); sim=True; stations=([1218])
 
 #Set gm2 period 
@@ -92,6 +93,7 @@ if(sim):
     p0_count=[ [3000, 64.4, -0.40, 6.240], [3000, 64.4, -0.40, 6.240]]
     p0_theta_blinded=[ [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]
     urad_bool=False
+    par_units_theta=[r"mrad", r"mrad", r"mrad"]
 print("Starting pars theta blinded", *par_names_theta, *p0_theta_blinded)
 print("Starting pars count",*par_names_count, *p0_count)
 p0_theta_truth=[ [0.00, 0.17, 0.0], [0.00, 0.17, 0.0] ]; print("Starting pars TRUTH theta", *par_names_theta_truth, *p0_theta_truth)
@@ -293,6 +295,20 @@ def plot_counts_theta(data):
         #make sanity plots 
         if(args.hist):
         # if(not sim and args.hist):
+
+            fig, _ = plt.subplots()
+            bin_w_mom = 10 
+            mom=data_station['trackMomentum']
+            n_bins_mom=int(round((max(mom)-min(mom))/bin_w_mom,2))
+            ax, _ = cu.plotHist(mom, n_bins=n_bins_mom, prec=3, units="MeV", label=ds_name+" dataset S"+str(station) )
+            legend=cu.legend5(*cu.stats5(mom), "MeV", prec=2)
+            cu.textL(ax, 0.76, 0.85, str(legend), fs=14)
+            ax.set_ylim(ax.get_ylim()[0],ax.get_ylim()[1]*1.1)
+            # ax.set_xlim(-50,50)
+            ax.set_xlabel(r"$p$ [MeV]", fontsize=font_size);
+            ax.set_ylabel("Entries per "+str(bin_w_mom)+" MeV", fontsize=font_size);
+            ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.26, 1.0))
+            fig.savefig("../fig/mom_"+ds_name+"_S"+str(station)+".png", dpi=300, bbox_inches='tight')
             
             fig, _ = plt.subplots()
             n_bins_ang=400*5

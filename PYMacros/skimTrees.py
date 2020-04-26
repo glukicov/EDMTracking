@@ -15,7 +15,7 @@ import h5py # https://github.com/h5py/h5py
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("--trees", type=str, default="../DATA/Trees/60h_in1File") # dir with ROOT Trees (e.g. /gm2/data/users/glukicov/Run1_QualityTrees/EndGame_in22Files)
 arg_parser.add_argument("--df", type=str, default="../DATA/HDF/60h_skim") # path+fileLabel will be appended with "_filecount" + ".h5"
-arg_parser.add_argument("--t_cut", type=int, default=30) # us 
+arg_parser.add_argument("--t_cut", type=int, default=0) # us 
 arg_parser.add_argument("--p_cut", type=int, default=-1) # MeV
 arg_parser.add_argument("--add", action='store_true', default=False)  # default is to skim files 
 arg_parser.add_argument("--add_label", type=str, default=None) # file label name
@@ -25,7 +25,8 @@ args=arg_parser.parse_args()
 
 #read both track and vertices
 # keys=('QualityTracks', 'QualityVertices')
-keys=(['QualityTracks'])
+# keys=(['QualityTracks'])
+# keys=(['trackerNTup/tracker'])
 
 #counter for all and skimmed tracks/vertices
 total_tv, total_tv_skim = [0, 0], [0, 0]
@@ -97,12 +98,29 @@ def skim():
 def sim_skim():
     key='trackerNTup/tracker'
     for i_file, file in enumerate(sorted(os.listdir(args.trees))):
-        print("Opening root file...", file)
-        data_all = read_root(args.trees+"/"+file, key)
+        print("Opening", key, "data in", args.trees+"/"+file)
+        data_all = read_root(args.trees+"/"+file, key, columns=["station", "trackT0", "trackMomentum", "trackMomentumY"])
         data_all['trackT0']=data_all['trackT0']*1e-3   # ns -> us
         print("Total of", data_all.shape[0], "entries")
-        data_all.to_hdf(args.df+"_"+str(i_file)+".h5", key="sim", mode='a', complevel=9, complib="zlib", format="table", data_columns=True)
+           
+        #Apply cuts in one go! 
+        data = data_all
+
+        #save the skimmed dataframe in a compressed HDF5 format
+        # here we are appending to the file over tracks and then vertices
+        print("Saving compressed data...")
+        data=data.reset_index() # reset index from 0 
+        cols_to_keep = ["station", "trackT0", "trackMomentum", "trackMomentumY"] # only write for time and station 
+        data[cols_to_keep].to_hdf(args.df+"_"+str(i_file)+".h5", key=key, mode='a', complevel=9, complib="zlib", format="fixed")
         print("Skimmed dataframe saved to disk", args.df, "\n")
+        
+        # print("Opening root file...", file)
+        # data_all = read_root(args.trees+"/"+file, key)
+        # data_all['trackT0']=data_all['trackT0']*1e-3   # ns -> us
+        # print("Total of", data_all.shape[0], "entries")
+        # # data_all.to_hdf(args.df+"_"+str(i_file)+".h5", key="sim", mode='a', complevel=9, complib="zlib", format="table", data_columns=True)
+        # data_all.to_hdf(args.df+"_"+str(i_file)+".h5", key="sim", mode='a', complevel=9, complib="zlib", format="table", data_columns=True)
+        # print("Skimmed dataframe saved to disk", args.df, "\n")
 
     print("Exiting...")
     sys.exit()

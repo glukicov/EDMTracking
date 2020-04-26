@@ -36,6 +36,9 @@ _phi=-1
 _LT=-1
 _DS=-1
 
+expected_DSs = ("60h", "9D", "HK", "EG", "Sim")
+official_DSs = ("1a", "1c", "1b", "1e", "Sim")
+
 #define common constants
 meanS=r"$\mathrm{\mu}$"
 sigmaS=r"$\sigma$"
@@ -205,7 +208,7 @@ def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, ndf, t_mod, t_max, 
                                 show_cbo_terms=False, 
                                 show_loss_terms=False, 
                                 data_bool=True,
-                                legend_fit=r'Fit: $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]$',
+                                legend_fit=r'Fit: $N(t)=N_{0}e^{-t/\tau}[1+A\cos(\omega_at+\phi)]$',
                                 legend_data="Run-1 tracker data",
                                 key="Quality Tracks",
                                 fs=15):
@@ -247,7 +250,7 @@ def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, ndf, t_mod, t_max, 
     N_str=sci_notation(N)
     textL(ax, 0.830, 0.65, label_data+ r"$p$"+" > 1.8 GeV \n"+str(round(t_min,1))+r" $\rm{\mu}$s < t < "+str(round(t_max,1))+r" $\rm{\mu}$s"+"\n N="+N_str, fs=fs-3,  weight="normal")
     # deal with fitted parameters (to display nicely)
-    parNames=[r"$N$", r"$\tau$", r"$A$", r"$R$", r"$\phi$"]
+    parNames=[r"$N_{0}$", r"$\tau$", r"$A$", r"$R$", r"$\phi$"]
     units=["", r"$\rm{\mu}$s", "", "ppm",  "rad"]
     legned_par=legend_chi2(chi2_ndf, ndf, par)
     legned_par=legend_par(legned_par,  parNames, par, par_e, units, prec=prec)
@@ -320,10 +323,11 @@ def pull_plots(residuals_theta, errors_theta, file_label=""):
     '''
     ds_name=_DS
     if(ds_name==-1): raise Exception("DS not set via cu._DS=x")
+    ds_name_official=official_DSs[expected_DSs.index(ds_name)]
 
     for i_station, (residuals, errors) in enumerate(zip(residuals_theta, errors_theta)):
         fig, ax = plt.subplots(figsize=(8, 5))
-        ax, lg = plotHist(residuals/errors, n_bins=10, prec=2, fs=14, units="", c="green", alpha=0.7,  label="Run-1: "+ds_name+" dataset S"+str(stations[i_station])+" pulls")
+        ax, lg = plotHist(residuals/errors, n_bins=10, prec=2, fs=14, units="", c="green", alpha=0.7,  label="Run-"+ds_name_official+" dataset S"+str(stations[i_station])+" pulls")
         textL(ax, 0.15, 0.85, str(lg), fs=14)
         ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.4)
         ax.set_xlabel("Fit pulls", fontsize=14)
