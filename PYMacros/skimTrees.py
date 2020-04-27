@@ -18,14 +18,15 @@ arg_parser.add_argument("--df", type=str, default="../DATA/HDF/60h_skim") # path
 arg_parser.add_argument("--t_cut", type=int, default=0) # us 
 arg_parser.add_argument("--p_cut", type=int, default=-1) # MeV
 arg_parser.add_argument("--add", action='store_true', default=False)  # default is to skim files 
-arg_parser.add_argument("--add_label", type=str, default=None) # file label name
+arg_parser.add_argument("--add_R1", action='store_true', default=False)  # default is to skim files 
+arg_parser.add_argument("--add_label", type=str, default="EG HK 60h 9D") # file label name
 arg_parser.add_argument("--add_dir", type=str, default=None) # dir with many .h5 files to add 
 arg_parser.add_argument("--sim_skim", action='store_true', default=False) 
 args=arg_parser.parse_args() 
 
 #read both track and vertices
 # keys=('QualityTracks', 'QualityVertices')
-# keys=(['QualityTracks'])
+keys=(['QualityTracks'])
 # keys=(['trackerNTup/tracker'])
 
 #counter for all and skimmed tracks/vertices
@@ -44,6 +45,11 @@ def main():
     if(args.add==True):
         add()
 
+    #add HDF5s into one based on label (name)
+    if(args.add_R1==True):
+        add_R1()
+
+
 def add():
     print("Adding HDF5 from", args.add_dir, "with label", args.add_label)
     selected = [] # selected files from the folder 
@@ -52,6 +58,28 @@ def add():
     for i_file, file in enumerate(sorted(os.listdir(args.add_dir))):
         name=re.split(r'_|\.', file) # split by "_" and "."
         if(args.add_label in name and "h5" in name):
+            selected.append(file)
+    print("Found", len(selected), "file(s):", *selected, "adding...")
+    
+    #loop over the known keys and selected files 
+    # not very efficient but clear
+    for key in keys:
+        frames=[] # store all DF for that key 
+        for file in selected:
+            path=args.add_dir+"/"+file
+            frames.append( pd.read_hdf(path, key) )
+        result = pd.concat(frames) # add 
+        result.to_hdf(args.add_dir+"/"+args.add_label+".h5", key=key, mode='a', complevel=9, complib="zlib", format="fixed")
+    print("Added all the HDF files to", args.add_dir)
+
+def add():
+    print("Adding HDF5 from", args.add_dir)
+    selected = [] # selected files from the folder 
+
+    #loop over all files and select based on label and ".h5" file format
+    for i_file, file in enumerate(sorted(os.listdir(args.add_dir))):
+        name=re.split(r'_|\.', file) # split by "_" and "."
+        if("h5" in name):
             selected.append(file)
     print("Found", len(selected), "file(s):", *selected, "adding...")
     

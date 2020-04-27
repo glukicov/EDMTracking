@@ -37,8 +37,8 @@ _phi=-1
 _LT=-1
 _DS=-1
 
-expected_DSs = ("60h", "9D", "HK", "EG", "Sim")
-official_DSs = ("1a", "1c", "1b", "1e", "Sim")
+expected_DSs = ("60h", "9D", "HK", "EG", "Sim", "R1")
+official_DSs = ("1a", "1c", "1b", "1e", "Sim", "Run-1")
 
 #define common constants
 meanS=r"$\mathrm{\mu}$"

@@ -19,8 +19,8 @@ import argparse
 
 
 arg_parser = argparse.ArgumentParser()
-arg_parser.add_argument("--t_min", type=float, default=4.3) # us 
-# arg_parser.add_argument("--t_min", type=float, default=30.56) # us 
+# arg_parser.add_argument("--t_min", type=float, default=4.3) # us 
+arg_parser.add_argument("--t_min", type=float, default=30.56) # us 
 arg_parser.add_argument("--t_max", type=float, default=454.00) # us 
 arg_parser.add_argument("--p_min", type=float, default=1800) # us 
 arg_parser.add_argument("--p_max", type=float, default=3100) # us 
@@ -30,7 +30,8 @@ arg_parser.add_argument("--bin_w", type=float, default=15) # ns
 arg_parser.add_argument("--g2period", type=float, default=None) # us 
 arg_parser.add_argument("--phase", type=float, default=None) # us 
 arg_parser.add_argument("--lt", type=float, default=None) # us 
-arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/Sim/Bz.h5") 
+arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/R1.h5") 
+# arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/Sim/Bz.h5") 
 # arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/Sim/Sim.h5") 
 # arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/60h.h5", help="input data")
 arg_parser.add_argument("--corr", action='store_true', default=False, help="Save covariance matrix for plotting")
@@ -41,8 +42,9 @@ args=arg_parser.parse_args()
 
 ### Define constants and starting fit parameters
 font_size=14 # for plots
-stations=(12, 18)
-expected_DSs = ("60h", "9D", "HK", "EG", "Sim", "Bz")
+# stations=(12, 18)
+stations=([1218])
+expected_DSs = ("60h", "9D", "HK", "EG", "Sim", "Bz", "R1")
 
 ### Get ds_name from filename
 ds_name=args.hdf.replace(".","/").split("/")[-2] # if all special chars are "/" the DS name is just after extension
@@ -141,10 +143,10 @@ def load_data(df_path):
     data_hdf['theta_y_mrad']=theta_y_mrad # add to the data frame 
     
     # select all stations for simulation
-    if(sim): data = [data_hdf]
+    if(sim or len(stations)==1): data = [data_hdf]
 
     #split into two stations for data 
-    if(not sim): data = [ data_hdf[data_hdf['station'] == 12], data_hdf[data_hdf['station'] == 18] ];
+    if(not sim and len(stations)==2): data = [ data_hdf[data_hdf['station'] == 12], data_hdf[data_hdf['station'] == 18] ];
         
     return data
 
@@ -386,14 +388,14 @@ def plot_counts_theta(data):
 
     ## now if not scanning - get FFTs for both stations
     ## FFTs
-    if(not args.scan):
-        if (not args.count):
-            print("Plotting residuals and FFTs...")
-            cu.residual_plots(times_counts, residuals_counts, sim=sim, eL="count", file_label=file_label)
-            cu.fft(residuals_counts, bin_w, sim=sim, eL="count", file_label=file_label)
-            cu.residual_plots(times_theta, residuals_theta, sim=sim, eL="theta",  file_label=file_label)
-            cu.fft(residuals_theta, bin_w, sim=sim, eL="theta", file_label=file_label)
-            cu.pull_plots(residuals_theta, errors_theta, file_label=file_label)
+    # if(not args.scan):
+    #     if (not args.count):
+    #         print("Plotting residuals and FFTs...")
+    #         cu.residual_plots(times_counts, residuals_counts, sim=sim, eL="count", file_label=file_label)
+    #         cu.fft(residuals_counts, bin_w, sim=sim, eL="count", file_label=file_label)
+    #         cu.residual_plots(times_theta, residuals_theta, sim=sim, eL="theta",  file_label=file_label)
+    #         cu.fft(residuals_theta, bin_w, sim=sim, eL="theta", file_label=file_label)
+    #         cu.pull_plots(residuals_theta, errors_theta, file_label=file_label)
 
 if __name__ == '__main__':
     main()

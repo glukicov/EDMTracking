@@ -136,7 +136,7 @@ if(args.lt):
     in_=input("Start scans?")
 
 if(args.bin_w): 
-    bins=np.linspace(5, 25, 21, dtype=float)
+    bins=np.linspace(5, 160, 21, dtype=float)
     print("bins width [ns]:", bins)
     in_=input("Start scans?")
 
@@ -367,7 +367,7 @@ def plot(direction="start", bidir=False, second_direction=None):
                         print(par)
                         ax.plot(x, cu.line(x, *par), c="red", label=r"$\frac{\Delta A_{B_{z}}}{\Delta \rm{Bin \ width}}$="+str(int(par[0]*1e3))+r"$\times 10^{-3} \ \rm{\mu}$rad/ns", lw=2)
 
-                        ax.set_xlim(3, 28)
+                        # ax.set_xlim(3, 28)
                         ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]+5)
                         ax2.set_xlim(ax.get_xlim()[0], ax.get_xlim()[1])
 

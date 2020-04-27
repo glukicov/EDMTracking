@@ -36,10 +36,9 @@ if(args.loss==True): args.cbo = True
 ### Constants
 # stations=(12, 18)
 stations=([1218])
-expected_DSs = ("60h", "9D", "HK", "EG", "Sim")
-official_DSs = ("1a", "1c", "1b", "1e", "Sim")
+expected_DSs = ("60h", "9D", "HK", "EG", "Sim", "R1")
+official_DSs = ("1a", "1c", "1b", "1e", "Sim", "Run-1")
 par_names= ["N", "tau", "A", "R", "phi"]
-
 
 ### Get ds_name from filename
 ds_name=args.hdf.replace(".","/").split("/")[-2] # if all special chars are "/" the DS name is just after extension
@@ -50,8 +49,9 @@ if(not ds_name in expected_DSs):
 
 # Now that we know what DS we have, we can
 # set tune and calculate expected FFTs and
+if (ds_name == "R1"): ds_name = "EG"
 cu._DS=ds_name
-print("Setting tune parameters for ", ds_name, "DS")
+print("Setting tune parameters for", ds_name, "DS")
 
 ### (2) Deal with weather we are doing 5 or 9 parameter fit
 p0_s12=[15000, 64.44, 0.34, -60, 2.080]
