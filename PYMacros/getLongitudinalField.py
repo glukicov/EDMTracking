@@ -175,7 +175,7 @@ def plot_counts_theta(data):
                                      t_min, t_max, p_min, p_max,
                                      par_labels_count, par_units_count, 
                                      legend_data = legend,
-                                     legend_fit=r'Fit: $N(t)=Ne^{-t/\tau}[1+A\cos(\omega_at+\phi)]$',
+                                     legend_fit=r'Fit: $N(t)=N_{0}e^{-t/\tau}[1+A\cos(\omega_at+\phi)]$',
                                      ylabel=r"Counts ($N$) per "+str(int(bin_w*1e3))+" ns",
                                      font_size=font_size,
                                      prec=3)

@@ -108,8 +108,10 @@ max_t = args.max # us
 t_mod=100 # us; fold plot every N us
 
 ### Global storage
-residuals=[[],[]]
-times_binned=[[],[]]
+residuals=[]
+errors=[]
+times_binned=[]
+
 
 # form a string to distinguish files (this still a list[i_station])
 global_label=ds_name+"_"+func_label
@@ -120,17 +122,25 @@ par_e_names=[str(par)+"_e" for par in par_names]
 def main():
 
     #open the hdf file and fit!
-    times_binned, residuals=fit()
+    times_binned, residuals, errors =fit()
 
     if(args.scan==False):
         #now plot the (data - fit)
-        cu.residual_plots(times_binned, residuals, file_label=file_label, scan_label=scan_label)
+        # cu.residual_plots(times_binned, residuals, file_label=file_label, scan_label=scan_label)
+        
+
+        # print(len(residuals))
+        # print(len(errors))
+        # print(file_label)
+        # sys.exit()
+
+        cu.pull_plots(residuals, errors, file_label=file_label)
 
         #FFTs
         cu.fft(residuals, bin_w, file_label=file_label, scan_label=scan_label)
 
         #finally add plots into single canvas
-        canvas()
+        #canvas()
 
 def fit():
     '''
@@ -191,8 +201,9 @@ def fit():
         if(args.scan==False): plt.savefig("../fig/wiggle/wiggle"+file_label[i_station]+".png", dpi=200)
 
         # Get residuals for next set of plots
-        residuals[i_station] = cu.residuals(x, y, func, par)
-        times_binned[i_station] = x
+        residuals = cu.residuals(x, y, func, par)
+        times_binned = x
+        errors=y_err
 
         # if running externally, via a different module and passing scan==True as an argument
         # dump the parameters to a unique file for summary plots
@@ -207,7 +218,7 @@ def fit():
                 df.to_csv(f, mode='a', header=f.tell()==0)
             plt.savefig("../fig/scans/wiggle"+file_label[i_station]+scan_label+".png", dpi=300)
 
-    return times_binned, residuals
+    return times_binned, residuals, errors
 
 
 def canvas():
