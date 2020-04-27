@@ -38,10 +38,18 @@ par_labels=[r"$N$", r"$\tau$", r"$A$", r"$R$", r"$\phi$", r"$A_{\rm{CBO}}$", r"$
 # par_labels=[r"$N$", r"$\tau$", r"$A$", r"$R$", r"$\phi$", r"$A_{\rm{CBO}}$", r"$\omega_{\rm{CBO}}$", r"$\phi_{\rm{CBO}}$", r"$\tau_{\rm{CBO}}$"])
 
 bin_w = 149.2*1e-3 # 150 ns
-factor=10
+
+# factor=10
+# step=bin_w*factor
+# stop_desired=90 # us 
+# start=30.2876 # us 
+
+factor=1
 step=bin_w*factor
-stop_desired=90 # us 
-start=30.2876 # us 
+stop_desired=60 # us 
+start=55.6516 # us 
+
+
 dt = stop_desired - start
 n_dt = int(dt/bin_w/factor) # how many whole (factor x bins) do we fit in that interval
 print("Will generate", n_dt+1, "start times between", start, "and", stop_desired, 'us')
@@ -51,8 +59,8 @@ print("Adjusted last start time ",stop)
 start_times = np.arange(start, stop, step, dtype=float)
 end_times = np.linspace(300, 500, 36, dtype=float)
 
-# print(start_times)
-# sys.exit()
+print(start_times)
+in_=input("Start scans?")
 # print(end_times)
 
 
@@ -73,8 +81,9 @@ def all(DS_path):
     for path in DS_path:
         # subprocess.Popen(["python3", "fitWithBlinders_skim.py", "--hdf", path])
         # subprocess.Popen(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--cbo"])
-        subprocess.Popen(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--loss"])
-        # subprocess.Popen(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--loss", "--min", "55.6516"])
+        # subprocess.Popen(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--loss"])
+        subprocess.Popen(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--loss", "--min", "56.0992"])
+        # subprocess.Popen(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--loss", "--min", "52.6676"])
 
 def time_scan(DS_path, times):
     subprocess.call(["mv", "../DATA/scans/scan.csv", "../DATA/scans/scan_"+str(int(datetime.datetime.now().timestamp()))+".csv"]) # backup previous file

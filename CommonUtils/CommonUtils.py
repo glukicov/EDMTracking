@@ -336,6 +336,7 @@ def pull_plots(residuals, errors, file_label=""):
     ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.2)
     ax.set_xlabel("Fit pulls", fontsize=14)
     ax.legend(fontsize=14)
+    fig.tight_layout()
     plt.savefig("../fig/pull/pull"+file_label[i_station]+".png", dpi=200)
 
 def fft(residuals, bin_w, sim=False, eL="", file_label="", scan_label=""):
@@ -718,6 +719,8 @@ def legend_par(legend, parNames, par, par_e, units, prec=2, urad=False):
         if(urad):
             value=i_name+"={0:+.{prec}f}".format(par[i], prec=prec)+"({0:.{prec}f})".format( par_e[i], prec=prec)+" "+units[i]
         elif (par_e[i] < 1):
+            prec=abs(np.floor(np.log10(np.abs(par_e[i]))).astype(int))
+            # print(parNames[i],par_e[i], prec)
             value=i_name+"={0:+.{prec}f}".format(par[i], prec=prec)+"({0:d})".format( int(round(par_e[i]*10**prec)), prec=prec)+" "+units[i]
         else:
             value=i_name+"={0:d}".format(int(round(par[i])))+"({0:d})".format( int(round(par_e[i])))+" "+units[i] 
@@ -727,6 +730,7 @@ def legend_par(legend, parNames, par, par_e, units, prec=2, urad=False):
 
 def legend_1par(legend, parName, par, par_e, units, prec=2):
     if (par_e < 1):
+        prec=abs(np.floor(np.log10(np.abs(par_e))).astype(int))
         value=parName+"={0:+.{prec}f}".format(par, prec=prec)+"({0:d})".format( int(round(par_e*10**prec)), prec=prec)+" "+units
     else:
         value=parName+"={0:d}".format(int(round(par)))+"({0:d})".format( int(round(par_e)))+" "+units 

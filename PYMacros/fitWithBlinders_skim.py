@@ -37,7 +37,7 @@ if(args.loss==True): args.cbo = True
 # stations=(12, 18)
 stations=([1218])
 expected_DSs = ("60h", "9D", "HK", "EG", "Sim", "R1")
-official_DSs = ("1a", "1c", "1b", "1e", "Sim", "Run-1")
+official_DSs = ("1a", "1c", "1b", "1e", "Sim", "1")
 par_names= ["N", "tau", "A", "R", "phi"]
 
 ### Get ds_name from filename
@@ -54,7 +54,7 @@ cu._DS=ds_name
 print("Setting tune parameters for", ds_name, "DS")
 
 ### (2) Deal with weather we are doing 5 or 9 parameter fit
-p0_s12=[15000, 64.44, 0.34, -60, 2.080]
+p0_s12=[30000, 63, 0.3395, -56, 2.072]
 p0_s18=[13000, 64.44, 0.34, -90, 2.080]
 func = cu.blinded_wiggle_function # standard blinded function from CommonUtils
 func_label="5par"
@@ -74,7 +74,7 @@ if (args.cbo):
         print("Bad resistors in EG are accounted in the starting parameters!") # bad resistors fix 
     if (ds_name=="60h"):  
         # cbo_fit_terms_s12=[0.05, 2.5, 3.8, 90.0] 
-        cbo_fit_terms_s12=[0.028, 2.332, 2.826, 175.2]
+        cbo_fit_terms_s12=[0.022, 2.330, 2.4, 149]
         cbo_fit_terms_s18=[0.020, 2.338, 1.055, 175.2]
     if (ds_name=="9D"):  
         # cbo_fit_terms_s12=[0.026, 2.330, 3.034, 200.0]
@@ -91,7 +91,7 @@ if (args.cbo):
 if(args.loss):
     cu._DS=ds_name # for muon loss integral 
     par_names.extend(["K_LM"])
-    p0_s12.extend([18.0]); p0_s18.extend([6.0]); # S12 and S18 
+    p0_s12.extend([6.0]); p0_s18.extend([6.0]); # S12 and S18 
     func=cu.blinded_10_par
     func_label="10par"
     legend_fit=legend_fit+r"$\cdot\Lambda(t)$"

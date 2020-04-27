@@ -90,13 +90,13 @@ if(args.stop):
     in_=input("Start scans?")
 
 if(args.p_min):   
-    p_min = np.linspace(1000, 2400, 15, dtype=float)
+    p_min = np.linspace(700, 2300, 17, dtype=float)
     print("P min:", p_min)
     in_=input("Start scans?")
 
 if(args.p_minp_max):
-    p_min = np.linspace(0, 1000, 11, dtype=float)
-    p_max = np.linspace(3100, 2100, 11, dtype=float)
+    p_min = np.linspace(0, 1400, 15, dtype=float)
+    p_max = np.linspace(3100, 1700, 15, dtype=float)
     print("P min:", p_min)
     print("P max:", p_max)
     in_=input("Start scans?")
