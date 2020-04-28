@@ -221,13 +221,13 @@ def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, ndf, t_mod, t_max, 
 
     #log the y and set axis scales 
     plt.yscale("log")
-    ax.set_ylim(min(y)*0.90, max(y)*3e3)
+    ax.set_ylim(min(y)*0.60, max(y)*70e3)
     ax.set_xlim(0, t_mod)
     label_data="Data: \n"+key+"\n"
     plot_name="_data"
     if (not data_bool):
         ax.set_xlim(0.2, t_mod) 
-        ax.set_ylim(70, 4.0e4)
+        ax.set_ylim(70, 5e4)
         label_data="Sim.: \n All Tracks \n"
         legend_data="Sim. tracker data"
         plot_name="_sim"

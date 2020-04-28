@@ -81,8 +81,8 @@ def all(DS_path):
     for path in DS_path:
         # subprocess.Popen(["python3", "fitWithBlinders_skim.py", "--hdf", path])
         # subprocess.Popen(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--cbo"])
-        # subprocess.Popen(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--loss"])
-        subprocess.Popen(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--loss", "--min", "56.0992"])
+        subprocess.Popen(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--loss"])
+        # subprocess.Popen(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--loss", "--min", "56.0992"])
         # subprocess.Popen(["python3", "fitWithBlinders_skim.py", "--hdf", path, "--loss", "--min", "52.6676"])
 
 def time_scan(DS_path, times):
