@@ -30,10 +30,10 @@ arg_parser.add_argument("--bin_w", type=float, default=15) # ns
 arg_parser.add_argument("--g2period", type=float, default=None) # us 
 arg_parser.add_argument("--phase", type=float, default=None) # us 
 arg_parser.add_argument("--lt", type=float, default=None) # us 
-arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/R1.h5") 
+# arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/R1.h5") 
 # arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/Sim/Bz.h5") 
 # arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/Sim/Sim.h5") 
-# arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/60h.h5", help="input data")
+arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/60h.h5", help="input data")
 arg_parser.add_argument("--corr", action='store_true', default=False, help="Save covariance matrix for plotting")
 arg_parser.add_argument("--scan", action='store_true', default=False, help="if run externally for iterative scans - dump 𝝌2 and fitted pars to a file for summary plots") 
 arg_parser.add_argument("--count", action='store_true', default=False)
@@ -45,11 +45,13 @@ font_size=14 # for plots
 # stations=(12, 18)
 stations=([1218])
 expected_DSs = ("60h", "9D", "HK", "EG", "Sim", "Bz", "R1")
+official_DSs = ("1a", "1c", "1b", "1e", "Sim", "Bz" "R1")
 
 ### Get ds_name from filename
 ds_name=args.hdf.replace(".","/").split("/")[-2] # if all special chars are "/" the DS name is just after extension
+ds_name_official=official_DSs[expected_DSs.index(ds_name)]
 folder=args.hdf.replace(".","/").split("/")[-3] 
-print("Detected DS name:", ds_name, "from the input file!")
+print("Detected DS name:", ds_name, ds_name_official, "from the input file!")
 if( (folder != "Sim") and (folder != "EDM")): raise Exception("Loaded pre-skimmed simulation or EDM file")
 if(not ds_name in expected_DSs): raise Exception("Unexpected input HDF name: if using Run-1 data, rename your file to DS.h5 (e.g. 60h.h5); Otherwise, modify functionality of this programme...exiting...")
 
@@ -170,8 +172,8 @@ def plot_counts_theta(data):
         if (args.corr): print("Covariance matrix\n", pcov); np.save("../DATA/misc/pcov_count_S"+str(station)+".np", pcov);
 
         #Plot
-        if(sim): legend=ds_name+" S"+str(station);
-        else:    legend="Run-1: "+ds_name+" dataset S"+str(station);                           
+        if(sim): legend=ds_name_official+" S"+str(station);
+        else:    legend="Run-"+ds_name_official+" dataset S"+str(station);                           
         fig, ax, leg_data, leg_fit = cu.plot_edm(x, y, y_e, cu.unblinded_wiggle_fixed, 
                                      par, par_e, chi2_ndf, ndf, bin_w, N,
                                      t_min, t_max, p_min, p_max,
@@ -302,7 +304,7 @@ def plot_counts_theta(data):
             bin_w_mom = 10 
             mom=data_station['trackMomentum']
             n_bins_mom=int(round((max(mom)-min(mom))/bin_w_mom,2))
-            ax, _ = cu.plotHist(mom, n_bins=n_bins_mom, prec=3, units="MeV", label=ds_name+" dataset S"+str(station) )
+            ax, _ = cu.plotHist(mom, n_bins=n_bins_mom, prec=3, units="MeV", label="Run-"+ds_name_official+" dataset S"+str(station) )
             legend=cu.legend5(*cu.stats5(mom), "MeV", prec=2)
             cu.textL(ax, 0.76, 0.85, str(legend), fs=14)
             ax.set_ylim(ax.get_ylim()[0],ax.get_ylim()[1]*1.1)
@@ -313,8 +315,8 @@ def plot_counts_theta(data):
             fig.savefig("../fig/mom_"+ds_name+"_S"+str(station)+".png", dpi=300, bbox_inches='tight')
             
             fig, _ = plt.subplots()
-            n_bins_ang=400*5
-            ax, _ = cu.plotHist(ang, n_bins=n_bins_ang, prec=3, units="mrad", label=ds_name+" dataset S"+str(station) )
+            n_bins_ang=400*2
+            ax, _ = cu.plotHist(ang, n_bins=n_bins_ang, prec=3, units="mrad", label="Run-"+ds_name_official+" dataset S"+str(station) )
             legend=cu.legend3_sd(*cu.stats3_sd(ang), "mrad", prec=3)
             cu.textL(ax, 0.8, 0.85, str(legend), fs=14)
             ax.set_ylim(ax.get_ylim()[0],ax.get_ylim()[1]*1.1)
@@ -324,22 +326,22 @@ def plot_counts_theta(data):
             ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.3, 1.0))
             fig.savefig("../fig/theta_"+ds_name+"_S"+str(station)+".png", dpi=300, bbox_inches='tight')
 
-            fig, _ = plt.subplots()
-            n_binsXY_ang=(192,575)
-            jg, cb, legendX, legendY = cu.plotHist2D(data_station['trackT0'], ang, n_binsXY=n_binsXY_ang, prec=2, unitsXY=(r"[$\rm{\mu}$s]", "mrad"), label="S"+str(station), cmin=0)
-            jg.ax_joint.set_xlim(0, 100)
-            jg.ax_joint.set_ylim(-60, 60)
-            jg.ax_joint.set_ylabel(r"$\theta_y$ [mrad]", fontsize=font_size+2);
-            jg.ax_joint.set_xlabel(r"t [$\rm{\mu}$s]", fontsize=font_size+2);
-            plt.savefig("../fig/theta2D_"+ds_name+"_S"+str(station)+".png", dpi=300, bbox_inches='tight')
+            # fig, _ = plt.subplots()
+            # n_binsXY_ang=(192,575)
+            # jg, cb, legendX, legendY = cu.plotHist2D(data_station['trackT0'], ang, n_binsXY=n_binsXY_ang, prec=2, unitsXY=(r"[$\rm{\mu}$s]", "mrad"), label="S"+str(station), cmin=0)
+            # jg.ax_joint.set_xlim(0, 100)
+            # jg.ax_joint.set_ylim(-60, 60)
+            # jg.ax_joint.set_ylabel(r"$\theta_y$ [mrad]", fontsize=font_size+2);
+            # jg.ax_joint.set_xlabel(r"t [$\rm{\mu}$s]", fontsize=font_size+2);
+            # plt.savefig("../fig/theta2D_"+ds_name+"_S"+str(station)+".png", dpi=300, bbox_inches='tight')
 
-            fig, _ = plt.subplots()
-            jg, cb, legendX, legendY = cu.plotHist2D(data_station['mod_times'], ang, n_binsXY=n_binsXY_ang, prec=3, unitsXY=(r"[$\rm{\mu}$s]", "mrad"), label="S"+str(station), cmin=0 )
-            jg.ax_joint.set_xlim(0.0, g2period)
-            jg.ax_joint.set_ylim(-60, 60)
-            jg.ax_joint.set_ylabel(r"$\theta_y$ [mrad]", fontsize=font_size+2);
-            jg.ax_joint.set_xlabel(r"$t^{mod}_{g-2}$"+r"[$\rm{\mu}$s]", fontsize=font_size+2);
-            plt.savefig("../fig/theta2D_mod_"+ds_name+"_S"+str(station)+".png", dpi=300, bbox_inches='tight')
+            # fig, _ = plt.subplots()
+            # jg, cb, legendX, legendY = cu.plotHist2D(data_station['mod_times'], ang, n_binsXY=n_binsXY_ang, prec=3, unitsXY=(r"[$\rm{\mu}$s]", "mrad"), label="S"+str(station), cmin=0 )
+            # jg.ax_joint.set_xlim(0.0, g2period)
+            # jg.ax_joint.set_ylim(-60, 60)
+            # jg.ax_joint.set_ylabel(r"$\theta_y$ [mrad]", fontsize=font_size+2);
+            # jg.ax_joint.set_xlabel(r"$t^{mod}_{g-2}$"+r"[$\rm{\mu}$s]", fontsize=font_size+2);
+            # plt.savefig("../fig/theta2D_mod_"+ds_name+"_S"+str(station)+".png", dpi=300, bbox_inches='tight')
             
         #############
         # Make truth (un-blinded fits) if simulation

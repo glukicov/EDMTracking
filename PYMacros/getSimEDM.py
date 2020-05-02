@@ -73,7 +73,7 @@ print("Setting bin width of", bin_w*1e3, "ns with ~", bin_n, "bins")
 #starting fit parameters and their labels for plotting 
 par_names_theta= ["A_edm", "omega", "c"]; par_labels_theta= [r"$A_{\mathrm{EDM}}$", r"$\omega_{a}$", r"$c$"]; par_units_theta=["mrad", "MHz", "mrad"]
 if(sim): 
-    p0_theta=[ [0.17, 1.31, 1.0]]
+    p0_theta=[ [0.22, 1.31, 0.0]]
 print("Starting pars",*par_names_theta, *p0_theta)
 global_label=ds_name+"_"
 file_label=["_S"+str(s)+"_"+global_label for s in stations]
@@ -165,11 +165,12 @@ def plot_counts_theta(data):
                                          prec=2, 
                                          urad=False)
             ax.set_xlim(0, g2period);
-            ax.set_ylim(ax.get_ylim()[0]*1.6, ax.get_ylim()[1]*1.45);
+            ax.set_ylim(ax.get_ylim()[0]*2.0, ax.get_ylim()[1]*1.6);
             if(not sim): ax.set_ylim(ax.get_ylim()[0]*1.23, ax.get_ylim()[1]*1.4)
             cu.textL(ax, 0.75, 0.15, leg_data, fs=font_size)
             cu.textL(ax, 0.25, 0.17, leg_fit, fs=font_size, c="r")
             print("Fit in "+ds_name+" S:"+str(station), leg_fit)
+            plt.tight_layout()
             fig.savefig("../fig/sim_"+ds_name+"_S"+str(station)+".png", dpi=300)
       
 
