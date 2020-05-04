@@ -165,6 +165,7 @@ def plot_fom(x, y, y_e, ds_colors, ds_markers,
              eL="",
              font_size=14,
              prec=1,
+             no_legend=False
              ):
     if(ax==None and fig == None): 
         fig, ax = plt.subplots()
@@ -182,13 +183,13 @@ def plot_fom(x, y, y_e, ds_colors, ds_markers,
             label_y=eL+x[i]+": "+str(round(y[i],prec))+"("+str(round(y_e[i],prec))+r") "+units
         if(prec==0 and y_e[0]!=None):
             label_y=eL+x[i]+": "+str(int(round(y[i],prec)))+"("+str(int(round(y_e[i],prec)))+r") "+units
-        ax.scatter(x_step[i], y[i], marker=ds_markers[i], color=ds_colors[i], lw=0,  label=label_y)
+        # ax.scatter(x_step[i], y[i], marker=ds_markers[i], color=ds_colors[i], lw=0,  label=label_y)
     
-    if(y_e[0]!=None): ax.errorbar(x_step, y, yerr=y_e, elinewidth=2, linewidth=0, ecolor=ds_colors)
+    if(y_e[0]!=None): ax.errorbar(x_step, y, yerr=y_e, elinewidth=2, linewidth=0, ecolor=ds_colors, marker=ds_markers[i], color=ds_colors[i])
     
     ax.set_xlabel("Dataset", fontsize=font_size);
     ax.set_ylabel(y_label, fontsize=font_size);
-    ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(1.32, 0.73));
+    # if(no_legend==True): ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(1.32, 0.73));
     ax.tick_params(axis='x', which='both', bottom=True, top=True, direction='inout')
     ax.tick_params(axis='y', which='both', left=True, right=True, direction='inout')
     ax.set_xticks([1, 2, 3, 4])

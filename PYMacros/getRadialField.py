@@ -243,7 +243,7 @@ def plotData(db_collection, gps_collection, rescale_db, rescale_gps, i_bin, mode
         slope_array.append(slope) # per station 
         chi2_array.append(chi2) # per station
         slopeE_array.append(slopeE) # per station 
-        ax[i_station].plot(x_gen, fit, color="red", linestyle="-", linewidth=2, label=r"$\frac{\chi^2}{DoF}$="+str(round(chi2,2))+"\n"+r"$\Delta \langle y \rangle \Delta QHV$"+"="+str(round(slope,3))+r" $\pm$ "+str(round(slopeE,3))+r" mm$\cdot$kV")
+        ax[i_station].plot(x_gen, fit, color="red", linestyle="-", linewidth=2, label=r"$\frac{\chi^2}{DoF}$="+str(round(chi2,2))+"\n"+r"$\Delta \langle y \rangle \Delta QHV$"+"="+str(round(slope,2))+r" $\pm$ "+str(round(slopeE,2))+r" mm$\cdot$kV")
 
         #plot data 
         ax[i_station].minorticks_on()    
