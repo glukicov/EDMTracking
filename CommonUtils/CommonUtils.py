@@ -120,7 +120,7 @@ def plotHist2D(x, y, n_binsXY=(100, 100), prec=2, fs=14, unitsXY=("unitsX", "uni
     return jg, cb, legendX, legendY
 
 def plot(x, y, x_err=None, y_err=None, fs=14, c="green", 
-         figsize=(7,5), label=None, lw=1, elw=2, lc='g', ls="-", marker=None, ms=10, tight=False, 
+         figsize=(7,5), label=None, lw=1, elw=2, lc='g', ls="-", marker=None, ms=6, tight=False, 
          step=False, scatter=False, error=False, plot=False,
          xlabel=None, ylabel=None, zorder=1):
     '''
@@ -310,19 +310,21 @@ def residual_plots(times_binned, residuals, sim=False, eL="", file_label="", sca
     '''
     ds_name=_DS
     if(ds_name==-1): raise Exception("DS not set via cu._DS=x")
+    ds_name_official=official_DSs[expected_DSs.index(ds_name)]
 
     for i_station, (x, residual) in enumerate(zip(times_binned, residuals)):
         fig, ax = plt.subplots(figsize=(8, 5))
-        if(not sim):ax.plot(x, residual, c='g', label="Run-1: "+ds_name+" dataset S"+str(stations[i_station])+" data-fit"); 
+        if(not sim):ax.plot(x, residual, c='g', label=ds_name_official+" dataset S"+str(stations[i_station])+" data-fit"); 
         if(sim):    ax.plot(x, residual, c='g', label="Sim: data-fit"); 
         y_label=r"Fit residuals (counts, $N$)"
         if(eL == "theta"): y_label=r"Fit residuals ($\theta_y$ [mrad])"
+        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.2)
         ax.set_ylabel(y_label, fontsize=14);
         ax.set_xlabel(r"Time [$\mathrm{\mu}$s]", fontsize=14)
-        ax.legend(fontsize=14)
+        ax.legend(fontsize=14, loc="upper left")
         plt.savefig("../fig/res/res"+file_label[i_station]+eL+".png", dpi=200)
 
-def pull_plots(residuals, errors, file_label=""):
+def pull_plots(residuals_theta, errors_theta, file_label="", eL=""):
     '''
     loop over the two lists to fill residual plots
     '''
@@ -330,17 +332,16 @@ def pull_plots(residuals, errors, file_label=""):
     if(ds_name==-1): raise Exception("DS not set via cu._DS=x")
     ds_name_official=official_DSs[expected_DSs.index(ds_name)]
 
-   # for i_station, (residuals, errors) in enumerate(zip(residuals_theta, errors_theta)):
-    i_station=0
-    fig, ax = plt.subplots(figsize=(8, 5))
-    ax, lg = plotHist(residuals/errors, n_bins=35, prec=2, fs=14, units="", c="green", alpha=0.7,  label="Run-"+ds_name_official+" dataset S"+str(stations[i_station])+" pulls")
-    textL(ax, 0.15, 0.85, str(lg), fs=14)
-    ax.set_xlim(-6, 6)
-    ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.2)
-    ax.set_xlabel("Fit pulls", fontsize=14)
-    ax.legend(fontsize=14)
-    fig.tight_layout()
-    plt.savefig("../fig/pull/pull"+file_label[i_station]+".png", dpi=200)
+    for i_station, (residuals, errors) in enumerate(zip(residuals_theta, errors_theta)):
+        fig, ax = plt.subplots(figsize=(8, 5))
+        ax, lg = plotHist(residuals/errors, n_bins=19, prec=2, fs=14, units="", c="green", alpha=0.7,  label=ds_name_official+" dataset S"+str(stations[i_station])+" pulls")
+        textL(ax, 0.15, 0.85, str(lg), fs=16)
+        ax.set_xlim(-3.5, 3.5)
+        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.2)
+        ax.set_xlabel("Fit pulls", fontsize=14)
+        ax.legend(fontsize=14)
+        fig.tight_layout()
+        plt.savefig("../fig/pull/pull"+file_label[i_station]+eL+".png", dpi=200)
 
 def fft(residuals, bin_w, sim=False, eL="", file_label="", scan_label=""):
     '''

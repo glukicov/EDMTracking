@@ -55,7 +55,8 @@ g2period  = round(1/0.2290735,6)
 
 DS_path = (["../DATA/HDF/EDM/60h.h5"])
 # DS_path = ("../DATA/HDF/EDM/60h.h5", "../DATA/HDF/EDM/9D.h5", "../DATA/HDF/EDM/HK.h5", "../DATA/HDF/EDM/EG.h5")
-stations=(12, 18)
+stations=([1218])
+# stations=(12, 18)
 dss = (["60h"]) 
 
 keys=["count", "theta"] # HDF5 keys of input scan result files 

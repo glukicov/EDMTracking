@@ -106,7 +106,7 @@ print("Starting pars count",*par_names_count, *p0_count)
 p0_theta_truth=[ [0.00, 0.17, 0.0], [0.00, 0.17, 0.0] ]; print("Starting pars TRUTH theta", *par_names_theta_truth, *p0_theta_truth)
 
 ### Define global variables
-residuals_counts, residuals_theta, times_counts, times_theta, errors_theta =[[],[]], [[],[]], [[],[]] , [[],[]], [[],[]]
+residuals_counts, residuals_theta, times_counts, times_theta, errors_theta, errors_counts =[ [] ], [ [] ], [ [] ], [ [] ], [ [] ], [ [] ]
 if(sim): residuals_counts, residuals_theta, times_counts, times_theta=[ [] ], [ [] ], [ [] ], [ [] ]
 
 # output scan file HDF5 keys 
@@ -206,6 +206,7 @@ def plot_counts(df_path):
         # get residuals for later plots 
         residuals_counts[i_station] = cu.residuals(x, y, cu.unblinded_wiggle_fixed, par)
         times_counts[i_station] = x
+        errors_counts[i_station] = y_e
 
         ### Set constant phase for the next step
         if(args.lt == None): 
@@ -426,14 +427,13 @@ def plot_theta(df_path):
 
     ## now if not scanning - get FFTs for both stations
     ## FFTs
-    # if(not args.scan):
-    #     if (not args.count):
-    #         print("Plotting residuals and FFTs...")
-    #         cu.residual_plots(times_counts, residuals_counts, sim=sim, eL="count", file_label=file_label)
-    #         cu.fft(residuals_counts, bin_w, sim=sim, eL="count", file_label=file_label)
-    #         cu.residual_plots(times_theta, residuals_theta, sim=sim, eL="theta",  file_label=file_label)
-    #         cu.fft(residuals_theta, bin_w, sim=sim, eL="theta", file_label=file_label)
-    #         cu.pull_plots(residuals_theta, errors_theta, file_label=file_label)
-
+    if(not args.scan and not args.count and args.corr):
+        print("Plotting residuals and FFTs...")
+        #cu.residual_plots(times_counts, residuals_counts, sim=sim, eL="count", file_label=file_label)
+        #cu.fft(residuals_counts, bin_w, sim=sim, eL="count", file_label=file_label)
+        cu.residual_plots(times_theta, residuals_theta, sim=sim, eL="theta",  file_label=file_label)
+        #cu.fft(residuals_theta, bin_w, sim=sim, eL="theta", file_label=file_label)
+        cu.pull_plots(residuals_theta, errors_theta, file_label=file_label  , eL="theta")
+        cu.pull_plots(residuals_counts, errors_counts, file_label=file_label, eL="count")
 if __name__ == '__main__':
     main()
