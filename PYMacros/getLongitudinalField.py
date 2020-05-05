@@ -91,7 +91,7 @@ bin_n = int( g2period/bin_w)
 print("Setting bin width of", bin_w*1e3, "ns with ~", bin_n, "bins")
 
 #starting fit parameters and their labels for plotting 
-par_names_count= ["N", "tau", "A", "phi"]; par_labels_count= [r"$N$", r"$\tau$", r"$A$", r"$\phi$"]; par_units_count=[" ",  r"$\rm{\mu}$s", " ", "rad"]
+par_names_count= ["N", "tau", "A", "phi"]; par_labels_count= [r"$N_{0}$", r"$\tau$", r"$A$", r"$\phi$"]; par_units_count=[" ",  r"$\rm{\mu}$s", " ", "rad"]
 par_names_theta= ["A_Bz", "A_edm_blind", "c"]; par_labels_theta= [r"$A_{B_{z}}$", r"$A^{\rm{BLINDED}}_{\mathrm{EDM}}$", r"$c$"]; par_units_theta=[r"$\rm{\mu}$rad", r"$\rm{\mu}$rad", r"$\rm{\mu}$rad"]
 par_names_theta_truth=par_names_theta.copy(); par_names_theta_truth[1]="A_edm"; par_labels_truth=par_labels_theta.copy(); par_labels_truth[1]=r"$A_{\mathrm{EDM}}$"
 p0_count=[ [50000, 64, 0.339, 2.07], [12000, 64.4, 0.341, 2.074]]
@@ -169,7 +169,9 @@ def plot_counts(df_path):
         #Plot
         #Set legend title for the plot 
         if(sim): legend=ds_name_official+" S"+str(station);
-        else:    legend="Run-"+ds_name_official+" dataset S"+str(station);                     
+        else:    legend="Run-"+ds_name_official+" dataset S"+str(station);  
+        if(ds_name=="R1" or  ds_name=="EG"): ms_ds=2                   
+        else: ms_ds=2                   
         fig, ax, leg_data, leg_fit = cu.plot_edm(x, y, y_e, cu.unblinded_wiggle_fixed, 
                                      par, par_e, chi2_ndf, ndf, bin_w, N,
                                      t_min, t_max, p_min_counts, p_max_counts,
@@ -180,7 +182,7 @@ def plot_counts(df_path):
                                      font_size=font_size,
                                      lw=2,
                                      marker=".",
-                                     ms=5,
+                                     ms=ms_ds,
                                      prec=3)
         
         ax.set_ylim(np.amin(y)*0.9, np.amax(y)*1.15);
