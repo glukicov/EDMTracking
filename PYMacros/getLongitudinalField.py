@@ -179,6 +179,8 @@ def plot_counts(df_path):
                                      ylabel=r"Counts ($N$) per "+str(int(bin_w*1e3))+" ns",
                                      font_size=font_size,
                                      lw=2,
+                                     marker=".",
+                                     ms=5,
                                      prec=3)
         
         ax.set_ylim(np.amin(y)*0.9, np.amax(y)*1.15);

@@ -120,7 +120,7 @@ def plotHist2D(x, y, n_binsXY=(100, 100), prec=2, fs=14, unitsXY=("unitsX", "uni
     return jg, cb, legendX, legendY
 
 def plot(x, y, x_err=None, y_err=None, fs=14, c="green", 
-         figsize=(7,5), label=None, lw=1, elw=2, lc='g', ls="-", marker=None, tight=False, 
+         figsize=(7,5), label=None, lw=1, elw=2, lc='g', ls="-", marker=None, ms=10, tight=False, 
          step=False, scatter=False, error=False, plot=False,
          xlabel=None, ylabel=None, zorder=1):
     '''
@@ -134,7 +134,7 @@ def plot(x, y, x_err=None, y_err=None, fs=14, c="green",
     elif (scatter):
         ax.scatter(x, y, c=c, label=label, lw=lw, ls=ls, zorder=zorder)
     elif (error):
-        ax.errorbar(x, y, xerr=x_err, yerr=y_err, linewidth=0, elinewidth=elw, color=c, marker=marker, label=label, zorder=zorder)
+        ax.errorbar(x, y, xerr=x_err, yerr=y_err, linewidth=0, elinewidth=elw, color=c, marker=marker, ms=ms, label=label, zorder=zorder)
     elif (plot):
         ax.plot(x, y, c=c, label=label, lw=lw, ls=ls, zorder=zorder)
     else:
@@ -287,11 +287,12 @@ def plot_edm(x, y, y_e, func, par, par_e, chi2_ndf, ndf, bin_w, N,
              legend_fit="Fit",
              prec=3,
              lw=2,
+             ms=10,
              urad=False,
              marker=".",
              ):
     fig, ax = plot(x, y, y_err=y_e, error=True, elw=1, fs=font_size, tight=False, 
-                      label=legend_data, xlabel=xlabel, ylabel=ylabel, marker=marker, zorder=1)
+                      label=legend_data, xlabel=xlabel, ylabel=ylabel, marker=marker, ms=ms, zorder=1)
     ax.plot(x, func(x, *par), c="red", label=legend_fit, lw=lw, zorder=2)
     leg_fit=legend_chi2(chi2_ndf, ndf, par)
     legned_par=legend_par(leg_fit,  parNames, par, par_e, units, prec=prec)
