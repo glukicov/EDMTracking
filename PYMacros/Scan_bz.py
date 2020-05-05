@@ -76,10 +76,10 @@ if(args.start):
 
 if(args.stop):   
     # end_times = np.linspace(300, 450, 9, dtype=float)
-    factor=3
+    factor=2
     step=g2period*factor
-    start=323.04
-    stop_desired=480 # us 
+    start=454.00
+    stop_desired=650 # us 
     dt = stop_desired - start
     n_dt = int(dt/g2period/factor) # how many whole (factor x bins) do we fit in that interval
     print("Will generate", n_dt+1, "start times between", start, "and", stop_desired, 'us')

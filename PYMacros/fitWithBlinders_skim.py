@@ -37,7 +37,7 @@ if(args.loss==True): args.cbo = True
 # stations=(12, 18)
 stations=([1218])
 expected_DSs = ("60h", "9D", "HK", "EG", "Sim", "R1")
-official_DSs = ("1a", "1c", "1b", "1e", "Sim", "1")
+official_DSs = ("1a", "1c", "1b", "1d", "Sim", "1")
 par_names= ["N", "tau", "A", "R", "phi"]
 
 ### Get ds_name from filename
