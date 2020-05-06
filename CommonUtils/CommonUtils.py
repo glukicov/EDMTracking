@@ -38,7 +38,7 @@ _LT=-1
 _DS=-1
 
 expected_DSs = ("60h", "9D", "HK", "EG", "Sim", "R1")
-official_DSs = ("1a", "1c", "1b", "1e", "Sim", "Run-1")
+official_DSs = ("Run-1a", "Run-1c", "Run-1b", "Run-1e", "Sim", "Run-1")
 
 #define common constants
 meanS=r"$\mathrm{\mu}$"
@@ -322,6 +322,7 @@ def residual_plots(times_binned, residuals, sim=False, eL="", file_label="", sca
         ax.set_ylabel(y_label, fontsize=14);
         ax.set_xlabel(r"Time [$\mathrm{\mu}$s]", fontsize=14)
         ax.legend(fontsize=14, loc="upper left")
+        fig.tight_layout()
         plt.savefig("../fig/res/res"+file_label[i_station]+eL+".png", dpi=200)
 
 def pull_plots(residuals_theta, errors_theta, file_label="", eL=""):
@@ -403,7 +404,7 @@ def fft(residuals, bin_w, sim=False, eL="", file_label="", scan_label=""):
     norm = 1./78000
     #if(args.loss): norm=norm*0.1 # scale by 4 if LM is used
     res_fft=res_fft*norm
-    if(not sim): ax.plot(freq, res_fft, label="Run-"+ds_name_official+" dataset S"+str(stations[i_station])+r": FFT, $n$={0:.3f}".format(n_tune), lw=2, c="g")
+    if(not sim): ax.plot(freq, res_fft, label=ds_name_official+" dataset S"+str(stations[i_station])+r": FFT, $n$={0:.3f}".format(n_tune), lw=2, c="g")
     if(sim):     ax.plot(freq, res_fft, label="Sim: FFT", lw=2, c="g")
 
     #plot expected frequencies

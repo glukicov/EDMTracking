@@ -83,6 +83,7 @@ p_max = args.p_max # MeV
 print("Momentum cuts:", p_min, "to", p_max, "MeV")
 p_min_counts = 1800 # MeV 
 p_max_counts = 3100 # MeV 
+if(args.scan): p_min_counts=args.p_min
 print("Momentum cuts (for counts only):", p_min_counts, "to", p_max_counts, "MeV")
 
 #binning 
@@ -220,7 +221,7 @@ def plot_counts(df_path):
             cu._phi=par[-1]
         else:
             cu._phi=args.phase
-        print("Phase set to", round(cu._phi,2), "rad")
+        print("Phase set to", round(cu._phi,5), "rad")
 
         # cu._LT=64.44
         # print("LT set to", round(cu._LT,2), "us")
@@ -431,11 +432,11 @@ def plot_theta(df_path):
     ## FFTs
     if(not args.scan and not args.count and args.corr):
         print("Plotting residuals and FFTs...")
-        #cu.residual_plots(times_counts, residuals_counts, sim=sim, eL="count", file_label=file_label)
+        cu.residual_plots(times_counts, residuals_counts, sim=sim, eL="count", file_label=file_label)
         #cu.fft(residuals_counts, bin_w, sim=sim, eL="count", file_label=file_label)
-        cu.residual_plots(times_theta, residuals_theta, sim=sim, eL="theta",  file_label=file_label)
+        #cu.residual_plots(times_theta, residuals_theta, sim=sim, eL="theta",  file_label=file_label)
         #cu.fft(residuals_theta, bin_w, sim=sim, eL="theta", file_label=file_label)
-        cu.pull_plots(residuals_theta, errors_theta, file_label=file_label  , eL="theta")
-        cu.pull_plots(residuals_counts, errors_counts, file_label=file_label, eL="count")
+        #cu.pull_plots(residuals_theta, errors_theta, file_label=file_label  , eL="theta")
+        #cu.pull_plots(residuals_counts, errors_counts, file_label=file_label, eL="count")
 if __name__ == '__main__':
     main()
