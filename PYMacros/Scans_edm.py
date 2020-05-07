@@ -55,18 +55,17 @@ key_names=["(count)", r"($\theta$)", "(truth)"]
 g2period  = round(1/0.2290735,6) 
 
 
-
 # DS_path = ("../DATA/HDF/EDM/60h.h5", "../DATA/HDF/EDM/9D.h5", "../DATA/HDF/EDM/HK.h5", "../DATA/HDF/EDM/EG.h5")
 stations=([1218])
 # stations=(12, 18)
 
-DS_path = (["../DATA/HDF/EDM/60h.h5"])
-dss = (["60h"]) 
-ds_name_official="1a"
+# DS_path = (["../DATA/HDF/EDM/60h.h5"])
+# dss = (["60h"]) 
+# ds_name_official="1a"
 
-# DS_path = (["../DATA/HDF/EDM/R1.h5"])
-# dss = (["R1"]) 
-# ds_name_official="1"
+DS_path = (["../DATA/HDF/EDM/R1.h5"])
+dss = (["R1"]) 
+ds_name_official="1"
 
 
 # keys=["count", "theta"] # HDF5 keys of input scan result files 
@@ -79,13 +78,13 @@ par_names_theta= ["A_Bz"]; par_labels_theta= [r"$A_{B_{z}}$"+r" [$\rm{\mu}$rad]"
 # par_names=[par_names_count, par_names_theta, par_names_theta_truth] 
 
 
-# keys=["theta"] # HDF5 keys of input scan result files 
-# par_labels=[par_labels_theta]
-# par_names=[par_names_theta] 
+keys=["theta"] # HDF5 keys of input scan result files 
+par_labels=[par_labels_theta]
+par_names=[par_names_theta] 
 
-keys=["count"] # HDF5 keys of input scan result files s
-par_labels=[par_labels_count]
-par_names=[par_names_count] 
+# keys=["count"] # HDF5 keys of input scan result files s
+# par_labels=[par_labels_count]
+# par_names=[par_names_count] 
 
 
 
@@ -199,7 +198,7 @@ def time_scan(DS_path, times, key_scan):
     for path in DS_path:
         for time in times:
              # subprocess.call(["python3", "Fast_getLongitudinalField.py", "--hdf", path, "--scan", key_scan, str(time)])
-             subprocess.call(["python3", "getLongitudinalField.py", "--hdf", path, "--scan", "--count", key_scan, str(time)])
+             subprocess.call(["python3", "Fast_getLongitudinalField.py", "--hdf", path, "--scan", key_scan, str(time)])
 
 def both_scan(DS_path, p_min, p_max):
     # subprocess.call(["trash"] + glob.glob("../DATA/scans/edm_scan*"))
@@ -239,19 +238,19 @@ def plot(direction="start", bidir=False, second_direction=None):
         # par_names[i_key].insert(0, "chi2")
         # par_labels[i_key].insert(0, r"$\frac{\chi^2}{\rm{DoF}}$")
 
-        #resolve NA parameters
-        par_names[i_key].insert(0, "n")
-        par_labels[i_key].insert(0, "N (stat)")
-        data['n_e']=np.zeros(data.shape[0]) # add no error on the number of entries
+        # #resolve NA parameters
+        # par_names[i_key].insert(0, "n")
+        # par_labels[i_key].insert(0, "N (stat)")
+        # data['n_e']=np.zeros(data.shape[0]) # add no error on the number of entries
 
-        # resolve A for each key 
-        if(key=="count"):
-            data['NA2']=data['n']*(data['A']**2)
-            par_names[i_key].insert(0, "NA2")
-            par_labels[i_key].insert(0, r"NA$^2$")
-            data['NA2_e']=np.zeros(data.shape[0]) # add no error on the number of entries
+        # # resolve A for each key 
+        # if(key=="count"):
+        #     data['NA2']=data['n']*(data['A']**2)
+        #     par_names[i_key].insert(0, "NA2")
+        #     par_labels[i_key].insert(0, r"NA$^2$")
+        #     data['NA2_e']=np.zeros(data.shape[0]) # add no error on the number of entries
 
-        # if(key=="theta"):
+        # # if(key=="theta"):
         #     data["NA_bz2"]=data['n']*(data['A_Bz']**2)
         #     par_names[i_key].insert(0, "NA_bz2")
         #     par_labels[i_key].insert(0, r"NA$_{B_{z}}^2$")
@@ -348,16 +347,16 @@ def plot(direction="start", bidir=False, second_direction=None):
 
                         par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x, y, y_e, cu.line, (1.0, 1.0) )
                         print(par)
-                        ax.plot(x, cu.line(x, *par), c="red", label=r"$\frac{\Delta A_{B_{z}}}{\Delta \tau}$="+str(int(par[0]*1e3))+r"$\times 10^{-3} \ \rm{\mu}$rad/$\rm{\mu}$s", lw=2)
-                        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]+5)
-                        ax.set_xlim(54, 69)
+                        ax.plot(x, cu.line(x, *par), c="red", label=r"$\frac{\Delta A_{B_{z}}}{\Delta \tau}$="+str(int(par[0]*1e3)).replace("-", u"\u2212")+r"$\times 10^{-3} \ \rm{\mu}$rad/$\rm{\mu}$s", lw=2)
+                        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]+1.2)
+                        ax.set_xlim(55, 69)
 
                     if(args.plot_phase): 
                         ax.set_xlabel(r"$\phi$"+r" [rad]", fontsize=font_size); ax.set_xlim(min(x)*0.999, max(x)*1.001)
                         par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x, y, y_e, cu.line, (1.0, 1.0) )
                         print(par)
-                        ax.plot(x, cu.line(x, *par), c="red", label=r"$\frac{\Delta A_{B_{z}}}{\Delta \phi}$="+str(int(par[0]*1e3))+r"$\times 10^{-3} \ \rm{\mu}$rad/rad", lw=2)
-                        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]+5)
+                        ax.plot(x, cu.line(x, *par), c="red", label=r"$\frac{\Delta A_{B_{z}}}{\Delta \phi}$="+str(int(round(par[0],0)))+r"$\ \rm{\mu}$rad/rad", lw=2)
+                        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]+1.5)
 
                     if(args.plot_g2period): 
                         ax.set_xlabel(r"$T_{g-2}$ "+r"[$\rm{\mu}$s]", fontsize=font_size); ax.set_xlim(min(x)*0.999995, max(x)*1.000005); plt.xticks(fontsize=12)
@@ -387,10 +386,10 @@ def plot(direction="start", bidir=False, second_direction=None):
 
                         par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x, y, y_e, cu.line, (1.0, 1.0) )
                         print(par)
-                        ax.plot(x, cu.line(x, *par), c="red", label=r"$\frac{\Delta A_{B_{z}}}{\Delta \rm{Bin \ width}}$="+str(int(round(par[0]*1e4)))+r"$\times 10^{-4} \ \rm{\mu}$rad/ns", lw=2)
+                        ax.plot(x, cu.line(x, *par), c="red", label=r"$\frac{\Delta A_{B_{z}}}{\Delta \rm{Bin \ width}}$="+str(int(round(par[0]*1e4))).replace("-", u"\u2212")+r"$\times 10^{-4} \ \rm{\mu}$rad/ns", lw=2)
 
                         # ax.set_xlim(3, 28)
-                        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]+2)
+                        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]+1.5)
                         ax2.set_xlim(ax.get_xlim()[0], ax.get_xlim()[1])
 
                     if(args.plot_p_min and par_names[i_key][i_par]=='NA2'):
