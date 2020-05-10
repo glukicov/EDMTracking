@@ -26,10 +26,10 @@ arg_parser.add_argument("--bin_w", type=float, default=15) # ns
 arg_parser.add_argument("--g2period", type=float, default=None) # us 
 arg_parser.add_argument("--phase", type=float, default=None) # us 
 arg_parser.add_argument("--lt", type=float, default=None) # us 
-# arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/R1.h5") 
+arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/R1.h5") 
 # arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/Sim/Bz.h5") 
 # arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/Sim/Sim.h5") 
-arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/60h.h5", help="input data")
+# arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/60h.h5", help="input data")
 arg_parser.add_argument("--scan", action='store_true', default=False, help="if run externally for iterative scans - dump 𝝌2 and fitted pars to a file for summary plots") 
 arg_parser.add_argument("--count", action='store_true', default=False)
 args=arg_parser.parse_args()
@@ -104,14 +104,12 @@ def main():
     ### Set constant phase for the next step
     print("\n Starting fast scans for theta only\n")
     if(args.lt == None): 
-        # cu._LT=61.04
-        cu._LT=64.1
+        cu._LT=61.04
     else:
         cu._LT=args.lt
     print("LT set to", round(cu._LT,2), "us")
     if(args.phase == None):
-        # cu._phi=2.06974
-        cu._phi=2.08399
+        cu._phi=2.06974
     else:
         cu._phi=args.phase
     print("Phase set to", round(cu._phi,5), "rad")
@@ -156,21 +154,15 @@ def plot_theta(df_path):
         #############
         #Blinded (EDM) fit for B_Z 
         ############      
-        ### Resolve angle and times
-        tmod_abs, weights=cu.get_abs_times_weights(data_station['trackT0'], g2period)
-        ang=data_station['theta_y_mrad']
-
-        ### Digitise data with weights
-        xy_bins=(bin_n, bin_n)
-        h,xedges,yedges  = np.histogram2d(tmod_abs, ang, weights=weights, bins=xy_bins);
-        
-        # expand 
-        (x_w, y_w), binsXY, dBinXY = ru.hist2np(h, (xedges,yedges))
-        print("Got XY bins", binsXY)
-        
-        #profile
-        df_binned =cu.Profile(x_w, y_w, None, nbins=bin_n, xmin=np.min(x_w), xmax=np.max(x_w), mean=True, only_binned=True)
+       
+        # Bin 
+        df_binned =cu.Profile(data_station['mod_times'], data_station['theta_y_mrad'], None, nbins=bin_n, xmin=np.min(data_station['mod_times']), xmax=np.max(data_station['mod_times']), mean=True, only_binned=True)
         x, y, y_e, x_e =df_binned['bincenters'], df_binned['ymean'], df_binned['yerr'], df_binned['xerr']
+
+        # Fit 
+        par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x, y, y_e, cu.thetaY_phase, p0_theta_truth[i_station])
+        if (np.max(abs(par_e)) == np.Infinity ): raise Exception("\nOne of the fit parameters is infinity! Exiting...\n")
+        if(args.corr): print("Covariance matrix", pcov); np.save("../DATA/misc/pcov_truth_S"+str(station)+".np", pcov);
 
         #Fit
         par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x, y, y_e, cu.thetaY_phase, p0_theta_blinded[i_station])

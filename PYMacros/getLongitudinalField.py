@@ -22,18 +22,18 @@ arg_parser = argparse.ArgumentParser()
 # arg_parser.add_argument("--t_min", type=float, default=4.3) # us 
 arg_parser.add_argument("--t_min", type=float, default=30.56) # us 
 arg_parser.add_argument("--t_max", type=float, default=454.00) # us 
-arg_parser.add_argument("--p_min", type=float, default=1800) # us 
-arg_parser.add_argument("--p_max", type=float, default=3100) # us 
+arg_parser.add_argument("--p_min", type=float, default=700) # us 
+arg_parser.add_argument("--p_max", type=float, default=2400) # us 
 arg_parser.add_argument("--bin_w", type=float, default=15) # ns 
 # arg_parser.add_argument("--bin_w", type=float, default=150.5314) # ns 
 # arg_parser.add_argument("--bin_w", type=float, default=149.2) # ns 
 arg_parser.add_argument("--g2period", type=float, default=None) # us 
 arg_parser.add_argument("--phase", type=float, default=None) # us 
 arg_parser.add_argument("--lt", type=float, default=None) # us 
+# arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/60h.h5", help="input data")
 arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/R1.h5") 
 # arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/Sim/Bz.h5") 
 # arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/Sim/Sim.h5") 
-# arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/60h.h5", help="input data")
 arg_parser.add_argument("--corr", action='store_true', default=False, help="Save covariance matrix for plotting")
 arg_parser.add_argument("--scan", action='store_true', default=False, help="if run externally for iterative scans - dump 𝝌2 and fitted pars to a file for summary plots") 
 arg_parser.add_argument("--count", action='store_true', default=False)
@@ -98,13 +98,13 @@ par_names_theta_truth=par_names_theta.copy(); par_names_theta_truth[1]="A_edm"; 
 p0_count=[ [50000, 64, 0.339, 2.07], [12000, 64.4, 0.341, 2.074]]
 p0_theta_blinded=[ [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]
 if(sim): 
-    p0_count=[ [3000, 64.4, -0.40, 6.240], [3000, 64.4, -0.40, 6.240]]
+    #p0_count=[ [3000, 64.4, -0.40, 6.240], [3000, 64.4, -0.40, 6.240]]
     p0_theta_blinded=[ [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]]
-    urad_bool=False
-    par_units_theta=[r"mrad", r"mrad", r"mrad"]
+    #urad_bool=False
+    #par_units_theta=[r"mrad", r"mrad", r"mrad"]
 print("Starting pars theta blinded", *par_names_theta, *p0_theta_blinded)
 print("Starting pars count",*par_names_count, *p0_count)
-p0_theta_truth=[ [0.00, 0.17, 0.0], [0.00, 0.17, 0.0] ]; print("Starting pars TRUTH theta", *par_names_theta_truth, *p0_theta_truth)
+p0_theta_truth=[ [1.0, 1.0, 1.0], [1.0, 1.0, 1.0] ]; print("Starting pars TRUTH theta", *par_names_theta_truth, *p0_theta_truth)
 
 ### Define global variables
 residuals_counts, residuals_theta, times_counts, times_theta, errors_theta, errors_counts =[ [] ], [ [] ], [ [] ], [ [] ], [ [] ], [ [] ]
@@ -252,6 +252,11 @@ def plot_theta(df_path):
     theta_y_mrad = np.arctan2(py, p)*1e3 # rad -> mrad
     data_hdf['theta_y_mrad']=theta_y_mrad # add to the data frame 
 
+    if(sim):
+        t=data_hdf['trackT0']
+        mod_times = cu.get_g2_mod_time(t, g2period) # Module the g-2 oscillation time 
+        data_hdf['mod_times']=mod_times # add to the data frame 
+
     # select all stations for simulation
     if(sim or len(stations)==1): data = [data_hdf]
 
@@ -306,6 +311,7 @@ def plot_theta(df_path):
             ax.set_ylim(-0.75, 0.40)
         elif(ds_name=="R1"):
             ax.set_ylim(-0.5, 0.13)
+            if(p_min < 1800): ax.set_ylim(-1.0, -0.1)
         elif(ds_name=="EG"): 
             ax.set_ylim(-0.75, 0.15)
         elif(ds_name=="HK"): 
@@ -386,45 +392,46 @@ def plot_theta(df_path):
     #############
     # Make truth (un-blinded fits) if simulation
     #############
-    # if(sim):
-    #     print("Making truth plots in simulation")
+    if(sim):
+        print("Making truth plots in simulation")
 
-    #     # Bin 
-    #     df_binned =cu.Profile(data_station['mod_times'], data_station['theta_y_mrad'], None, nbins=bin_n, xmin=np.min(data_station['mod_times']), xmax=np.max(data_station['mod_times']), mean=True, only_binned=True)
-    #     x, y, y_e, x_e =df_binned['bincenters'], df_binned['ymean'], df_binned['yerr'], df_binned['xerr']
+        # Bin 
+        df_binned =cu.Profile(data_station['mod_times'], data_station['theta_y_mrad'], None, nbins=bin_n, xmin=np.min(data_station['mod_times']), xmax=np.max(data_station['mod_times']), mean=True, only_binned=True)
+        x, y, y_e, x_e =df_binned['bincenters'], df_binned['ymean'], df_binned['yerr'], df_binned['xerr']
 
-    #     # Fit 
-    #     par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x, y, y_e, cu.thetaY_phase, p0_theta_truth[i_station])
-    #     if (np.max(abs(par_e)) == np.Infinity ): raise Exception("\nOne of the fit parameters is infinity! Exiting...\n")
-    #     if(args.corr): print("Covariance matrix", pcov); np.save("../DATA/misc/pcov_truth_S"+str(station)+".np", pcov);
+        # Fit 
+        par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x, y, y_e, cu.thetaY_phase, p0_theta_truth[i_station])
+        if (np.max(abs(par_e)) == np.Infinity ): raise Exception("\nOne of the fit parameters is infinity! Exiting...\n")
+        if(args.corr): print("Covariance matrix", pcov); np.save("../DATA/misc/pcov_truth_S"+str(station)+".np", pcov);
 
-    #     #Plot
-    #     fig, ax, leg_data, leg_fit = cu.plot_edm(x, y, y_e, cu.thetaY_phase, 
-    #                              par, par_e, chi2_ndf, ndf, bin_w, N,
-    #                              t_min, t_max, p_min, p_max,
-    #                              par_labels_truth, par_units_theta, 
-    #                              legend_data = legend,
-    #                              legend_fit=r'Fit: $\langle \theta(t) \rangle =  A_{\mathrm{B_z}}\cos(\omega_a t + \phi) + A_{\mathrm{EDM}}\sin(\omega_a t + \phi) + c$',
-    #                              ylabel=r"$\langle\theta_y\rangle$ [mrad] per "+str(int(bin_w*1e3))+" ns",
-    #                              font_size=font_size,
-    #                              prec=2)
-    #     cu.textL(ax, 0.74, 0.15, leg_data, fs=font_size)
-    #     cu.textL(ax, 0.23, 0.15, leg_fit, fs=font_size, c="r")
-    #     ax.set_xlim(0, g2period);
-    #     ax.set_ylim(-2.9, 2.5);
-    #     if(not sim): ax.set_ylim(-np.amax(y)*2.5, np.amax(y)*2.5);
-    #     if(args.scan==False): fig.savefig("../fig/bz_truth_fit_S"+str(station)+".png", dpi=300)
+        #Plot
+        fig, ax, leg_data, leg_fit = cu.plot_edm(x, y, y_e, cu.thetaY_phase, 
+                                 par, par_e, chi2_ndf, ndf, bin_w, N,
+                                 t_min, t_max, p_min, p_max,
+                                 par_labels_truth, par_units_theta, 
+                                 legend_data = legend,
+                                 legend_fit=r'Fit: $\langle \theta(t) \rangle =  A_{\mathrm{B_z}}\cos(\omega_a t + \phi) + A_{\mathrm{EDM}}\sin(\omega_a t + \phi) + c$',
+                                 ylabel=r"$\langle\theta_y\rangle$ [mrad] per "+str(int(bin_w*1e3))+" ns",
+                                 font_size=font_size,
+                                 prec=2,
+                                 urad=urad_bool)
+        cu.textL(ax, 0.74, 0.15, leg_data, fs=font_size)
+        cu.textL(ax, 0.23, 0.15, leg_fit, fs=font_size, c="r")
+        ax.set_xlim(0, g2period);
+        ax.set_ylim(-0.80, 0.55);
+        if(sim): ax.set_ylim(-2.9, 2.5);
+        if(args.scan==False): fig.savefig("../fig/bz_truth_fit_S"+str(station)+".png", dpi=300)
 
-    #     if(args.scan==True):
-    #         par_dump=np.array([[t_min], t_max, p_min, p_max, chi2_ndf, ndf, g2period, bin_w, N, station, ds_name, *par, *par_e])
-    #         par_dump_keys = ["start", "stop", "p_min", "p_max", "chi2", "ndf", "g2period", "bin_w", "n",  "station", "ds"]
-    #         par_dump_keys.extend(par_names_theta_truth)
-    #         par_dump_keys.extend( [str(par)+"_e" for par in par_names_theta_truth] )
-    #         dict_dump = dict(zip(par_dump_keys,par_dump))
-    #         df = pd.DataFrame.from_records(dict_dump, index='start')
-    #         with open("../DATA/scans/edm_scan_"+keys[2]+".csv", 'a') as f:
-    #             df.to_csv(f, mode='a', header=f.tell()==0)
-    #         plt.savefig("../fig/scans/bz_truth_fit_S"+str(station)+scan_label+".png", dpi=300)
+        if(args.scan==True):
+            par_dump=np.array([[t_min], t_max, p_min, p_max, chi2_ndf, ndf, g2period, bin_w, N, station, ds_name, *par, *par_e])
+            par_dump_keys = ["start", "stop", "p_min", "p_max", "chi2", "ndf", "g2period", "bin_w", "n",  "station", "ds"]
+            par_dump_keys.extend(par_names_theta_truth)
+            par_dump_keys.extend( [str(par)+"_e" for par in par_names_theta_truth] )
+            dict_dump = dict(zip(par_dump_keys,par_dump))
+            df = pd.DataFrame.from_records(dict_dump, index='start')
+            with open("../DATA/scans/edm_scan_"+keys[2]+".csv", 'a') as f:
+                df.to_csv(f, mode='a', header=f.tell()==0)
+            plt.savefig("../fig/scans/bz_truth_fit_S"+str(station)+scan_label+".png", dpi=300)
 
     #-------end of looping over stations
 

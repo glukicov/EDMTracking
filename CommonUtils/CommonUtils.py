@@ -120,7 +120,7 @@ def plotHist2D(x, y, n_binsXY=(100, 100), prec=2, fs=14, unitsXY=("unitsX", "uni
     return jg, cb, legendX, legendY
 
 def plot(x, y, x_err=None, y_err=None, fs=14, c="green", 
-         figsize=(7,5), label=None, lw=1, elw=2, lc='g', ls="-", marker=None, ms=6, tight=False, 
+         figsize=(7,5), label=None, lw=1, elw=2, lc='g', ls="-", marker=None, ms=5, tight=False, 
          step=False, scatter=False, error=False, plot=False,
          xlabel=None, ylabel=None, zorder=1):
     '''
@@ -165,14 +165,18 @@ def plot_fom(x, y, y_e, ds_colors, ds_markers,
              eL="",
              font_size=14,
              prec=1,
-             no_legend=False
+             no_legend=False,
+             BNL=False
              ):
     if(ax==None and fig == None): 
         fig, ax = plt.subplots()
-        if(eL == ""):
+        if(eL == "" and BNL==False):
             x_step=[1, 2, 3, 4]
+        elif(BNL==True):
+            x_step=[1, 2]
         else:
             x_step=[0.85, 1.8, 2.8, 3.85]
+
     else:
         x_step=[1.15, 2.2, 3.2, 4.15]
 
@@ -193,6 +197,7 @@ def plot_fom(x, y, y_e, ds_colors, ds_markers,
     ax.tick_params(axis='x', which='both', bottom=True, top=True, direction='inout')
     ax.tick_params(axis='y', which='both', left=True, right=True, direction='inout')
     ax.set_xticks([1, 2, 3, 4])
+    if(BNL): ax.set_xticks([1, 2]); 
     ax.set_xticklabels(x)
     # ax.minorticks_on()
     plt.xticks(fontsize=font_size-1)
@@ -287,7 +292,7 @@ def plot_edm(x, y, y_e, func, par, par_e, chi2_ndf, ndf, bin_w, N,
              legend_fit="Fit",
              prec=3,
              lw=2,
-             ms=10,
+             ms=5,
              urad=False,
              marker=".",
              ):

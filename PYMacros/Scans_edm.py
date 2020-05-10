@@ -59,13 +59,13 @@ g2period  = round(1/0.2290735,6)
 stations=([1218])
 # stations=(12, 18)
 
-# DS_path = (["../DATA/HDF/EDM/60h.h5"])
-# dss = (["60h"]) 
-# ds_name_official="1a"
+DS_path = (["../DATA/HDF/EDM/60h.h5"])
+dss = (["60h"]) 
+ds_name_official="1a"
 
-DS_path = (["../DATA/HDF/EDM/R1.h5"])
-dss = (["R1"]) 
-ds_name_official="1"
+# DS_path = (["../DATA/HDF/EDM/R1.h5"])
+# dss = (["R1"]) 
+# ds_name_official="1"
 
 
 # keys=["count", "theta"] # HDF5 keys of input scan result files 
@@ -129,7 +129,7 @@ if(args.stop):
     in_=input("Start scans?")
 
 if(args.p_min):   
-    p_min = np.linspace(1000, 2400, 15, dtype=float)
+    p_min = np.linspace(1000, 2000, 11, dtype=float)
     print("P min:", p_min)
     in_=input("Start scans?")
 
@@ -205,7 +205,7 @@ def both_scan(DS_path, p_min, p_max):
     #subprocess.Popen( ["trash"] + glob.glob("../fig/scans/*.png") )
     for path in DS_path:
         for i, mom in enumerate(p_min):
-            subprocess.call(["python3", "getLongitudinalField.py", "--hdf", path, "--scan", "--p_min", str(p_min[i]), "--p_max",  str(p_max[i])])
+            subprocess.call(["python3",  "Fast_getLongitudinalField.py", "--hdf", path, "--scan", "--p_min", str(p_min[i]), "--p_max",  str(p_max[i])])
 
 def plot(direction="start", bidir=False, second_direction=None):
     print("Making scan summary plot")
@@ -338,7 +338,9 @@ def plot(direction="start", bidir=False, second_direction=None):
                     if(not args.band_off): ax.plot(x, band_P, c="r", ls=":", lw=2, label=r"$\sigma_{\Delta_{21}}$"); ax.plot(x, band_M, c="r", ls=":", lw=2)
                     # if(par_names[i_key][i_par]=='tau'): ax.plot([np.min(x)-2, np.max(x)+2], [64.44, 64.44], c="k", ls="--"); ax.set_ylim(np.min(y)-0.1, 64.6);
                     if(par_names[i_key][i_par]=='chi2' and not args.plot_p_minp_max): ax.plot([min(x)-2, max(x)+2], [1, 1], c="k", ls="--");
-                    if(args.plot_p_minp_max ): ax.set_xlim(min(x)-200, max(x)+200);
+                    if(args.plot_p_minp_max ): 
+                        ax.set_ylim(0, 26)
+                        # ax.set_xlim(800,);
                     if(args.plot_p_min ): ax.set_xlim(min(x)-200, max(x)+200);
                     ax.set_xlabel(direction+r"-time [$\rm{\mu}$s]", fontsize=font_size);
                     
