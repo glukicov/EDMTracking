@@ -198,14 +198,14 @@ def time_scan(DS_path, times, key_scan):
     for path in DS_path:
         for time in times:
              # subprocess.call(["python3", "Fast_getLongitudinalField.py", "--hdf", path, "--scan", key_scan, str(time)])
-             subprocess.call(["python3", "Fast_getLongitudinalField.py", "--hdf", path, "--scan", key_scan, str(time)])
+             subprocess.call(["python3", "getLongitudinalField.py", "--hdf", path, "--scan", key_scan, str(time)])
 
 def both_scan(DS_path, p_min, p_max):
     # subprocess.call(["trash"] + glob.glob("../DATA/scans/edm_scan*"))
     #subprocess.Popen( ["trash"] + glob.glob("../fig/scans/*.png") )
     for path in DS_path:
         for i, mom in enumerate(p_min):
-            subprocess.call(["python3",  "Fast_getLongitudinalField.py", "--hdf", path, "--scan", "--p_min", str(p_min[i]), "--p_max",  str(p_max[i])])
+            subprocess.call(["python3",  "getLongitudinalField.py", "--hdf", path, "--scan", "--p_min", str(p_min[i]), "--p_max",  str(p_max[i])])
 
 def plot(direction="start", bidir=False, second_direction=None):
     print("Making scan summary plot")

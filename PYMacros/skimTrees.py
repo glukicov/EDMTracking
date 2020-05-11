@@ -26,7 +26,7 @@ args=arg_parser.parse_args()
 
 #read both track and vertices
 # keys=('QualityTracks', 'QualityVertices')
-keys=(['QualityTracks'])
+keys=(['QualityVertices'])
 # keys=(['trackerNTup/tracker'])
 
 #counter for all and skimmed tracks/vertices
