@@ -30,7 +30,7 @@ arg_parser.add_argument("--bin_w", type=float, default=15) # ns
 arg_parser.add_argument("--g2period", type=float, default=None) # us 
 arg_parser.add_argument("--phase", type=float, default=None) # us 
 arg_parser.add_argument("--lt", type=float, default=None) # us 
-# arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/60h.h5", help="input data")
+# arg_parser.add_argument("--hdf", type=str, defaul="../DATA/HDF/EDM/60h.h5", help="input data")
 arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/R1.h5") 
 # arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/Sim/Bz.h5") 
 # arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/Sim/Sim.h5") 
@@ -308,16 +308,15 @@ def plot_theta(df_path):
         ax.set_xlim(0, g2period);
         
         if(ds_name=="9D"): 
-            ax.set_ylim(-0.75, 0.40)
+            ax.set_ylim(-0.95, 0.20)
         elif(ds_name=="R1"):
-            ax.set_ylim(-0.5, 0.13)
-            if(p_min < 1800): ax.set_ylim(-1.0, -0.1)
+            ax.set_ylim(-0.70, -0.1)
         elif(ds_name=="EG"): 
-            ax.set_ylim(-0.75, 0.15)
+            ax.set_ylim(-0.85, -0.2)
         elif(ds_name=="HK"): 
-            ax.set_ylim(-0.60, 0.40)
+            ax.set_ylim(-0.90, 0.35)
         else:
-            ax.set_ylim(-0.80, 0.55);
+            ax.set_ylim(-0.90, 0.35);
         if(sim): ax.set_ylim(-2.9, 2.5)
         cu.textL(ax, 0.75, 0.15, leg_data, fs=font_size)
         cu.textL(ax, 0.25, 0.17, leg_fit, fs=font_size, c="r")
