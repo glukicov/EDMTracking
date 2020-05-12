@@ -1,14 +1,12 @@
 '''
-Author: Gleb Lukicov
-
-Get an estimate of the longitudinal field from simulation or data
-using EDM blinding
+Author: Gleb Lukicov (g.lukicov@ucl.ac.uk)
+Updated: 12 May 2020
+Purpose: Get an estimate of the longitudinal field from simulation or data with EDM blinding
 '''
 import numpy as np
 import pandas as pd
-# MPL in batch mode
 import matplotlib as mpl
-mpl.use('Agg')
+mpl.use('Agg') # MPL in batch mode
 import matplotlib.pyplot as plt
 import os, sys
 from scipy import optimize
@@ -17,26 +15,18 @@ import CommonUtils as cu
 import RUtils as ru
 import argparse 
 
-
 arg_parser = argparse.ArgumentParser()
-# arg_parser.add_argument("--t_min", type=float, default=4.3) # us 
 arg_parser.add_argument("--t_min", type=float, default=30.56) # us 
 arg_parser.add_argument("--t_max", type=float, default=454.00) # us 
 arg_parser.add_argument("--p_min", type=float, default=700) # us 
 arg_parser.add_argument("--p_max", type=float, default=2400) # us 
+arg_parser.add_argument("--bin_w_count", type=float, default=15) # ns 
 arg_parser.add_argument("--bin_w", type=float, default=15) # ns 
-# arg_parser.add_argument("--bin_w", type=float, default=150.5314) # ns 
-# arg_parser.add_argument("--bin_w", type=float, default=149.2) # ns 
 arg_parser.add_argument("--g2period", type=float, default=None) # us 
 arg_parser.add_argument("--phase", type=float, default=None) # us 
-arg_parser.add_argument("--lt", type=float, default=None) # us 
-arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/60h.h5", help="input data")
-# arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/R1.h5") 
-# arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/Sim/Bz.h5") 
-# arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/Sim/Sim.h5") 
+arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/60h.h5")
 arg_parser.add_argument("--corr", action='store_true', default=False, help="Save covariance matrix for plotting")
 arg_parser.add_argument("--scan", action='store_true', default=False, help="if run externally for iterative scans - dump 𝝌2 and fitted pars to a file for summary plots") 
-arg_parser.add_argument("--count", action='store_true', default=False)
 arg_parser.add_argument("--hist", action='store_true', default=False)
 args=arg_parser.parse_args()
 
@@ -54,16 +44,21 @@ folder=args.hdf.replace(".","/").split("/")[-3]
 print("Detected DS name:", ds_name, ds_name_official, "from the input file!")
 if( (folder != "Sim") and (folder != "EDM")): raise Exception("Loaded pre-skimmed simulation or EDM file")
 if(not ds_name in expected_DSs): raise Exception("Unexpected input HDF name: if using Run-1 data, rename your file to DS.h5 (e.g. 60h.h5); Otherwise, modify functionality of this programme...exiting...")
-
-# Now that we know what DS we have, we can
-# set tune and calculate expected FFTs and
 cu._DS=ds_name
-print("Setting tune parameters for ", ds_name, "DS")
+# output scan file, HDF5 keys, file labels  
+keys=["count", "theta"]
+global_label=ds_name+"_"
+file_label=["_S"+str(s)+"_"+global_label for s in stations]
+scan_label=-1
 
+#set data or sim key 
 sim=False
-urad_bool=True
+key_df="QualityVertices"
 if(ds_name == "Sim" or ds_name=="Bz"):
-    print("Simulation data is loaded!"); sim=True; stations=([1218])
+    print("Simulation data is loaded!"); 
+    sim=True; 
+    stations=([1218])
+    key_df=None
 
 #Set gm2 period 
 if(args.g2period == None): 
@@ -77,6 +72,7 @@ print("Magic omega set to", cu._omega, "MHz")
 #Cuts 
 t_min = args.t_min # us 
 t_max = args.t_max # us 
+if (sim): t_min=4.3; t_max=200
 print("Starting and end times:", t_min, "to", t_max, "us")
 p_min = args.p_min # MeV 
 p_max = args.p_max # MeV 
@@ -86,53 +82,36 @@ p_max_counts = 3100 # MeV
 if(args.scan): p_min_counts=args.p_min
 print("Momentum cuts (for counts only):", p_min_counts, "to", p_max_counts, "MeV")
 
-#binning 
-bin_w = args.bin_w*1e-3 # 10 ns 
-bin_n = int( g2period/bin_w)
-print("Setting bin width of", bin_w*1e3, "ns with ~", bin_n, "bins")
-
 #starting fit parameters and their labels for plotting 
 par_names_count= ["N", "tau", "A", "phi"]; par_labels_count= [r"$N_{0}$", r"$\tau$", r"$A$", r"$\phi$"]; par_units_count=[" ",  r"$\rm{\mu}$s", " ", "rad"]
 par_names_theta= ["A_Bz", "A_edm_blind", "c"]; par_labels_theta= [r"$A_{B_{z}}$", r"$A^{\rm{BLINDED}}_{\mathrm{EDM}}$", r"$c$"]; par_units_theta=[r"$\rm{\mu}$rad", r"$\rm{\mu}$rad", r"$\rm{\mu}$rad"]
-par_names_theta_truth=par_names_theta.copy(); par_names_theta_truth[1]="A_edm"; par_labels_truth=par_labels_theta.copy(); par_labels_truth[1]=r"$A_{\mathrm{EDM}}$"
+par_labels_truth=par_labels_theta.copy(); par_labels_truth[1]=r"$A_{\mathrm{EDM}}$"
 p0_count=[ [50000, 64, 0.339, 2.07], [50000, 64, 0.339, 2.07]]
 p0_theta_blinded=[ [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
 if(sim): 
-    #p0_count=[ [3000, 64.4, -0.40, 6.240], [3000, 64.4, -0.40, 6.240]]
-    p0_theta_blinded=[ [-0.1, 0.0, 0.014], [-0.1, 0.0, 0.014]]
-    p0_theta_truth=[ [-0.1, 0.0, 0.014], [-0.1, 0.0, 0.014] ]; 
-    print("Starting pars TRUTH theta", *par_names_theta_truth, *p0_theta_truth)
-    #urad_bool=False
-    #par_units_theta=[r"mrad", r"mrad", r"mrad"]
+    p0_count=[ [3000, 64, -0.40, 6.3], [3000, 64, -0.40, 6.3]]
 print("Starting pars theta blinded", *par_names_theta, *p0_theta_blinded)
 print("Starting pars count",*par_names_count, *p0_count)
 
-
-### Define global variables
+### Define global variables (containers)
 residuals_counts, residuals_theta, times_counts, times_theta, errors_theta, errors_counts =[ [] ], [ [] ], [ [] ], [ [] ], [ [] ], [ [] ]
-if(sim): residuals_counts, residuals_theta, times_counts, times_theta=[ [] ], [ [] ], [ [] ], [ [] ]
-
-# output scan file HDF5 keys 
-keys=["count", "theta", "truth"]
-global_label=ds_name+"_"
-file_label=["_S"+str(s)+"_"+global_label for s in stations]
-
-scan_label=-1
 
 def main():
 
     plot_counts_theta(args.hdf)
 
-   # if(not args.count): plot_theta(args.hdf)
-
 
 def plot_counts_theta(df_path):
+
+    #######
+    # Step 1. Get phase 
+    #####
 
     '''
     Load data apply cuts and return two data frames - one per station 
     '''
     print("Opening data...")
-    data_hdf = pd.read_hdf(df_path, key='QualityVertices')   #open skimmed 
+    data_hdf = pd.read_hdf(df_path, key=key_df)   #open skimmed 
     print("N before cuts", round(data_hdf.shape[0]/1e6,2), "M") 
     
     #apply cuts 
@@ -142,17 +121,23 @@ def plot_counts_theta(df_path):
     data_hdf=data_hdf.reset_index() # reset index from 0 after cuts 
     print("Total tracks after cuts", round(data_hdf.shape[0]/1e6,2), "M")
 
+    #binning 
+    bin_w = args.bin_w_count*1e-3 # 10 ns 
+    bin_n = int( g2period/bin_w)
+    print("Setting bin width of", bin_w*1e3, "ns with ~", bin_n, "bins")
+
     # calculate variables for plotting
     t=data_hdf['trackT0']
     mod_times = cu.get_g2_mod_time(t, g2period) # Module the g-2 oscillation time 
     data_hdf['mod_times']=mod_times # add to the data frame 
 
-    # select all stations for simulation
+    # select all stations for simulation or when both station are used in the fit
     if(sim or len(stations)==1): data = [data_hdf]
 
     #split into two stations for data 
     if(not sim and len(stations)==2): data = [ data_hdf[data_hdf['station'] == 12], data_hdf[data_hdf['station'] == 18] ];
     
+    #loop over one or two stations
     for i_station, station in enumerate(stations):
         data_station=data[i_station]
         N=data_station.shape[0]
@@ -169,7 +154,6 @@ def plot_counts_theta(df_path):
         if (np.max(abs(par_e)) == np.Infinity ): raise Exception("\nOne of the fit parameters is infinity! Exiting...\n")
         if (args.corr): print("Covariance matrix\n", pcov); np.save("../DATA/misc/pcov_count_S"+str(station)+".np", pcov);
 
-        #Plot
         #Set legend title for the plot 
         if(sim): legend=ds_name_official+" S"+str(station);
         else:    legend="Run-"+ds_name_official+" dataset S"+str(station);  
@@ -186,7 +170,8 @@ def plot_counts_theta(df_path):
                                      lw=2,
                                      marker=".",
                                      ms=ms_ds,
-                                     prec=3)
+                                     prec=3,
+                                     urad=False)
         
         ax.set_ylim(np.amin(y)*0.9, np.amax(y)*1.15);
         if(sim): ax.set_ylim(np.amin(y)*0.9, np.amax(y)*1.4); cu.textL(ax, 0.5, 0.2, leg_fit, c="r", fs=font_size+1); cu.textL(ax, 0.80, 0.70, leg_data, fs=font_size+1)
@@ -206,7 +191,7 @@ def plot_counts_theta(df_path):
             df = pd.DataFrame.from_records(dict_dump, index='start')
             with open("../DATA/scans/edm_scan_"+keys[0]+".csv", 'a') as f:
                 df.to_csv(f, mode='a', header=f.tell()==0)
-            plt.savefig("../fig/scans/count_"+ds_name+"_S"+str(station)+scan_label+".png", dpi=200)
+            #plt.savefig("../fig/scans/count_"+ds_name+"_S"+str(station)+scan_label+".png", dpi=200)
     
         if(args.corr):
         # get residuals for later plots 
@@ -214,19 +199,22 @@ def plot_counts_theta(df_path):
             times_counts[i_station] = x
             errors_counts[i_station] = y_e
 
-        ### Set constant phase for the next step
+        ### Set constant phase from the fit for the next step
         if(args.phase == None):
             cu._phi=par[-1]
+        # if phase if passed just set it for the next step 
         else:
             cu._phi=args.phase
         print("Phase set to", round(cu._phi,5), "rad")
 
-
+        ############
+        # Step 2: Theta fits
+        ###########   
         '''
-        Load data apply cuts and return two data frames - one per station 
+        Load data and apply new cuts and return two data frames - one per station 
         '''
         print("Opening data...")
-        data_hdf = pd.read_hdf(df_path, key='QualityVertices')   #open skimmed 
+        data_hdf = pd.read_hdf(df_path, key=key_df)   #open skimmed 
         print("N before cuts", round(data_hdf.shape[0]/1e6,2), "M")
         
         #apply cuts 
@@ -236,6 +224,11 @@ def plot_counts_theta(df_path):
         data_hdf=data_hdf.reset_index() # reset index from 0 after cuts 
         N=data_hdf.shape[0]
         print("Total tracks after cuts", round(N/1e6,2), "M")
+
+        #binning 
+        bin_w = args.bin_w*1e-3 # 10 ns 
+        bin_n = int( g2period/bin_w)
+        print("Setting bin width of", bin_w*1e3, "ns with ~", bin_n, "bins")
 
         # calculate variables for plotting
         p=data_hdf['trackMomentum']
@@ -276,7 +269,6 @@ def plot_counts_theta(df_path):
             if (np.max(abs(par_e)) == np.Infinity ): raise Exception("\nOne of the fit parameters is infinity! Exiting...\n")
             if(args.corr): print("Covariance matrix\n", pcov); np.save("../DATA/misc/pcov_theta_S"+str(station)+".np", pcov);
 
-            #Plot   
             #Set legend title for the plot 
             if(sim): legend=ds_name_official+" S"+str(station);
             else:    legend="Run-"+ds_name_official+" dataset S"+str(station);     
@@ -288,9 +280,8 @@ def plot_counts_theta(df_path):
                                          legend_fit=r'Fit: $\langle \theta(t) \rangle =  A_{\mathrm{B_z}}\cos(\omega_a t + \phi) + A_{\mathrm{EDM}}\sin(\omega_a t + \phi) + c$',
                                          ylabel=r"$\langle\theta_y\rangle$ [mrad] per "+str(int(bin_w*1e3))+" ns",
                                          font_size=font_size,
-                                         prec=2, urad=urad_bool)
+                                         prec=2)
             ax.set_xlim(0, g2period);
-            
             if(ds_name=="9D"): 
                 ax.set_ylim(-0.95, 0.20)
             elif(ds_name=="R1"):
@@ -316,8 +307,7 @@ def plot_counts_theta(df_path):
                 df = pd.DataFrame.from_records(dict_dump, index='start')
                 with open("../DATA/scans/edm_scan_"+keys[1]+".csv", 'a') as f:
                     df.to_csv(f, mode='a', header=f.tell()==0)
-                plt.savefig("../fig/scans/bz_"+ds_name+"_S"+str(station)+scan_label+".png", dpi=200)
-
+                #plt.savefig("../fig/scans/bz_"+ds_name+"_S"+str(station)+scan_label+".png", dpi=200)
 
             # get residuals for later plots 
             if(args.corr):
@@ -325,7 +315,7 @@ def plot_counts_theta(df_path):
                 times_theta[i_station] = x
                 errors_theta[i_station] = y_e
 
-                 #############
+            #############
             # Make truth (un-blinded fits) if simulation
             #############
             if(sim or 1==1):
@@ -349,8 +339,7 @@ def plot_counts_theta(df_path):
                                          legend_fit=r'Fit: $\langle \theta(t) \rangle =  A_{\mathrm{B_z}}\cos(\omega_a t + \phi) + A_{\mathrm{EDM}}\sin(\omega_a t + \phi) + c$',
                                          ylabel=r"$\langle\theta_y\rangle$ [mrad] per "+str(int(bin_w*1e3))+" ns",
                                          font_size=font_size,
-                                         prec=2,
-                                         urad=urad_bool)
+                                         prec=2)
                 cu.textL(ax, 0.74, 0.15, leg_data, fs=font_size)
                 cu.textL(ax, 0.23, 0.15, leg_fit, fs=font_size, c="r")
                 ax.set_xlim(0, g2period);
@@ -358,14 +347,12 @@ def plot_counts_theta(df_path):
                 if(sim): ax.set_ylim(-2.9, 2.5);
                 if(args.scan==False): fig.savefig("../fig/bz_truth_"+ds_name+"_S"+str(station)+".png", dpi=200)
 
-
     ###
     #End of stations loop
     ##
 
     #make sanity plots 
     if(args.hist):
-    # if(not sim and args.hist):
 
         fig, _ = plt.subplots()
         bin_w_mom = 10 
@@ -392,37 +379,16 @@ def plot_counts_theta(df_path):
         ax.set_ylabel("Entries per "+str(round((max(ang)-min(ang))/n_bins_ang,3))+" mrad", fontsize=font_size);
         ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.3, 1.0))
         fig.savefig("../fig/theta_"+ds_name+"_S"+str(station)+".png", dpi=200, bbox_inches='tight')
-
-        # fig, _ = plt.subplots()
-        # n_binsXY_ang=(192,575)
-        # jg, cb, legendX, legendY = cu.plotHist2D(data_station['trackT0'], ang, n_binsXY=n_binsXY_ang, prec=2, unitsXY=(r"[$\rm{\mu}$s]", "mrad"), label="S"+str(station), cmin=0)
-        # jg.ax_joint.set_xlim(0, 100)
-        # jg.ax_joint.set_ylim(-60, 60)
-        # jg.ax_joint.set_ylabel(r"$\theta_y$ [mrad]", fontsize=font_size+2);
-        # jg.ax_joint.set_xlabel(r"t [$\rm{\mu}$s]", fontsize=font_size+2);
-        # plt.savefig("../fig/theta2D_"+ds_name+"_S"+str(station)+".png", dpi=200, bbox_inches='tight')
-
-        # fig, _ = plt.subplots()
-        # jg, cb, legendX, legendY = cu.plotHist2D(data_station['mod_times'], ang, n_binsXY=n_binsXY_ang, prec=3, unitsXY=(r"[$\rm{\mu}$s]", "mrad"), label="S"+str(station), cmin=0 )
-        # jg.ax_joint.set_xlim(0.0, g2period)
-        # jg.ax_joint.set_ylim(-60, 60)
-        # jg.ax_joint.set_ylabel(r"$\theta_y$ [mrad]", fontsize=font_size+2);
-        # jg.ax_joint.set_xlabel(r"$t^{mod}_{g-2}$"+r"[$\rm{\mu}$s]", fontsize=font_size+2);
-        # plt.savefig("../fig/theta2D_mod_"+ds_name+"_S"+str(station)+".png", dpi=200, bbox_inches='tight')
         
-   
-
     #-------end of looping over stations
 
     ## now if not scanning - get FFTs for both stations
     ## FFTs
-    if(not args.scan and not args.count and args.corr):
+    if(args.corr):
         print("Plotting residuals and FFTs...")
         cu.residual_plots(times_counts, residuals_counts, sim=sim, eL="count", file_label=file_label)
-        #cu.fft(residuals_counts, bin_w, sim=sim, eL="count", file_label=file_label)
-        #cu.residual_plots(times_theta, residuals_theta, sim=sim, eL="theta",  file_label=file_label)
-        #cu.fft(residuals_theta, bin_w, sim=sim, eL="theta", file_label=file_label)
-        #cu.pull_plots(residuals_theta, errors_theta, file_label=file_label  , eL="theta")
-        #cu.pull_plots(residuals_counts, errors_counts, file_label=file_label, eL="count")
+        cu.residual_plots(times_theta, residuals_theta, sim=sim, eL="theta",  file_label=file_label)
+        cu.pull_plots(residuals_theta, errors_theta, file_label=file_label  , eL="theta")
+        cu.pull_plots(residuals_counts, errors_counts, file_label=file_label, eL="count")
 if __name__ == '__main__':
     main()

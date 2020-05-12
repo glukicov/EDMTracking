@@ -293,7 +293,7 @@ def plot_edm(x, y, y_e, func, par, par_e, chi2_ndf, ndf, bin_w, N,
              prec=3,
              lw=2,
              ms=5,
-             urad=False,
+             urad=True,
              marker=".",
              ):
     fig, ax = plot(x, y, y_err=y_e, error=True, elw=1, fs=font_size, tight=False, 
