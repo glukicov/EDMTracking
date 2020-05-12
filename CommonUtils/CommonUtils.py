@@ -29,9 +29,7 @@ np.set_printoptions(precision=9)
 stations=([1218])
 
 #Set constants from fit (e.g. cu._phi=x)
-# _f_a=0.2290735 # MHz BNL (arXiv:hep-ex/0602035) 
-# _omega=round(_f_a*2*np.pi,7) # rad/us (magic) 
-# print("Magic omega set to", _omega, "MHz")
+_f_a=0.2290735 # MHz BNL (arXiv:hep-ex/0602035) 
 _omega=-1
 _phi=-1
 _LT=-1
