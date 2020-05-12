@@ -13,7 +13,7 @@ from BlindersPy3 import FitType
 #Input constants
 d0=1.9e-19 # BNL edm limit in e.cm
 ppm=1e-6 
-R=100
+R=10
 boxWidth=0.3
 gausWidth=0.8
 
@@ -31,11 +31,11 @@ gmagic = np.sqrt( 1.+1./aMu )
 beta   = np.sqrt( 1.-1./(gmagic*gmagic) )
 
 def main():
-    delta_blind = get_delta_blind(boxWidth=boxWidth, gausWidth=gausWidth, R=R)
+    delta_blind = get_delta_blind(boxWidth=boxWidth, gausWidth=gausWidth, blindString="EDM all day", R=R)
     
-def get_delta_blind():      
+def get_delta_blind(boxWidth=boxWidth, gausWidth=gausWidth, blindString="EDM all day", R=R):      
     # apply Omega_a blinding ("EDM style") with the blinding_string and input pars 
-    edmBlinded = Blinders(FitType.Omega_a, "EDM all day", boxWidth, gausWidth)
+    edmBlinded = Blinders(FitType.Omega_a, blindString, boxWidth, gausWidth)
 
     # use the blinder to give us a blinded offset from the input R which is 10*d0
     iAmp = edmBlinded.paramToFreq(R) # this is something like 1.442 which is the shifted / blinded omegaA value
