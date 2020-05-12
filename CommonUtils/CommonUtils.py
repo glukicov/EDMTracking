@@ -16,7 +16,7 @@ from math import floor, log10
 sys.path.append("../Blinding") # path to Blinding libs
 from BlindersPy3 import Blinders
 from BlindersPy3 import FitType
-getBlinded = Blinders(FitType.Omega_a, "EDM all day") 
+# getBlinded = Blinders(FitType.Omega_a, "EDM all day") 
 
 #fix the random seed
 def get_random_engine(init_seed=123456789):
@@ -457,7 +457,10 @@ def get_edm_mod_times(times, g2_period):
     phi=_phi
     if (phi == -1): raise Exception("Set constants phase via cu._phi=x")
 
-    phase_offset = phi / _omega  # us 
+    omega = _omega
+    if (omega == -1): raise Exception("Set constants omega via cu._omega=x")
+
+    phase_offset = phi / omega  # us 
     edm_mod_times = np.fmod(times - phase_offset, 2 * g2_period) - g2_period
 
     return edm_mod_times

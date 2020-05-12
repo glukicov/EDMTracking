@@ -90,7 +90,7 @@ def test_blidning(n_inject):
         tan_delta_blind = (eta_blind * beta) / (2 * aMu)
         delta_blind = math.atan(tan_delta_blind)
     
-        #print("eta_blind:", eta_blind, "tan_delta_blind:", tan_delta_blind, "delta_blind:", delta_blind)
+        print("eta_blind:", eta_blind, "tan_delta_blind:", tan_delta_blind, "delta_blind:", delta_blind)
         
         idiff_array.append(iDiff)  
     

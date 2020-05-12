@@ -3,17 +3,18 @@ Author: Gleb Lukicov (g.lukicov@ucl.ac.uk)
 Updated: 12 May 2020
 Purpose: Get an estimate of the longitudinal field from simulation or data with EDM blinding
 '''
+import os, sys
+import argparse 
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
 mpl.use('Agg') # MPL in batch mode
 import matplotlib.pyplot as plt
-import os, sys
 from scipy import optimize
 sys.path.append("../CommonUtils/") # https://github.com/glukicov/EDMTracking/blob/master/CommonUtils/CommonUtils.py
 import CommonUtils as cu
-import RUtils as ru
-import argparse 
+# Import blinding libraries 
+import BlindEDM
 
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("--t_min", type=float, default=30.56) # us 
@@ -141,7 +142,7 @@ def plot_counts_theta(df_path):
     for i_station, station in enumerate(stations):
         data_station=data[i_station]
         N=data_station.shape[0]
-        print("Tracks: ", round(N/1e6,2), " in S"+str(station))
+        print("Tracks: ", round(N/1e6,2), "M in S"+str(station))
 
         #############
         #Plot counts vs. mod time and fit
@@ -248,17 +249,15 @@ def plot_counts_theta(df_path):
         for i_station, station in enumerate(stations):
             data_station=data[i_station]
             N=data_station.shape[0]
-            print("Tracks: ", round(N/1e6,2), " in S"+str(station))
+            print("Tracks: ", round(N/1e6,2), "M in S"+str(station))
 
             #############
             #Blinded (EDM) fit for B_Z 
             ############      
             ### Resolve angle and times     
 
-            # TODO add blinding here
-
-            ang=data_station['theta_y_mrad']
-            ang_Blinded = ang
+            # blinding the angle 
+            ang_Blinded = data_station['theta_y_mrad'] + BlindEDM.get_delta_blind() * np.sin( cu._omega * data_station['mod_times'] + cu._phi)
             
             #profile
             df_binned =cu.Profile(data_station['mod_times'], ang_Blinded, None, nbins=bin_n, xmin=np.min(data_station['mod_times']), xmax=np.max(data_station['mod_times']), mean=True, only_binned=True)
@@ -294,7 +293,7 @@ def plot_counts_theta(df_path):
                 ax.set_ylim(-0.90, 0.35);
             if(sim): ax.set_ylim(-2.9, 2.5)
             cu.textL(ax, 0.75, 0.15, leg_data, fs=font_size)
-            cu.textL(ax, 0.25, 0.17, leg_fit, fs=font_size, c="r")
+            cu.textL(ax, 0.27, 0.17, leg_fit, fs=font_size, c="r")
             print("Fit in "+ds_name+" S:"+str(station), leg_fit)
             if(args.scan==False): fig.savefig("../fig/bz_"+ds_name+"_S"+str(station)+".png", dpi=200)
 
@@ -340,8 +339,8 @@ def plot_counts_theta(df_path):
                                          ylabel=r"$\langle\theta_y\rangle$ [mrad] per "+str(int(bin_w*1e3))+" ns",
                                          font_size=font_size,
                                          prec=2)
-                cu.textL(ax, 0.74, 0.15, leg_data, fs=font_size)
-                cu.textL(ax, 0.23, 0.15, leg_fit, fs=font_size, c="r")
+                cu.textL(ax, 0.75, 0.15, leg_data, fs=font_size)
+                cu.textL(ax, 0.27, 0.17, leg_fit, fs=font_size, c="r")
                 ax.set_xlim(0, g2period);
                 ax.set_ylim(-0.80, 0.55);
                 if(sim): ax.set_ylim(-2.9, 2.5);
