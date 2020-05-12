@@ -15,7 +15,7 @@ import h5py # https://github.com/h5py/h5py
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("--trees", type=str, default="../DATA/Trees/60h_in1File") # dir with ROOT Trees (e.g. /gm2/data/users/glukicov/Run1_QualityTrees/EndGame_in22Files)
 arg_parser.add_argument("--df", type=str, default="../DATA/HDF/60h_skim") # path+fileLabel will be appended with "_filecount" + ".h5"
-arg_parser.add_argument("--t_cut", type=int, default=0) # us 
+arg_parser.add_argument("--t_cut", type=int, default=30) # us 
 arg_parser.add_argument("--p_cut", type=int, default=-1) # MeV
 arg_parser.add_argument("--add", action='store_true', default=False)  # default is to skim files 
 arg_parser.add_argument("--add_R1", action='store_true', default=False)  # default is to skim files 
