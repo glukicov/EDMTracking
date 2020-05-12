@@ -203,8 +203,11 @@ def plot_counts_theta(df_path):
         ### Set constant phase from the fit for the next step
         if(args.phase == None):
             cu._phi=par[-1]
-        # if phase if passed just set it for the next step 
+       
+        # if phase if passed just set it for the next step
+        # phase is passed for scans of entire R-1 dataset in both stations
         else:
+            if(len(stations)!=1): raise Exception("Constant single phase is passed for S1218, but looping over both!")
             cu._phi=args.phase
         print("Phase set to", round(cu._phi,5), "rad")
 
