@@ -21,6 +21,8 @@ arg_parser.add_argument("--t_min", type=float, default=30.56, help="Fit start-ti
 arg_parser.add_argument("--t_max", type=float, default=454.00, help="Fit end-time [us]") 
 arg_parser.add_argument("--p_min", type=float, default=700, help="Min momentum cut [MeV]")
 arg_parser.add_argument("--p_max", type=float, default=2400, help="Max momentum cut [MeV]")
+arg_parser.add_argument("--p_min_count", type=float, default=1800, help="Min momentum cut [MeV]")
+arg_parser.add_argument("--p_max_count", type=float, default=3100, help="Max momentum cut [MeV]")
 arg_parser.add_argument("--bin_w_count", type=float, default=15, help="Bin width for counts plot [ns]")
 arg_parser.add_argument("--bin_w", type=float, default=15, help="Bin width for theta plot [ns]") 
 arg_parser.add_argument("--g2period", type=float, default=None, help="g-2 period, if none BNL value is used [us]") 
@@ -81,9 +83,9 @@ print("Starting and end times:", t_min, "to", t_max, "us")
 p_min = args.p_min # MeV 
 p_max = args.p_max # MeV 
 print("Momentum cuts:", p_min, "to", p_max, "MeV")
-p_min_counts = 1800 # MeV 
-p_max_counts = 3100 # MeV 
-if(args.scan): p_min_counts=args.p_min
+p_min_counts = args.p_min_count # MeV 
+p_max_counts = args.p_max_count # MeV 
+# if(args.scan): p_min_counts=args.p_min
 print("Momentum cuts (for counts only):", p_min_counts, "to", p_max_counts, "MeV")
 
 #starting fit parameters and their labels (+LaTeX) for plotting 
@@ -207,6 +209,7 @@ def plot_counts_theta(df_path):
         else:
             if(len(stations)!=1): raise Exception("Constant single phase is passed for S1218, but looping over both!")
             cu._phi=args.phase
+            print("\nPhase is passed as an argument\n")
         print("Phase set to", round(cu._phi,5), "rad")
         
         ############
@@ -257,24 +260,25 @@ def plot_counts_theta(df_path):
                                      font_size=font_size,
                                      prec=2)
         ax.set_xlim(0, g2period);
-        if(ds_name=="9D"): 
-            ax.set_ylim(-0.95, 0.20)
-        elif(ds_name=="R1"):
-            ax.set_ylim(-0.66, -0.16)
-        elif(ds_name=="EG"): 
-            ax.set_ylim(-0.9, -0.2)
-        elif(ds_name=="HK"): 
-            ax.set_ylim(-0.90, 0.35)
-        else:
-            ax.set_ylim(-0.90, 0.35);
-        if(sim): ax.set_ylim(-2.9, 2.5)
+        # ax.set_ylim(ax.get_ylim()[0]*1.5, ax.get_ylim()[1]*1.8)
+        # if(ds_name=="9D"): 
+        #     ax.set_ylim(-0.95, 0.20)
+        # elif(ds_name=="R1"):
+        #     ax.set_ylim(-0.66, -0.16)
+        # elif(ds_name=="EG"): 
+        #     ax.set_ylim(-0.9, -0.2)
+        # elif(ds_name=="HK"): 
+        #     ax.set_ylim(-0.90, 0.35)
+        # else:
+        #     ax.set_ylim(-0.90, 0.35);
+        # if(sim): ax.set_ylim(-2.9, 2.5)
         cu.textL(ax, 0.75, 0.15, leg_data, fs=font_size)
         cu.textL(ax, 0.27, 0.17, leg_fit, fs=font_size, c="r")
         print("Fit in "+ds_name+" S:"+str(station), leg_fit)
         if(args.scan==False): fig.savefig("../fig/bz_"+ds_name+"_S"+str(station)+".png", dpi=200)
 
         if(args.scan==True):
-            par_dump=np.array([[t_min], t_max, p_min, p_max, chi2_ndf, ndf, g2period, cu._LT, cu._phi,  bin_w, bin_n, xy_bins[0], xy_bins[1], N, station, ds_name, *par, *par_e])
+            par_dump=np.array([[t_min], t_max, p_min, p_max, chi2_ndf, ndf, g2period, cu._LT, cu._phi,  bin_w, bin_n, len(x), len(y), N, station, ds_name, *par, *par_e])
             par_dump_keys = ["start", "stop", "p_min", "p_max", "chi2", "ndf", "g2period", "lt", "phase", "bin_w", "bin_n", "ndf_x", "ndf_y", "n", "station", "ds"]
             par_dump_keys.extend(par_names_theta)
             par_dump_keys.extend( [str(par)+"_e" for par in par_names_theta] )
@@ -292,7 +296,7 @@ def plot_counts_theta(df_path):
         #############
         # Make truth (un-blinded fits) if simulation
         #############
-        if(sim or 1==1):
+        if(sim):
             print("Making truth plots in simulation")
 
             # Bin 
@@ -355,10 +359,15 @@ def plot_counts_theta(df_path):
     ## if passed get residuals and pulls 
     if(args.corr):
         print("Plotting residuals and FFTs...")
-        cu.residual_plots(times_counts, residuals_counts, sim=sim, eL="count", file_label=file_label)
+        
+        if(args.phase == None):
+            cu.residual_plots(times_counts, residuals_counts, sim=sim, eL="count", file_label=file_label)
+            cu.pull_plots(residuals_counts, errors_counts, file_label=file_label, eL="count")
+            cu.fft(residuals_counts, bin_w, sim=sim, eL="count", file_label=file_label)
+        
         cu.residual_plots(times_theta, residuals_theta, sim=sim, eL="theta",  file_label=file_label)
         cu.pull_plots(residuals_theta, errors_theta, file_label=file_label  , eL="theta")
-        cu.pull_plots(residuals_counts, errors_counts, file_label=file_label, eL="count")
+        cu.fft(residuals_theta, bin_w, sim=sim, eL="theta", file_label=file_label)
 
 if __name__ == '__main__':
     main()

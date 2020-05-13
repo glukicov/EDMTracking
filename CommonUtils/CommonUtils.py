@@ -164,7 +164,9 @@ def plot_fom(x, y, y_e, ds_colors, ds_markers,
              font_size=14,
              prec=1,
              no_legend=False,
-             BNL=False
+             label=None,
+             BNL=False,
+             zorder=1
              ):
     if(ax==None and fig == None): 
         fig, ax = plt.subplots()
@@ -176,7 +178,10 @@ def plot_fom(x, y, y_e, ds_colors, ds_markers,
             x_step=[0.85, 1.8, 2.8, 3.85]
 
     else:
-        x_step=[1.15, 2.2, 3.2, 4.15]
+        if(label=="S1218"):
+            x_step=[1, 2, 3, 4]
+        else:
+            x_step=[1.15, 2.2, 3.2, 4.15]
 
     for i in range(len(x)):
         if(y_e[0]==None): 
@@ -187,7 +192,7 @@ def plot_fom(x, y, y_e, ds_colors, ds_markers,
             label_y=eL+x[i]+": "+str(int(round(y[i],prec)))+"("+str(int(round(y_e[i],prec)))+r") "+units
         # ax.scatter(x_step[i], y[i], marker=ds_markers[i], color=ds_colors[i], lw=0,  label=label_y)
     
-    if(y_e[0]!=None): ax.errorbar(x_step, y, yerr=y_e, elinewidth=2, linewidth=0, ecolor=ds_colors, marker=ds_markers[i], color=ds_colors[i])
+    if(y_e[0]!=None): ax.errorbar(x_step, y, yerr=y_e, elinewidth=2, linewidth=0, ecolor=ds_colors, marker=ds_markers[i], color=ds_colors[i], label=label, zorder=zorder)
     
     ax.set_xlabel("Dataset", fontsize=font_size);
     ax.set_ylabel(y_label, fontsize=font_size);
@@ -386,6 +391,7 @@ def fft(residuals, bin_w, sim=False, eL="", file_label="", scan_label=""):
     #take the +ive part
     freq=freqs[0:N//2]
     res_fft=res_fft[0:N//2]
+    print("res_fft",res_fft)
 
     # Calculate the Nyquist frequency, which is twice the highest frequeny in the signal
     # or half of the sampling rate ==  the maximum frequency before sampling errors start
@@ -404,18 +410,19 @@ def fft(residuals, bin_w, sim=False, eL="", file_label="", scan_label=""):
     # find index of frequency above 0.1 
     #index=next(i for i,v in enumerate(freq) if v > 0.1)
     # arbitrary: scale by max value in range of largest non-zero peak
-    norm = 1./78000
+    norm = 1./1
+    # norm = 1./78000
     #if(args.loss): norm=norm*0.1 # scale by 4 if LM is used
     res_fft=res_fft*norm
     if(not sim): ax.plot(freq, res_fft, label=ds_name_official+" dataset S"+str(stations[i_station])+r": FFT, $n$={0:.3f}".format(n_tune), lw=2, c="g")
     if(sim):     ax.plot(freq, res_fft, label="Sim: FFT", lw=2, c="g")
 
     #plot expected frequencies
-    ax.plot( (f_cbo, f_cbo), (y_min, y_max), c="r", ls="--", label="CBO")
-    ax.plot( (f_a, f_a), (y_min, y_max), c="b", ls="-", label=r"$(g-2)$")
-    ax.plot( (f_cbo_M_a, f_cbo_M_a), (y_min, y_max), c="k", ls="-.", label=r"CBO - $(g-2)$")
-    ax.plot( (f_cbo_P_a, f_cbo_P_a), (y_min, y_max), c="c", ls=":", label=r"CBO + $(g-2)$")
-    ax.plot( (f_vw, f_vw), (y_min, y_max), c="m", ls=(0, (1, 10)), label="VW")
+    # ax.plot( (f_cbo, f_cbo), (y_min, y_max), c="r", ls="--", label="CBO")
+    # ax.plot( (f_a, f_a), (y_min, y_max), c="b", ls="-", label=r"$(g-2)$")
+    # ax.plot( (f_cbo_M_a, f_cbo_M_a), (y_min, y_max), c="k", ls="-.", label=r"CBO - $(g-2)$")
+    # ax.plot( (f_cbo_P_a, f_cbo_P_a), (y_min, y_max), c="c", ls=":", label=r"CBO + $(g-2)$")
+    # ax.plot( (f_vw, f_vw), (y_min, y_max), c="m", ls=(0, (1, 10)), label="VW")
 
     # prettify and save plot
     ax.legend(fontsize=14, loc="best")

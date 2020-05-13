@@ -59,13 +59,13 @@ g2period  = round(1/0.2290735,6)
 stations=([1218])
 # stations=(12, 18)
 
-DS_path = (["../DATA/HDF/EDM/60h.h5"])
-dss = (["60h"]) 
-ds_name_official="1a"
+# DS_path = (["../DATA/HDF/EDM/60h.h5"])
+# dss = (["60h"]) 
+# ds_name_official="1a"
 
-# DS_path = (["../DATA/HDF/EDM/R1.h5"])
-# dss = (["R1"]) 
-# ds_name_official="1"
+DS_path = (["../DATA/HDF/EDM/R1.h5"])
+dss = (["R1"]) 
+ds_name_official="1"
 
 
 # keys=["count", "theta"] # HDF5 keys of input scan result files 
@@ -77,7 +77,6 @@ par_names_theta= ["A_Bz"]; par_labels_theta= [r"$A_{B_{z}}$"+r" [$\rm{\mu}$rad]"
 # par_labels=[par_labels_count, par_labels_theta, par_labels_truth]
 # par_names=[par_names_count, par_names_theta, par_names_theta_truth] 
 
-
 keys=["theta"] # HDF5 keys of input scan result files 
 par_labels=[par_labels_theta]
 par_names=[par_names_theta] 
@@ -85,8 +84,6 @@ par_names=[par_names_theta]
 # keys=["count"] # HDF5 keys of input scan result files s
 # par_labels=[par_labels_count]
 # par_names=[par_names_count] 
-
-
 
 # par_names_count= ["A"];    par_labels_count= [r"$N$ (count)"];
 # par_names_theta= ["A_Bz"]; par_labels_theta= [r"$A_{B_{z}}$ [mrad]"]; 
@@ -96,8 +93,6 @@ par_names=[par_names_theta]
 # par_names_theta= ["A_Bz"]; par_labels_theta= [r"$A_{B_{z}}$ ["+r"$\rm{\mu}$rad]"]; 
 # par_labels=[par_labels_theta]; par_names=[par_names_theta]; 
 # keys=["theta"] # HDF5 keys of input scan result files 
-
-
 
 if(args.start): 
     factor=1
@@ -129,13 +124,13 @@ if(args.stop):
     in_=input("Start scans?")
 
 if(args.p_min):   
-    p_min = np.linspace(1000, 2000, 11, dtype=float)
+    p_min = np.linspace(800, 2300, 16, dtype=float)
     print("P min:", p_min)
     in_=input("Start scans?")
 
 if(args.p_minp_max):
-    p_min = np.linspace(0, 1000, 11, dtype=float)
-    p_max = np.linspace(3100, 2100, 11, dtype=float)
+    p_min = np.linspace(0, 1400, 15, dtype=float)
+    p_max = np.linspace(3100, 1700, 15, dtype=float)
     print("P min:", p_min)
     print("P max:", p_max)
     in_=input("Start scans?")
@@ -157,7 +152,8 @@ if(args.lt):
     in_=input("Start scans?")
 
 if(args.bin_w): 
-    bins=np.linspace(5, 25, 11, dtype=float)
+    # bins=np.linspace(5, 400, 14, dtype=float)
+    bins = (5, 15, 30, 50, 80, 150, 200, 300, 400, 430)
     print("bins width [ns]:", bins)
     in_=input("Start scans?")
 
@@ -198,14 +194,14 @@ def time_scan(DS_path, times, key_scan):
     for path in DS_path:
         for time in times:
              # subprocess.call(["python3", "Fast_getLongitudinalField.py", "--hdf", path, "--scan", key_scan, str(time)])
-             subprocess.call(["python3", "getLongitudinalField.py", "--hdf", path, "--scan", key_scan, str(time)])
+             subprocess.call(["python3", "getLongitudinalField.py", "--hdf", path, "--scan", key_scan, str(time), "--phase", "2.06374"])
 
 def both_scan(DS_path, p_min, p_max):
     # subprocess.call(["trash"] + glob.glob("../DATA/scans/edm_scan*"))
     #subprocess.Popen( ["trash"] + glob.glob("../fig/scans/*.png") )
     for path in DS_path:
         for i, mom in enumerate(p_min):
-            subprocess.call(["python3",  "getLongitudinalField.py", "--hdf", path, "--scan", "--p_min", str(p_min[i]), "--p_max",  str(p_max[i])])
+            subprocess.call(["python3",  "getLongitudinalField.py", "--hdf", path, "--scan", "--p_min", str(p_min[i]), "--p_max",  str(p_max[i]), "--phase", "2.06374", "--bin_w", "100"])
 
 def plot(direction="start", bidir=False, second_direction=None):
     print("Making scan summary plot")
