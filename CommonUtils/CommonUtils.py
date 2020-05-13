@@ -166,14 +166,17 @@ def plot_fom(x, y, y_e, ds_colors, ds_markers,
              no_legend=False,
              label=None,
              BNL=False,
+             custom=None,
              zorder=1
              ):
     if(ax==None and fig == None): 
         fig, ax = plt.subplots()
-        if(eL == "" and BNL==False):
+        if(eL == "" and BNL==False and custom==None):
             x_step=[1, 2, 3, 4]
         elif(BNL==True):
             x_step=[1, 2]
+        elif(custom!=None):
+            x_step=custom
         else:
             x_step=[0.85, 1.8, 2.8, 3.85]
 

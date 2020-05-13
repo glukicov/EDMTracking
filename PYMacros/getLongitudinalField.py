@@ -332,10 +332,10 @@ def plot_counts_theta(df_path):
             bin_w_mom = 10 
             mom=p
             n_bins_mom=int(round((max(mom)-min(mom))/bin_w_mom,2))
-            ax, _ = cu.plotHist(mom, n_bins=n_bins_mom, prec=3, units="MeV", label="Run-"+ds_name_official+" dataset S"+str(station) )
+            ax, _ = cu.plotHist(mom, n_bins=n_bins_mom, prec=3, units="MeV", label="Run-"+ds_name_official+" S"+str(station) )
             legend=cu.legend5(*cu.stats5(mom), "MeV", prec=2)
             cu.textL(ax, 0.76, 0.85, str(legend), fs=14)
-            ax.set_ylim(ax.get_ylim()[0],ax.get_ylim()[1]*1.1)
+            ax.set_ylim(ax.get_ylim()[0],ax.get_ylim()[1]*1.3)
             # ax.set_xlim(-50,50)
             ax.set_xlabel(r"$p$ [MeV]", fontsize=font_size);
             ax.set_ylabel("Entries per "+str(bin_w_mom)+" MeV", fontsize=font_size);
@@ -344,11 +344,12 @@ def plot_counts_theta(df_path):
             
             fig, _ = plt.subplots()
             n_bins_ang=400*2
-            ax, _ = cu.plotHist(theta_y_mrad, n_bins=n_bins_ang, prec=3, units="mrad", label="Run-"+ds_name_official+" dataset S"+str(station)+" "+str(p_min)+r"$<p<$"+str(p_max) )
+            ax, _ = cu.plotHist(theta_y_mrad, n_bins=n_bins_ang, prec=3, units="mrad", label="Run-"+ds_name_official+" S"+str(station)+" \n"+str(p_min)+r"$<p<$"+str(p_max)+" MeV" )
             legend=cu.legend3_sd(*cu.stats3_sd(theta_y_mrad), "mrad", prec=3)
-            cu.textL(ax, 0.8, 0.85, str(legend), fs=14)
-            ax.set_ylim(ax.get_ylim()[0],ax.get_ylim()[1]*1.1)
-            ax.set_xlim(-50,50)
+            print(legend)
+            cu.textL(ax, 0.8, 0.85, str(legend), fs=12)
+            ax.set_ylim(ax.get_ylim()[0],ax.get_ylim()[1]*1.3)
+            ax.set_xlim(-80,80)
             ax.set_xlabel(r"$\theta_y$ [mrad]", fontsize=font_size);
             ax.set_ylabel("Entries per "+str(round((max(theta_y_mrad)-min(theta_y_mrad))/n_bins_ang,3))+" mrad", fontsize=font_size);
             ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.3, 1.0))
