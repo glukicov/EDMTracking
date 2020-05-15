@@ -35,13 +35,21 @@ _phi=-1
 _LT=-1
 _DS=-1
 
-expected_DSs = ("60h", "9D", "HK", "EG", "Sim", "R1")
-official_DSs = ("Run-1a", "Run-1c", "Run-1b", "Run-1e", "Sim", "Run-1")
+expected_DSs = ("60h", "9D", "HK", "EG", "Sim", "R1", "Bz")
+official_DSs = ("Run-1a", "Run-1c", "Run-1b", "Run-1e", "Sim", "Run-1", "Bz")
 
 #define common constants
 meanS=r"$\mathrm{\mu}$"
 sigmaS=r"$\sigma$"
 chi2ndfS=r"$\frac{\chi^2}{DoF}$"
+
+
+def get_phase(ds_name):
+    #determined phase from data for S1218 in each dataset
+    phases = (2.0832, 2.0616, 2.0603, 2.0610, 6.3662, 2.0637, 6.2568)
+    phase_ds=phases[expected_DSs.index(ds_name)]
+    print("Using pre-determined phase of", phase_ds, "rad from", ds_name)
+    return phase_ds 
 
 
 def plotHist(data, n_bins=100, prec=2, fs=14, units="units", c="green", alpha=0.7, label=""):

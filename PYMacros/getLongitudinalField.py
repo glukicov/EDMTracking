@@ -26,9 +26,9 @@ arg_parser.add_argument("--p_max_count", type=float, default=3100, help="Max mom
 arg_parser.add_argument("--bin_w_count", type=float, default=15, help="Bin width for counts plot [ns]")
 arg_parser.add_argument("--bin_w", type=float, default=15, help="Bin width for theta plot [ns]") 
 arg_parser.add_argument("--g2period", type=float, default=None, help="g-2 period, if none BNL value is used [us]") 
-arg_parser.add_argument("--phase", type=float, default=None,  help="phase, if none determined from data [rad]") 
 arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/60h.h5", help="Full path to the data file: HDF5")
 arg_parser.add_argument("--corr", action='store_true', default=False, help="Save covariance matrix for plotting")
+arg_parser.add_argument("--phase", action='store_true', default=False,  help="phase, if True determined from data") 
 arg_parser.add_argument("--scan", action='store_true', default=False, help="if run externally for iterative scans - dump chi2 and fitted pars to a file for summary plots") 
 arg_parser.add_argument("--hist", action='store_true', default=False, help="plot sanity histograms")
 arg_parser.add_argument("--both", action='store_true', default=False, help="Separate fists for S12 and S18")
@@ -129,9 +129,9 @@ def plot_counts_theta(df_path):
         # Step 1. Get phase 
         #####
 
-        #  if a constant phase is not passed - determine one from data
-        #  if it is passed, skip applying cuts and fitting, and go to step 2 (only when S1218 single fit, otherwise raise Exception) 
-        if(args.phase == None): 
+        #  True = determine phase from data
+        #  False= skip applying cuts and fitting, and go to step 2 (only when S1218 single fit, otherwise raise Exception) 
+        if(args.phase): 
 
             #apply cuts 
             mom_cut = ( (data_station['trackMomentum'] > p_min_counts) & (data_station['trackMomentum'] < p_max_counts) ) # MeV  
@@ -207,11 +207,8 @@ def plot_counts_theta(df_path):
         # If phase if passed just set it for the next step
         # phase is passed for scans of entire R-1 dataset in both stations
         else:
-            if(len(stations)!=1): raise Exception("Constant single phase is passed for S1218, but looping over both!")
-            cu._phi=args.phase
-            print("\nPhase is passed as an argument\n")
-        print("Phase set to", round(cu._phi,5), "rad")
-        
+            cu._phi=cu.get_phase(ds_name)
+            
         ############
         # Step 2: Theta fits
         ###########   
@@ -228,24 +225,25 @@ def plot_counts_theta(df_path):
         bin_w = args.bin_w*1e-3 # 10 ns 
         bin_n = int( g2period/bin_w)
         print("Setting bin width of", bin_w*1e3, "ns with ~", bin_n, "bins")
-
+  
         # calculate variables for plotting
         p=data_station_theta['trackMomentum']
         py=data_station_theta['trackMomentumY']
         theta_y_mrad = np.arctan2(py, p)*1e3 # rad -> mrad
-        mod_time = cu.get_g2_mod_time(data_station_theta['trackT0'], g2period) # Module the g-2 oscillation time     
+        mod_time = cu.get_g2_mod_time(data_station_theta['trackT0'], g2period) # Module the g-2 oscillation time
+        ang_Blinded = theta_y_mrad + BlindEDM.get_delta_blind(blindString=ds_name_official+(str(station))) * np.sin( cu._omega * mod_time + cu._phi)
+        print("Blinding is done")
 
-        # blinding the angle 
-        ang_Blinded = theta_y_mrad + BlindEDM.get_delta_blind(blindString=ds_name_official+str(station)) * np.sin( cu._omega * mod_time + cu._phi)
-        
         #profile
         df_binned =cu.Profile(mod_time, ang_Blinded, None, nbins=bin_n, xmin=np.min(mod_time), xmax=np.max(mod_time), mean=True, only_binned=True)
         x, y, y_e, x_e =df_binned['bincenters'], df_binned['ymean'], df_binned['yerr'], df_binned['xerr']
+        print("Profiling is done")
 
         #Fit
         par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x, y, y_e, cu.thetaY_phase, p0_theta_blinded[i_station])
         if (np.max(abs(par_e)) == np.Infinity ): raise Exception("\nOne of the fit parameters is infinity! Exiting...\n")
         if(args.corr): print("Covariance matrix\n", pcov); np.save("../DATA/misc/pcov_theta_S"+str(station)+".np", pcov);
+        print("Fitting is done")
 
         #Set legend title for the plot 
         if(sim): legend=ds_name_official+" S"+str(station);
@@ -296,7 +294,7 @@ def plot_counts_theta(df_path):
         #############
         # Make truth (un-blinded fits) if simulation
         #############
-        if(sim):
+        if(sim or 1==1):
             print("Making truth plots in simulation")
 
             # Bin 
@@ -360,12 +358,12 @@ def plot_counts_theta(df_path):
     ## if passed get residuals and pulls 
     if(args.corr):
         print("Plotting residuals and FFTs...")
-        
-        if(args.phase == None):
+
+        if(args.phase):
             cu.residual_plots(times_counts, residuals_counts, sim=sim, eL="count", file_label=file_label)
             cu.pull_plots(residuals_counts, errors_counts, file_label=file_label, eL="count")
             cu.fft(residuals_counts, bin_w, sim=sim, eL="count", file_label=file_label)
-        
+                
         cu.residual_plots(times_theta, residuals_theta, sim=sim, eL="theta",  file_label=file_label)
         cu.pull_plots(residuals_theta, errors_theta, file_label=file_label  , eL="theta")
         cu.fft(residuals_theta, bin_w, sim=sim, eL="theta", file_label=file_label)
