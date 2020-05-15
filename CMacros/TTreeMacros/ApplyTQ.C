@@ -1,7 +1,7 @@
 /*
 Copy a subset of a Tree to a new Tree if Track Quality or Vertex Quality is passed
    -Quality tracks are copied to a new Tree: QualityTracks
-   -Quality vertices are copied to a new Tree: QualityVerticies
+   -Quality vertices are copied to a new Tree: QualityVertices
 
    Author: Gleb Lukicov (g.lukicov@ucl.ac.uk) 13 Jan 2019
    Based on James's macros /gm2/app/users/jmott/analysis/TreePlotter
@@ -9,7 +9,17 @@ Copy a subset of a Tree to a new Tree if Track Quality or Vertex Quality is pass
    run with (!note single quotes at the end and start!) :
    root 'ApplyTQ.C("input.txt", "output.txt")'
    where the text files contain full file-paths to input Trees
-   and full path to produced QualityTrees 
+   and full path to be produced QualityTrees 
+
+   e.g. 
+         input.txt: 
+                  /gm2/data/g2be/Production/Trees/Run1/trackRecoTrees_15921.root 
+                  /gm2/data/g2be/Production/Trees/Run1/trackRecoTrees_15922.root 
+                  etc... 
+         output.txt: 
+                  /gm2/data/g2be/Production/Trees/Run1/trackRecoTrees_15921.root 
+                  /gm2/data/g2be/Production/Trees/Run1/trackRecoTrees_15922.root 
+                  etc... 
 
 */
 #include <time.h> // measure CPU time
@@ -64,7 +74,7 @@ void ApplyTQ(string inputTextFile, string outputTextFile) {
       TTree *outputTreeQT = inputTree->CloneTree(0); // QualityTracks tree
       TTree *outputTreeQV = inputTree->CloneTree(0); // QualityVerticies tree
       outputTreeQT->SetName("QualityTracks");
-      outputTreeQV->SetName("QualityVerticies");
+      outputTreeQV->SetName("QualityVertices");
 
       //resolve cuts
       bool passTrackQuality, passVertexQuality, passCandQuality;
