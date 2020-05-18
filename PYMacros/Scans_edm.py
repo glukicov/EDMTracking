@@ -20,6 +20,8 @@ import seaborn as sn
 #Input fitting parameters 
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("--all", action='store_true', default=False) # just run all 4 DS 
+arg_parser.add_argument("--mom", action='store_true', default=False)  
+arg_parser.add_argument("--plot_mom", action='store_true', default=False)  
 
 arg_parser.add_argument("--start", action='store_true', default=False) 
 arg_parser.add_argument("--stop", action='store_true', default=False) 
@@ -128,6 +130,17 @@ if(args.p_min):
     print("P min:", p_min)
     in_=input("Start scans?")
 
+if(args.mom):
+    # p_min = [0,   800,  1200, 1500, 2000 ]
+    # p_max = [800, 1200, 1500, 2000, 3100 ]     
+   
+    p_min = [800,  1200, 1500, 1800 ]
+    p_max = [1200, 1500, 1800, 2300 ]
+    
+    print("P min:", p_min)
+    print("P max:", p_max)
+    in_=input("Start scans?")
+
 if(args.p_minp_max):
     p_min = np.linspace(0, 1400, 15, dtype=float)
     p_max = np.linspace(3100, 1700, 15, dtype=float)
@@ -172,6 +185,7 @@ def main():
     if(args.bin_w): time_scan(DS_path, bins,  "--bin_w")
 
     if(args.p_minp_max): both_scan(DS_path, p_min, p_max)
+    if(args.mom):        both_scan(DS_path, p_min, p_max)
     
     if(args.plot_start): plot(direction="start")
     if(args.plot_stop): plot(direction="stop")
@@ -181,7 +195,10 @@ def main():
     if(args.plot_lt): plot(direction="lt")
     if(args.plot_bin_w): plot(direction="bin_w")
     if(args.plot_p_minp_max): plot(direction="p_min", bidir=True, second_direction="p_max")
+    if(args.plot_mom): plot_mom()
     if(args.corr): corr()
+
+  
 
 
 def all(DS_path):
@@ -194,14 +211,14 @@ def time_scan(DS_path, times, key_scan):
     for path in DS_path:
         for time in times:
              # subprocess.call(["python3", "Fast_getLongitudinalField.py", "--hdf", path, "--scan", key_scan, str(time)])
-             subprocess.call(["python3", "getLongitudinalField.py", "--hdf", path, "--scan", key_scan, str(time), "--phase", "2.06374"])
+             subprocess.call(["python3", "getLongitudinalField.py", "--hdf", path, "--scan", key_scan, str(time)])
 
 def both_scan(DS_path, p_min, p_max):
     # subprocess.call(["trash"] + glob.glob("../DATA/scans/edm_scan*"))
     #subprocess.Popen( ["trash"] + glob.glob("../fig/scans/*.png") )
     for path in DS_path:
         for i, mom in enumerate(p_min):
-            subprocess.call(["python3",  "getLongitudinalField.py", "--hdf", path, "--scan", "--p_min", str(p_min[i]), "--p_max",  str(p_max[i]), "--phase", "2.06374", "--bin_w", "100"])
+            subprocess.call(["python3",  "getLongitudinalField.py", "--hdf", path, "--scan", "--p_min", str(p_min[i]), "--p_max",  str(p_max[i])])
 
 def plot(direction="start", bidir=False, second_direction=None):
     print("Making scan summary plot")
@@ -415,7 +432,47 @@ def plot(direction="start", bidir=False, second_direction=None):
     #when done reading the file - backup
     # subprocess.call(["mv", "../DATA/cans/edm_scan_count.csv", "../DATA/scans/edm_scan_count_"+dirName+".csv"]) # backup previous file
     # subprocess.call(["mv", "../DATA/scans/edm_scan_theta.csv", "../DATA/scans/edm_scan_theta_"+dirName+".csv"]) # backup previous file
-            
+
+def plot_mom():
+    print("Mom study plots")
+
+    data = pd.read_csv("../DATA/scans/edm_scan_theta.csv")
+
+    A_bz = data['A_Bz']*1e3
+    A_bz_e = data['A_Bz_e']*1e3
+    p_min = data['p_min']
+    p_max = data['p_max']
+    cuts = [str(int(p_min[i]))+r"$<p<$"+str(int(p_max[i])) for i,k in enumerate(p_min)] 
+    x=np.arange(1,data.shape[0]+1)
+
+    N=data['n']
+    print("Fraction of events in each bin\n", np.round(N/np.sum(N),2))
+    print("A_Bz in each bin\n", np.round(A_bz,2))
+
+    A_bz_weighted = np.sum(A_bz * N)/np.sum(N)
+    print("Weighted:", round(A_bz_weighted,2),"urad")
+
+    
+    fig, ax = cu.plot(x, A_bz, y_err=A_bz_e, c="g", marker="o", error=True, label="Run-1 S1218")
+    ax.set_xticks(x)
+    ax.set_xticklabels(cuts)
+    ax.set_ylabel(r"$A_{B_z} \ [\rm{\mu}$rad]")
+    # ax.set_xlim(0.7, 4.3)
+    # ax.set_ylim(-4, 30)
+    ax.set_xlabel("")
+    for tick in ax.get_xticklabels():
+        tick.set_rotation(15)
+    plt.xticks(fontsize=14)
+    plt.tight_layout()
+    plt.legend(fontsize=14, loc=(0.55,0.85))
+    ax.tick_params(axis='x', which='minor', bottom=False, top=False)
+    fig.savefig("../fig/sum_mom_A_bz.png", dpi=300, bbox_inches='tight');
+    
+
+
+
+
+
 def corr():
     '''
     plot correlation matrix for the fit parameters

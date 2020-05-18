@@ -19,12 +19,12 @@ import BlindEDM # https://github.com/glukicov/EDMTracking/blob/master/PYMacros/B
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("--t_min", type=float, default=30.56, help="Fit start-time [us]") 
 arg_parser.add_argument("--t_max", type=float, default=454.00, help="Fit end-time [us]") 
-arg_parser.add_argument("--p_min", type=float, default=700, help="Min momentum cut [MeV]")
-arg_parser.add_argument("--p_max", type=float, default=2400, help="Max momentum cut [MeV]")
+arg_parser.add_argument("--p_min", type=float, default=800, help="Min momentum cut [MeV]")
+arg_parser.add_argument("--p_max", type=float, default=2300, help="Max momentum cut [MeV]")
 arg_parser.add_argument("--p_min_count", type=float, default=1800, help="Min momentum cut [MeV]")
 arg_parser.add_argument("--p_max_count", type=float, default=3100, help="Max momentum cut [MeV]")
 arg_parser.add_argument("--bin_w_count", type=float, default=15, help="Bin width for counts plot [ns]")
-arg_parser.add_argument("--bin_w", type=float, default=15, help="Bin width for theta plot [ns]") 
+arg_parser.add_argument("--bin_w", type=float, default=149.2, help="Bin width for theta plot [ns]") 
 arg_parser.add_argument("--g2period", type=float, default=None, help="g-2 period, if none BNL value is used [us]") 
 arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/60h.h5", help="Full path to the data file: HDF5")
 arg_parser.add_argument("--corr", action='store_true', default=False, help="Save covariance matrix for plotting")
@@ -48,7 +48,7 @@ ds_name=args.hdf.replace(".","/").split("/")[-2] # if all special chars are "/" 
 ds_name_official=official_DSs[expected_DSs.index(ds_name)]
 folder=args.hdf.replace(".","/").split("/")[-3] 
 print("Detected DS name:", ds_name, ds_name_official, "from the input file!")
-if( (folder != "Sim") and (folder != "EDM")): raise Exception("Load a pre-skimmed simulation or an EDM file")
+if( (folder != "Sim") and (folder != "EDM") and (folder != "Qual_Sim")): raise Exception("Load a pre-skimmed simulation or an EDM file")
 if(not ds_name in expected_DSs): raise Exception("Unexpected input HDF name: if using Run-1 data, rename your file to DS.h5 (e.g. 60h.h5); Otherwise, modify functionality of this programme...exiting...")
 cu._DS=ds_name
 # output scan file, HDF5 keys, file labels, scan labels 
@@ -78,7 +78,7 @@ print("Magic omega set to", cu._omega, "MHz")
 #Resolve cuts from arguments 
 t_min = args.t_min # us 
 t_max = args.t_max # us 
-if (sim): t_min=4.3; t_max=200
+# if (sim): t_min=4.3; t_max=200
 print("Starting and end times:", t_min, "to", t_max, "us")
 p_min = args.p_min # MeV 
 p_max = args.p_max # MeV 
@@ -113,7 +113,7 @@ def plot_counts_theta(df_path):
     data_hdf = pd.read_hdf(df_path, key=key_df)   #open skimmed 
     print("Total tracks before cuts", round(data_hdf.shape[0]/1e6,2), "M") 
 
-    # select all stations for simulation or when both station are used in the fit
+    # select all stations for simulation (S0,12,18) or when both station are used in the fit
     if(sim or len(stations)==1): data = [data_hdf]
 
     #split into two stations for data 
@@ -231,6 +231,8 @@ def plot_counts_theta(df_path):
         py=data_station_theta['trackMomentumY']
         theta_y_mrad = np.arctan2(py, p)*1e3 # rad -> mrad
         mod_time = cu.get_g2_mod_time(data_station_theta['trackT0'], g2period) # Module the g-2 oscillation time
+        
+        # Blinding
         ang_Blinded = theta_y_mrad + BlindEDM.get_delta_blind(blindString=ds_name_official+(str(station))) * np.sin( cu._omega * mod_time + cu._phi)
         print("Blinding is done")
 
@@ -243,7 +245,6 @@ def plot_counts_theta(df_path):
         par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x, y, y_e, cu.thetaY_phase, p0_theta_blinded[i_station])
         if (np.max(abs(par_e)) == np.Infinity ): raise Exception("\nOne of the fit parameters is infinity! Exiting...\n")
         if(args.corr): print("Covariance matrix\n", pcov); np.save("../DATA/misc/pcov_theta_S"+str(station)+".np", pcov);
-        print("Fitting is done")
 
         #Set legend title for the plot 
         if(sim): legend=ds_name_official+" S"+str(station);
@@ -259,6 +260,9 @@ def plot_counts_theta(df_path):
                                      prec=2)
         ax.set_xlim(0, g2period);
         # ax.set_ylim(ax.get_ylim()[0]*1.5, ax.get_ylim()[1]*1.8)
+        if(ds_name=="R1"):
+            ax.set_ylim(-0.7, -0.1)
+            if(p_min > 1500): ax.set_ylim(-0.5, 0.2)
         # if(ds_name=="9D"): 
         #     ax.set_ylim(-0.95, 0.20)
         # elif(ds_name=="R1"):
@@ -276,8 +280,9 @@ def plot_counts_theta(df_path):
         if(args.scan==False): fig.savefig("../fig/bz_"+ds_name+"_S"+str(station)+".png", dpi=200)
 
         if(args.scan==True):
-            par_dump=np.array([[t_min], t_max, p_min, p_max, chi2_ndf, ndf, g2period, cu._LT, cu._phi,  bin_w, bin_n, len(x), len(y), N, station, ds_name, *par, *par_e])
-            par_dump_keys = ["start", "stop", "p_min", "p_max", "chi2", "ndf", "g2period", "lt", "phase", "bin_w", "bin_n", "ndf_x", "ndf_y", "n", "station", "ds"]
+            sigma_y = np.std(theta_y_mrad)
+            par_dump=np.array([[t_min], t_max, p_min, p_max, chi2_ndf, ndf, g2period, cu._LT, cu._phi,  bin_w, bin_n, len(x), len(y), N, station, ds_name, sigma_y, *par, *par_e])
+            par_dump_keys = ["start", "stop", "p_min", "p_max", "chi2", "ndf", "g2period", "lt", "phase", "bin_w", "bin_n", "ndf_x", "ndf_y", "n", "station", "ds", "sigma_y"]
             par_dump_keys.extend(par_names_theta)
             par_dump_keys.extend( [str(par)+"_e" for par in par_names_theta] )
             dict_dump = dict(zip(par_dump_keys,par_dump))
@@ -294,7 +299,7 @@ def plot_counts_theta(df_path):
         #############
         # Make truth (un-blinded fits) if simulation
         #############
-        if(sim or 1==1):
+        if(sim):
             print("Making truth plots in simulation")
 
             # Bin 
