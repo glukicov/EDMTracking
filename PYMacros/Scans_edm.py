@@ -563,47 +563,45 @@ def plot_all_mom():
     s18_cut = data['station']==12
     s1218_cut = data['station']==1218
     R1_cut = data['ds']=='R1'
+    not_R1_cut = data['ds']!='R1'
     
     data_s1218_R1 = data[s1218_cut & R1_cut]
-    data_s1218 = data[s1218_cut]
-    data_s12 = data[s12_cut]
-    data_s18 = data[s18_cut]
+    data_s1218 = data[s1218_cut & not_R1_cut]
+    data_s12 = data[s12_cut & not_R1_cut]
+    data_s18 = data[s18_cut & not_R1_cut]
 
     data_s1218_R1 = data_s1218_R1.reset_index()
     data_s1218= data_s1218.reset_index()
     data_s12 = data_s12.reset_index()
     data_s18 = data_s18.reset_index()
 
-    print(data_s1218_R1)
-    sys.exit()
-
-    A_bz_mean= data_s1218_R1['A_Bz']
-    A_bz_mean_e = data_s1218_R1['A_Bz_e']
+    A_bz_mean= round(data_s1218_R1['A_Bz'][0]*1e3,1)
+    A_bz_mean_e = round(data_s1218_R1['A_Bz_e'][0]*1e3,1)
 
     ds_names=('Run-1a', "Run-1b", "Run-1c", "Run-1d")
 
-    A_bz=   data_s1218['A_Bz']
-    A_bz_e= data_s1218['A_Bz_e']
+    A_bz=   data_s1218['A_Bz']*1e3
+    A_bz_e= data_s1218['A_Bz_e']*1e3
     ds_colors=["k", "k", "k", "k"]
     ds_markers=["d", "d", "d", "d"]
 
-    A_bz_s12=   data_s12['A_Bz']
-    A_bz_e_s12= data_s12['A_Bz_e']
+    A_bz_s12=   data_s12['A_Bz']*1e3
+    A_bz_e_s12= data_s12['A_Bz_e']*1e3
     ds_colors_s12=["r", "r", "r", "r"]
     ds_markers_s12=["+", "+", "+", "+"]
-    A_bz_s18=   data_s18['A_Bz']
-    A_bz_e_s18= data_s18['A_Bz_e']
+    A_bz_s18=   data_s18['A_Bz']*1e3
+    A_bz_e_s18= data_s18['A_Bz_e']*1e3
     ds_colors_s18=["b", "b", "b", "b"]
     ds_markers_s18=["o", "o", "o", "o"]
 
+
     fig, ax = cu.plot_fom(ds_names, A_bz_s12, A_bz_e_s12, ds_colors_s12, ds_markers_s12, y_label=r"$A_{B_z} \ [\rm{\mu}$rad]", eL=" ", label="S12", zorder=1)
-    
     fig, ax = cu.plot_fom(ds_names, A_bz, A_bz_e, ds_colors, ds_markers, y_label=r"$A_{B_z} \ [\rm{\mu}$rad]", fig=fig, ax=ax, eL=" ", label="S1218", zorder=2)
     fig, ax = cu.plot_fom(ds_names, A_bz_s18, A_bz_e_s18, ds_colors_s18, ds_markers_s18, y_label=r"$A_{B_z} \ [\rm{\mu}$rad]", fig=fig, ax=ax, eL=" ", label="S18", zorder=3)
 
     band_width=3
     ax.set_xlim(0.7, 4.3)
-    ax.set_ylim(-12, 65)
+    ax.set_ylim(-30, 50)
     ax.plot([0,5],[A_bz_mean, A_bz_mean], ls=":", c="g", zorder=3, label=r"$A_{B_z}$="+str(A_bz_mean)+"("+str(A_bz_mean_e)+r") $\rm{\mu}$rad")
     # ax.plot([0,5],[br_mean+br_mean_e, br_mean+br_mean_e], ls="--", c="orange")
     # ax.plot([0,5],[br_mean-br_mean_e, br_mean-br_mean_e], ls="--", c="orange")
@@ -636,7 +634,7 @@ def plot_all_mom():
         )
     )
 
-    plt.legend(fontsize=11, loc=(0.02,0.55))
+    plt.legend(fontsize=11, loc=(0.02,0.62))
     plt.tight_layout()
     fig.savefig("../fig/sum_A_bz_s12s18.png", dpi=200, bbox_inches='tight');
 
