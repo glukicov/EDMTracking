@@ -569,13 +569,13 @@ def plot_all_mom():
     data_s12 = data[s12_cut]
     data_s18 = data[s18_cut]
 
-    print(data_s1218_R1)
-    sys.exit()
-
     data_s1218_R1 = data_s1218_R1.reset_index()
     data_s1218= data_s1218.reset_index()
     data_s12 = data_s12.reset_index()
     data_s18 = data_s18.reset_index()
+
+    print(data_s1218_R1)
+    sys.exit()
 
     A_bz_mean= data_s1218_R1['A_Bz']
     A_bz_mean_e = data_s1218_R1['A_Bz_e']
