@@ -22,7 +22,9 @@ import seaborn as sn
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("--all", action='store_true', default=False) # just run all 4 DS 
 arg_parser.add_argument("--mom", action='store_true', default=False)  
+arg_parser.add_argument("--all_mom", action='store_true', default=False)  
 arg_parser.add_argument("--plot_mom", action='store_true', default=False)  
+arg_parser.add_argument("--plot_all_mom", action='store_true', default=False)  
 
 arg_parser.add_argument("--start", action='store_true', default=False) 
 arg_parser.add_argument("--stop", action='store_true', default=False) 
@@ -157,9 +159,17 @@ if(args.mom):
     # p_min = [0,   800,  1200, 1500, 2000 ]
     # p_max = [800, 1200, 1500, 2000, 3100 ]     
    
-    p_min = [800,  1200, 1500, 1800 ]
-    p_max = [1200, 1500, 1800, 2300 ]
-    
+    # p_min = [800,  1200, 1500, 1800 ]
+    # p_max = [1200, 1500, 1800, 2300 ]
+
+    # p_min = [1200, 1300, 1400, 1500, 1600, 1700]
+    # p_max = [1300, 1400, 1500, 1600, 1700, 1800]
+
+    # p_min = [1800, 1900, 2000, 2100]
+    # p_max = [1900, 2000, 2100, 2200] 
+    p_min = [2200, 2300, 2400, 2500, 2600]
+    p_max = [2300, 2400, 2500, 2600, 2700] 
+   
     print("P min:", p_min)
     print("P max:", p_max)
     in_=input("Start scans?")
@@ -199,6 +209,7 @@ def main():
     As a quick solution use sub process 
     '''
     if(args.all): all(["../DATA/HDF/EDM/60h.h5", "../DATA/HDF/EDM/9D.h5", "../DATA/HDF/EDM/HK.h5", "../DATA/HDF/EDM/EG.h5"])
+    if(args.all_mom): all_mom(["../DATA/HDF/EDM/60h.h5", "../DATA/HDF/EDM/9D.h5", "../DATA/HDF/EDM/HK.h5", "../DATA/HDF/EDM/EG.h5", "../DATA/HDF/EDM/R1.h5"])
     if(args.start): time_scan(DS_path, start_times, "--t_min")
     if(args.stop): time_scan(DS_path, end_times, "--t_max")
     if(args.p_min): time_scan(DS_path, p_min, "--p_min", eL="--p_max=3100")
@@ -219,6 +230,8 @@ def main():
     if(args.plot_bin_w): plot(direction="bin_w")
     if(args.plot_p_minp_max): plot(direction="p_min", bidir=True, second_direction="p_max")
     if(args.plot_mom): plot_mom()
+    if(args.plot_all_mom): plot_all_mom()
+
     if(args.corr): corr()
 
   
@@ -227,6 +240,11 @@ def main():
 def all(DS_path):
     for path in DS_path:
         subprocess.Popen(["python3", "getLongitudinalField.py", "--hdf", path])
+
+def all_mom(DS_path):
+    for path in DS_path:
+        subprocess.call(["python3", "getLongitudinalField.py", "--hdf", path, "--scan"])
+        subprocess.call(["python3", "getLongitudinalField.py", "--hdf", path, "--scan", "--both"])
 
 def time_scan(DS_path, times, key_scan, eL=""):
     # subprocess.call(["trash"] + glob.glob("../DATA/scans/edm_scan*"))
@@ -459,25 +477,12 @@ def plot(direction="start", bidir=False, second_direction=None):
 def plot_mom():
     print("Mom study plots")
 
-    data_hdf = pd.read_csv("../DATA/scans/edm_scan_theta.csv")
+    data = pd.read_csv("../DATA/scans/edm_scan_theta.csv")
 
-      # select all stations for simulation (S0,12,18) or when both station are used in the fit
-    if(sim or len(stations)==1): data_sts = [data_hdf]
+    if(len(stations) == 1):
 
-    #split into two stations for data 
-    if(not sim and len(stations)==2): data_sts = [ data_hdf[data_hdf['station'] == 12], data_hdf[data_hdf['station'] == 18] ];
+        station=1218
 
-    for i_station, station in enumerate(stations):  
-
-        data = data_sts[i_station]
-
-        A_bz = data['A_Bz']*1e3 # mrad to urad 
-        A_bz_e = data['A_Bz_e']*1e3 
-        A_edm = data['A_edm_blind']*1e3
-        A_edm_e = data['A_edm_blind_e']*1e3
-        sigma_y = data['sigma_y'] # mrad 
-        c=data['c']*1e3
-        c_e=data['c_e']*1e3
         p_min = data['p_min']
         p_max = data['p_max']
         cuts = [str(int(p_min[i]))+r"$<p<$"+str(int(p_max[i])) for i,k in enumerate(p_min)] 
@@ -490,35 +495,152 @@ def plot_mom():
         print("N in each bin:", N)
         print("N total:", np.sum(N))
 
-        A_bz_weighted = np.sum(A_bz * N)/np.sum(N)
-        A_bz_weighted_e = 1.0/np.sqrt(np.sum(1.0/A_bz_e**2))
-        print("Weighted:", round(A_bz_weighted,2), "+-", round(A_bz_weighted_e,2), "urad")
-        A_edm_weighted = np.sum(A_edm * N)/np.sum(N)
-        A_edm_weighted_e = 1.0/np.sqrt(np.sum(1.0/A_edm_e**2))
-        c_weighted = np.sum(c * N)/np.sum(N)
-        c_weighted_e = 1.0/np.sqrt(np.sum(1.0/c_e**2))
-
         
         # plot A_bz
-        fig, ax = cu.plot_mom(x, A_bz, A_bz_e, cuts, N, label1=label1+" S"+str(station))
+        fig, ax = cu.plot_mom(x, data['A_Bz']*1e3, data['A_Bz_e']*1e3, cuts, N, label1=label1+" S"+str(station))
         ax.set_ylabel(r"$A_{B_z} \ [\rm{\mu}$rad]")
         fig.savefig("../fig/sum_mom_A_bz"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
         # plot A_edm
-        fig, ax = cu.plot_mom(x, A_edm, A_edm_e, cuts, N, label2=r"$\langle A_{\rm{EDM}}  \rangle =$", label1=label1+" S"+str(station))
+        fig, ax = cu.plot_mom(x, data['A_edm_blind']*1e3, data['A_edm_blind_e']*1e3, cuts, N, label2=r"$\langle A_{\rm{EDM}}  \rangle =$", label1=label1+" S"+str(station))
         ax.set_ylabel(r"$A_{\rm{EDM}} \ [\rm{\mu}$rad]")
         fig.savefig("../fig/sum_mom_A_edm"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
         # plot c
-        fig, ax = cu.plot_mom(x, c, c_e, cuts, N, label2=r"$\langle c \rangle =$", label1=label1+" S"+str(station))
+        fig, ax = cu.plot_mom(x, data['c']*1e3, data['c_e']*1e3, cuts, N, label2=r"$\langle c \rangle =$", label1=label1+" S"+str(station))
         ax.set_ylabel(r"$c \ [\rm{\mu}$rad]")
         fig.savefig("../fig/sum_mom_c"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
         # plot sigma 
-        fig, ax = cu.plot_mom(x, sigma_y, None, cuts, N, weighted=False, label1=label1+" S"+str(station))
+        fig, ax = cu.plot_mom(x, data['sigma_y'], None, cuts, N, weighted=False, label1=label1+" S"+str(station))
         ax.set_ylabel(r"$\sigma_{\theta_y}$  [mrad]")
         fig.savefig("../fig/sum_mom_sigma"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
+    if(len(stations) == 2):
+
+        station=1218
+
+        # s1218=False
+
+        data_s12=data[data['station']==12]
+        data_s18=data[data['station']==18]
+
+        data_s12=data_s12.reset_index()
+        N=data_s12['n']
+        data_s18=data_s18.reset_index()
+
+        p_min = data_s12['p_min']
+        p_max = data_s12['p_max']
+        cuts = [str(int(p_min[i]))+r"$<p<$"+str(int(p_max[i])) for i,k in enumerate(p_min)] 
+        x=np.arange(1,data_s12.shape[0]+1)
+        
+        # plot A_bz
+        fig, ax = cu.plot_mom(x, data_s12['A_Bz']*1e3, data_s12['A_Bz_e']*1e3, cuts, N, label1=label1+" S12", s18=True, s18_y=data_s18['A_Bz']*1e3, s18_y_e=data_s18['A_Bz_e']*1e3, weighted=False)
+        ax.set_ylabel(r"$A_{B_z} \ [\rm{\mu}$rad]")
+        fig.savefig("../fig/sum_mom_A_bz"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
+
+        # plot A_edm
+        fig, ax = cu.plot_mom(x, data_s12['A_edm_blind']*1e3, data_s12['A_edm_blind_e']*1e3, cuts, N, label2=r"$\langle A_{\rm{EDM}}  \rangle =$", label1=label1+" S12", s18=True, s18_y=data_s18['A_edm_blind']*1e3, s18_y_e=data_s18['A_edm_blind_e']*1e3, weighted=False)
+        ax.set_ylabel(r"$A_{\rm{EDM}} \ [\rm{\mu}$rad]")
+        fig.savefig("../fig/sum_mom_A_edm"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
+
+        # plot c
+        fig, ax = cu.plot_mom(x, data_s12['c']*1e3, data_s12['c_e']*1e3, cuts, N, label2=r"$\langle c \rangle =$", label1=label1+" S12", s18=True, s18_y=data_s18['c']*1e3, s18_y_e=data_s18['c_e']*1e3, weighted=False)
+        ax.set_ylabel(r"$c \ [\rm{\mu}$rad]")
+        fig.savefig("../fig/sum_mom_c"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
+
+        # plot sigma 
+        fig, ax = cu.plot_mom(x, data_s12['sigma_y'], None, cuts, N, weighted=False, label1=label1+" S12", s18=True, s18_y=data_s12['sigma_y'], s18_y_e=None)
+        ax.set_ylabel(r"$\sigma_{\theta_y}$  [mrad]")
+        fig.savefig("../fig/sum_mom_sigma"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
+
+
+def plot_all_mom():
+
+    data = pd.read_csv("../DATA/scans/edm_scan_theta.csv")
+
+    s12_cut = data['station']==12
+    s18_cut = data['station']==12
+    s1218_cut = data['station']==1218
+    R1_cut = data['ds']=='R1'
+    
+    data_s1218_R1 = data[s1218_cut & R1_cut]
+    data_s1218 = data[s1218_cut]
+    data_s12 = data[s12_cut]
+    data_s18 = data[s18_cut]
+
+    print(data_s1218_R1)
+    sys.exit()
+
+    data_s1218_R1 = data_s1218_R1.reset_index()
+    data_s1218= data_s1218.reset_index()
+    data_s12 = data_s12.reset_index()
+    data_s18 = data_s18.reset_index()
+
+    A_bz_mean= data_s1218_R1['A_Bz']
+    A_bz_mean_e = data_s1218_R1['A_Bz_e']
+
+    ds_names=('Run-1a', "Run-1b", "Run-1c", "Run-1d")
+
+    A_bz=   data_s1218['A_Bz']
+    A_bz_e= data_s1218['A_Bz_e']
+    ds_colors=["k", "k", "k", "k"]
+    ds_markers=["d", "d", "d", "d"]
+
+    A_bz_s12=   data_s12['A_Bz']
+    A_bz_e_s12= data_s12['A_Bz_e']
+    ds_colors_s12=["r", "r", "r", "r"]
+    ds_markers_s12=["+", "+", "+", "+"]
+    A_bz_s18=   data_s18['A_Bz']
+    A_bz_e_s18= data_s18['A_Bz_e']
+    ds_colors_s18=["b", "b", "b", "b"]
+    ds_markers_s18=["o", "o", "o", "o"]
+
+    fig, ax = cu.plot_fom(ds_names, A_bz_s12, A_bz_e_s12, ds_colors_s12, ds_markers_s12, y_label=r"$A_{B_z} \ [\rm{\mu}$rad]", eL=" ", label="S12", zorder=1)
+    
+    fig, ax = cu.plot_fom(ds_names, A_bz, A_bz_e, ds_colors, ds_markers, y_label=r"$A_{B_z} \ [\rm{\mu}$rad]", fig=fig, ax=ax, eL=" ", label="S1218", zorder=2)
+    fig, ax = cu.plot_fom(ds_names, A_bz_s18, A_bz_e_s18, ds_colors_s18, ds_markers_s18, y_label=r"$A_{B_z} \ [\rm{\mu}$rad]", fig=fig, ax=ax, eL=" ", label="S18", zorder=3)
+
+    band_width=3
+    ax.set_xlim(0.7, 4.3)
+    ax.set_ylim(-12, 65)
+    ax.plot([0,5],[A_bz_mean, A_bz_mean], ls=":", c="g", zorder=3, label=r"$A_{B_z}$="+str(A_bz_mean)+"("+str(A_bz_mean_e)+r") $\rm{\mu}$rad")
+    # ax.plot([0,5],[br_mean+br_mean_e, br_mean+br_mean_e], ls="--", c="orange")
+    # ax.plot([0,5],[br_mean-br_mean_e, br_mean-br_mean_e], ls="--", c="orange")
+    ax.set_xlabel("")
+    plt.xticks(fontsize=14)
+
+    ax.add_patch(patches.Rectangle(
+            xy=(0, A_bz_mean-A_bz_mean_e),  # point of origin.
+            width=5,
+            height=A_bz_mean_e*2,
+            linewidth=0,
+            color='green',
+            fill=True,
+            alpha=0.7,
+            zorder=4,
+            label=r"$1\sigma$ band"
+        )
+    )
+
+    ax.add_patch(patches.Rectangle(
+            xy=(0, A_bz_mean-(A_bz_mean_e*band_width)),  # point of origin.
+            width=5,
+            height=A_bz_mean_e*band_width*2,
+            linewidth=0,
+            color='blue',
+            fill=True,
+            alpha=0.2,
+            zorder=5,
+            label=str(band_width)+r"$\sigma$ band"
+        )
+    )
+
+    plt.legend(fontsize=11, loc=(0.02,0.55))
+    plt.tight_layout()
+    fig.savefig("../fig/sum_A_bz_s12s18.png", dpi=200, bbox_inches='tight');
+
+    
 
 def corr():
     '''

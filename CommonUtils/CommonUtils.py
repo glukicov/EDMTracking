@@ -299,15 +299,22 @@ def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, ndf, t_mod, t_max, 
     return fig, ax
 
 
-def plot_mom(x, y, y_e, cuts, N, weighted=True, c='k', marker="o", label1="Run-1 S1218", label2= r"$\langle A_{B_z} \rangle$="):  
+def plot_mom(x, y, y_e, cuts, N, weighted=True, c='k', marker="o", label1="Run-1 S1218", label2= r"$\langle A_{B_z} \rangle$=", s18_y=None, s18_y_e=None, s18=False):  
 
-    fig, ax = plot(x, y, y_err=y_e, c=c, marker=marker, error=True, label=label1, zorder=1)
+    if (s18==False): fig, ax = plot(x, y, y_err=y_e, c=c, marker=marker, error=True, label=label1, zorder=1)
+    else:
+        x_s12 = np.array(x)-0.15
+        x_s18=  np.array(x)+0.15
+        fig, ax = plot(x_s12, y, y_err=y_e, c="red", marker="+", error=True, label=label1, zorder=1)
+        ax.errorbar(x_s18, s18_y, yerr=s18_y_e, c="blue", marker="o", elinewidth=2, linewidth=0, label=label1.replace("12","18"), zorder=2)
+
+    
     ax.set_xticks(x)
     ax.set_xticklabels(cuts)
     
     ax.set_xlabel("Momentum cut [MeV]")
     for tick in ax.get_xticklabels():
-        tick.set_rotation(10)
+        tick.set_rotation(35)
     plt.xticks(fontsize=14)
     plt.tight_layout()
     ax.tick_params(axis='x', which='minor', bottom=False, top=False)
@@ -317,7 +324,7 @@ def plot_mom(x, y, y_e, cuts, N, weighted=True, c='k', marker="o", label1="Run-1
         weighted = np.sum(y * N)/np.sum(N)
         weighted_e = 1.0/np.sqrt(np.sum(1.0/y_e**2))  
         label2_c =label2+str(round(weighted,1))+"("+str(round(weighted_e,1))+r") $\rm{\mu}$rad"
-        ax.plot([0,len(x)+2],[weighted, weighted], ls=":", c="g", zorder=2, label=label2_c)
+        ax.plot([0,len(x)+2],[weighted, weighted], ls=":", c="g", zorder=3, label=label2_c)
         ax.add_patch(patches.Rectangle(
             xy=(0, weighted-weighted_e),  # point of origin.
             width=len(x)+2,
@@ -326,7 +333,7 @@ def plot_mom(x, y, y_e, cuts, N, weighted=True, c='k', marker="o", label1="Run-1
             color='green',
             fill=True,
             alpha=0.7,
-            zorder=3,
+            zorder=4,
             label=r"$1\sigma$ band"
             )
         )

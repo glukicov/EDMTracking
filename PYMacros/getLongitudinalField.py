@@ -19,8 +19,8 @@ import BlindEDM # https://github.com/glukicov/EDMTracking/blob/master/PYMacros/B
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("--t_min", type=float, default=30.56, help="Fit start-time [us]") 
 arg_parser.add_argument("--t_max", type=float, default=454.00, help="Fit end-time [us]") 
-arg_parser.add_argument("--p_min", type=float, default=800, help="Min momentum cut [MeV]")
-arg_parser.add_argument("--p_max", type=float, default=2300, help="Max momentum cut [MeV]")
+arg_parser.add_argument("--p_min", type=float, default=1500, help="Min momentum cut [MeV]")
+arg_parser.add_argument("--p_max", type=float, default=1800, help="Max momentum cut [MeV]")
 arg_parser.add_argument("--p_min_count", type=float, default=1800, help="Min momentum cut [MeV]")
 arg_parser.add_argument("--p_max_count", type=float, default=3100, help="Max momentum cut [MeV]")
 arg_parser.add_argument("--bin_w_count", type=float, default=15, help="Bin width for counts plot [ns]")
@@ -37,8 +37,8 @@ args=arg_parser.parse_args()
 ### Define constants and starting fit parameters
 font_size=14 # for plots
 #default is both stations in the fit, if both passed loop over S12 and S18 separately 
-# stations=([1218])
-stations=(12, 18)
+stations=([1218])
+# stations=(12, 18)
 if (args.both): stations=(12, 18)
 # Only allow expected input data - convert to official naming standard 
 expected_DSs = ("60h", "9D", "HK",   "EG", "Sim", "Bz",    "R1")
@@ -280,6 +280,7 @@ def plot_counts_theta(df_path):
         cu.textL(ax, 0.27, 0.17, leg_fit, fs=font_size, c="r")
         print("Fit in "+ds_name+" S:"+str(station), leg_fit)
         if(args.scan==False): fig.savefig("../fig/bz_"+ds_name+"_S"+str(station)+".png", dpi=200)
+        #if(args.scan==True): fig.savefig("../fig/bz_"+ds_name+"_S"+str(station)+"_"+str(p_min)+".png", dpi=200)
 
         if(args.scan==True):
             sigma_y = np.std(theta_y_mrad)
@@ -301,7 +302,7 @@ def plot_counts_theta(df_path):
         #############
         # Make truth (un-blinded fits) if simulation
         #############
-        if(sim or True):
+        if(sim):
             print("Making truth plots in simulation")
 
             # Bin 
@@ -329,7 +330,7 @@ def plot_counts_theta(df_path):
             ax.set_ylim(-0.80, 0.55);
             if(sim): ax.set_ylim(-2.9, 2.5);
             if(args.scan==False): fig.savefig("../fig/bz_truth_"+ds_name+"_S"+str(station)+".png", dpi=200)
-
+        
         #make sanity plots 
         if(args.hist):
 
