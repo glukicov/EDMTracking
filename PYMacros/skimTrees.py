@@ -124,7 +124,8 @@ def skim():
     print("After the cuts (M)", total_tv_skim[0]/1e6, "tracks,", total_tv_skim[1]/1e6, "vertices")
 
 def sim_skim():
-    key='trackerNTup/tracker'
+    # key='trackerNTup/tracker'
+    key='QualityVertices'
     for i_file, file in enumerate(sorted(os.listdir(args.trees))):
         print("Opening", key, "data in", args.trees+"/"+file)
         data_all = read_root(args.trees+"/"+file, key, columns=["station", "trackT0", "trackMomentum", "trackMomentumY"])

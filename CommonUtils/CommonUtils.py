@@ -6,6 +6,7 @@ import seaborn as sns
 # MPL in batch mode
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 import pandas as pd
 from pandas import Series, DataFrame
 import sys, os
@@ -298,6 +299,44 @@ def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, ndf, t_mod, t_max, 
     return fig, ax
 
 
+def plot_mom(x, y, y_e, cuts, N, weighted=True, c='k', marker="o", label1="Run-1 S1218", label2= r"$\langle A_{B_z} \rangle$="):  
+
+    fig, ax = plot(x, y, y_err=y_e, c=c, marker=marker, error=True, label=label1, zorder=1)
+    ax.set_xticks(x)
+    ax.set_xticklabels(cuts)
+    
+    ax.set_xlabel("Momentum cut [MeV]")
+    for tick in ax.get_xticklabels():
+        tick.set_rotation(10)
+    plt.xticks(fontsize=14)
+    plt.tight_layout()
+    ax.tick_params(axis='x', which='minor', bottom=False, top=False)
+
+    #now add the weighted mean
+    if(weighted==True):
+        weighted = np.sum(y * N)/np.sum(N)
+        weighted_e = 1.0/np.sqrt(np.sum(1.0/y_e**2))  
+        label2_c =label2+str(round(weighted,1))+"("+str(round(weighted_e,1))+r") $\rm{\mu}$rad"
+        ax.plot([0,len(x)+2],[weighted, weighted], ls=":", c="g", zorder=2, label=label2_c)
+        ax.add_patch(patches.Rectangle(
+            xy=(0, weighted-weighted_e),  # point of origin.
+            width=len(x)+2,
+            height=weighted_e*2,
+            linewidth=0,
+            color='green',
+            fill=True,
+            alpha=0.7,
+            zorder=3,
+            label=r"$1\sigma$ band"
+            )
+        )
+        
+    ax.set_xlim(0.5, len(x)+0.5)
+    ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.1)
+    plt.legend(fontsize=14, loc="best")
+    return fig, ax
+
+
 def plot_edm(x, y, y_e, func, par, par_e, chi2_ndf, ndf, bin_w, N,
              t_min, t_max, p_min, p_max,
              parNames, units,
@@ -527,7 +566,7 @@ def fit_and_chi2(x, y, y_err, func, p0):
     fit and calculate chi2
     '''
     # Levenberg-Marquardt algorithm as implemented in MINPACK
-    par, pcov = optimize.curve_fit(func, x, y, sigma=y_err, p0=p0, absolute_sigma=False, method='lm')
+    par, pcov = optimize.curve_fit(func, x, y, sigma=y_err, p0=p0, absolute_sigma=True, method='lm')
     par_e = np.sqrt(np.diag(pcov))
     print("Params:", par)
     print("Errors:", par_e)

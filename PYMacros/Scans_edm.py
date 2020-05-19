@@ -15,6 +15,7 @@ import matplotlib as mpl
 mpl.use('Agg') # MPL in batch mode
 font_size=16
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 import seaborn as sn
 
 #Input fitting parameters 
@@ -42,7 +43,7 @@ arg_parser.add_argument("--plot_lt", action='store_true', default=False)
 arg_parser.add_argument("--plot_bin_w", action='store_true', default=False) 
 
 arg_parser.add_argument("--corr", action='store_true', default=False) 
-arg_parser.add_argument("--band_off", action='store_true', default=True) 
+arg_parser.add_argument("--band_off", action='store_true', default=False) 
 arg_parser.add_argument("--abs", action='store_true', default=False) 
 arg_parser.add_argument("--input", type=str, default=None) 
 args=arg_parser.parse_args()
@@ -58,16 +59,38 @@ g2period  = round(1/0.2290735,6)
 
 
 # DS_path = ("../DATA/HDF/EDM/60h.h5", "../DATA/HDF/EDM/9D.h5", "../DATA/HDF/EDM/HK.h5", "../DATA/HDF/EDM/EG.h5")
-stations=([1218])
-# stations=(12, 18)
+# stations=([1218])
+stations=(12, 18)
 
 # DS_path = (["../DATA/HDF/EDM/60h.h5"])
 # dss = (["60h"]) 
-# ds_name_official="1a"
+# ds_name_official="Run-1a"
+# label1=ds_name_official
+
+# DS_path = (["../DATA/HDF/EDM/HK.h5"])
+# dss = (["HK"]) 
+# ds_name_official="Run-1b"
+# label1=ds_name_official
+
+# DS_path = (["../DATA/HDF/EDM/9D.h5"])
+# dss = (["9D"]) 
+# ds_name_official="Run-1c"
+# label1=ds_name_official
+
+# DS_path = (["../DATA/HDF/EDM/EG.h5"])
+# dss = (["EG"]) 
+# ds_name_official="Run-1d"
+# label1=ds_name_official
 
 DS_path = (["../DATA/HDF/EDM/R1.h5"])
 dss = (["R1"]) 
-ds_name_official="1"
+ds_name_official="Run-1"
+label1=ds_name_official
+
+# DS_path = (["../DATA/HDF/Sim/Bz.h5"])
+# label1=r"Sim $B_z=1700$ ppm"; sim=True
+# dss = (["Bz"])
+# ds_name_official=label1
 
 
 # keys=["count", "theta"] # HDF5 keys of input scan result files 
@@ -178,7 +201,7 @@ def main():
     if(args.all): all(["../DATA/HDF/EDM/60h.h5", "../DATA/HDF/EDM/9D.h5", "../DATA/HDF/EDM/HK.h5", "../DATA/HDF/EDM/EG.h5"])
     if(args.start): time_scan(DS_path, start_times, "--t_min")
     if(args.stop): time_scan(DS_path, end_times, "--t_max")
-    if(args.p_min): time_scan(DS_path, p_min, "--p_min")
+    if(args.p_min): time_scan(DS_path, p_min, "--p_min", eL="--p_max=3100")
     if(args.g2period): time_scan(DS_path, period, "--g2period")
     if(args.phase): time_scan(DS_path, phase, "--phase")
     if(args.lt): time_scan(DS_path, lt, "--lt")
@@ -205,13 +228,13 @@ def all(DS_path):
     for path in DS_path:
         subprocess.Popen(["python3", "getLongitudinalField.py", "--hdf", path])
 
-def time_scan(DS_path, times, key_scan):
+def time_scan(DS_path, times, key_scan, eL=""):
     # subprocess.call(["trash"] + glob.glob("../DATA/scans/edm_scan*"))
     #subprocess.Popen( ["trash"] + glob.glob("../fig/scans/*.png") )
     for path in DS_path:
         for time in times:
              # subprocess.call(["python3", "Fast_getLongitudinalField.py", "--hdf", path, "--scan", key_scan, str(time)])
-             subprocess.call(["python3", "getLongitudinalField.py", "--hdf", path, "--scan", key_scan, str(time)])
+             subprocess.call(["python3", "getLongitudinalField.py", "--hdf", path, "--scan", key_scan, str(time), eL])
 
 def both_scan(DS_path, p_min, p_max):
     # subprocess.call(["trash"] + glob.glob("../DATA/scans/edm_scan*"))
@@ -235,9 +258,9 @@ def plot(direction="start", bidir=False, second_direction=None):
         else: data = pd.read_csv(args.input)
         
         par_n=-1
-        if(data.shape[1] == 22):  par_n=3 # theta 
-        if(data.shape[1] == 19):  par_n=4 # count 
-        if(data.shape[1] == 17):  par_n=3 # truth 
+        if(data.shape[1] == 23):  par_n=3 # theta 
+        if(data.shape[1] == 20):  par_n=4 # count 
+        if(data.shape[1] == 18):  par_n=3 # truth 
         print("par_n =", par_n, "according to expected total columns")
         #if(par_n!=len(par_names[i_key])): raise Exception("More parameters in scan data then expected names - expand!")
         if(par_n==-1): raise Exception("Scan data has less/more then expected parameters!")
@@ -330,31 +353,31 @@ def plot(direction="start", bidir=False, second_direction=None):
                         y=y*1e3
                         y_e=y_e*1e3
 
-                    y_s = np.sqrt(y_e**2-y_e[0]**2) # 1sigma band
+                    if(args.band_off): y_s = np.sqrt(y_e**2-y_e[0]**2) # 1sigma band
                     if(args.abs): y_s = np.sqrt(np.abs(y_e**2-y_e[0]**2)) # 1sigma band
                     if(args.plot_stop): y_s = np.sqrt(y_e[0]**2-y_e**2); # 1sigma band
                     if(args.plot_stop and args.abs): y_s = np.sqrt(np.abs(y_e[0]**2-y_e**2)); # 1sigma band
 
-                    if(y_s.isnull().sum()>0): 
-                        print("Error at later times are smaller - not physical, check for bad fit at these times [us]:")
-                        print( [x[i] for i, B in enumerate(y_s.isnull()) if B]) # y_s.isnull() list of T/F , B is on of T/F in that list, i is index of True, x[i] times of True
+                    # if(y_s.isnull().sum()>0): 
+                    #     print("Error at later times are smaller - not physical, check for bad fit at these times [us]:")
+                    #     print( [x[i] for i, B in enumerate(y_s.isnull()) if B]) # y_s.isnull() list of T/F , B is on of T/F in that list, i is index of True, x[i] times of True
                     
                     #Plot 
-                    fig, ax = cu.plot(x, y, y_err=y_e, error=True, elw=2, label="Run-"+ds_name_official+" dataset S"+str(station), tight=False,  marker=".")
+                    fig, ax = cu.plot(x, y, y_err=y_e, error=True, elw=2, label=ds_name_official, tight=False,  marker=".")
                     # ax.plot(x, y, marker=".", ms=10, c="g", lw=0)
-                    sigma_index=0; band_P=y[sigma_index]+y_s; band_M=y[sigma_index]-y_s;
+                    #sigma_index=0; band_P=y[sigma_index]+y_s; band_M=y[sigma_index]-y_s;
                     if(args.plot_start):
                         ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]+7)
                         ax.set_xlim(28, 79)
 
                     if(args.plot_stop): sigma_index=len(y)-1; band_P=y[sigma_index]-np.flip(y_s); band_M=y[sigma_index]+np.flip(y_s)
-                    if(not args.band_off): ax.plot(x, band_P, c="r", ls=":", lw=2, label=r"$\sigma_{\Delta_{21}}$"); ax.plot(x, band_M, c="r", ls=":", lw=2)
+                    if(args.band_off): ax.plot(x, band_P, c="r", ls=":", lw=2, label=r"$\sigma_{\Delta_{21}}$"); ax.plot(x, band_M, c="r", ls=":", lw=2)
                     # if(par_names[i_key][i_par]=='tau'): ax.plot([np.min(x)-2, np.max(x)+2], [64.44, 64.44], c="k", ls="--"); ax.set_ylim(np.min(y)-0.1, 64.6);
                     if(par_names[i_key][i_par]=='chi2' and not args.plot_p_minp_max): ax.plot([min(x)-2, max(x)+2], [1, 1], c="k", ls="--");
                     if(args.plot_p_minp_max ): 
-                        ax.set_ylim(0, 26)
+                        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.2)
                         # ax.set_xlim(800,);
-                    if(args.plot_p_min ): ax.set_xlim(min(x)-200, max(x)+200);
+                    if(args.plot_p_min ): ax.set_xlim(min(x)-200, max(x)+200); ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.2)
                     ax.set_xlabel(direction+r"-time [$\rm{\mu}$s]", fontsize=font_size);
                     
                     if(args.plot_lt): 
@@ -436,41 +459,65 @@ def plot(direction="start", bidir=False, second_direction=None):
 def plot_mom():
     print("Mom study plots")
 
-    data = pd.read_csv("../DATA/scans/edm_scan_theta.csv")
+    data_hdf = pd.read_csv("../DATA/scans/edm_scan_theta.csv")
 
-    A_bz = data['A_Bz']*1e3
-    A_bz_e = data['A_Bz_e']*1e3
-    p_min = data['p_min']
-    p_max = data['p_max']
-    cuts = [str(int(p_min[i]))+r"$<p<$"+str(int(p_max[i])) for i,k in enumerate(p_min)] 
-    x=np.arange(1,data.shape[0]+1)
+      # select all stations for simulation (S0,12,18) or when both station are used in the fit
+    if(sim or len(stations)==1): data_sts = [data_hdf]
 
-    N=data['n']
-    print("Fraction of events in each bin\n", np.round(N/np.sum(N),2))
-    print("A_Bz in each bin\n", np.round(A_bz,2))
+    #split into two stations for data 
+    if(not sim and len(stations)==2): data_sts = [ data_hdf[data_hdf['station'] == 12], data_hdf[data_hdf['station'] == 18] ];
 
-    A_bz_weighted = np.sum(A_bz * N)/np.sum(N)
-    print("Weighted:", round(A_bz_weighted,2),"urad")
+    for i_station, station in enumerate(stations):  
 
-    
-    fig, ax = cu.plot(x, A_bz, y_err=A_bz_e, c="g", marker="o", error=True, label="Run-1 S1218")
-    ax.set_xticks(x)
-    ax.set_xticklabels(cuts)
-    ax.set_ylabel(r"$A_{B_z} \ [\rm{\mu}$rad]")
-    # ax.set_xlim(0.7, 4.3)
-    # ax.set_ylim(-4, 30)
-    ax.set_xlabel("")
-    for tick in ax.get_xticklabels():
-        tick.set_rotation(15)
-    plt.xticks(fontsize=14)
-    plt.tight_layout()
-    plt.legend(fontsize=14, loc=(0.55,0.85))
-    ax.tick_params(axis='x', which='minor', bottom=False, top=False)
-    fig.savefig("../fig/sum_mom_A_bz.png", dpi=300, bbox_inches='tight');
-    
+        data = data_sts[i_station]
 
+        A_bz = data['A_Bz']*1e3 # mrad to urad 
+        A_bz_e = data['A_Bz_e']*1e3 
+        A_edm = data['A_edm_blind']*1e3
+        A_edm_e = data['A_edm_blind_e']*1e3
+        sigma_y = data['sigma_y'] # mrad 
+        c=data['c']*1e3
+        c_e=data['c_e']*1e3
+        p_min = data['p_min']
+        p_max = data['p_max']
+        cuts = [str(int(p_min[i]))+r"$<p<$"+str(int(p_max[i])) for i,k in enumerate(p_min)] 
+        x=np.arange(1,data.shape[0]+1)
 
+        N=data['n']
+        print("Fraction of events in each bin\n", np.round(N/np.sum(N),2))
+        print("A_Bz in each bin\n", np.round(A_bz,2))
 
+        print("N in each bin:", N)
+        print("N total:", np.sum(N))
+
+        A_bz_weighted = np.sum(A_bz * N)/np.sum(N)
+        A_bz_weighted_e = 1.0/np.sqrt(np.sum(1.0/A_bz_e**2))
+        print("Weighted:", round(A_bz_weighted,2), "+-", round(A_bz_weighted_e,2), "urad")
+        A_edm_weighted = np.sum(A_edm * N)/np.sum(N)
+        A_edm_weighted_e = 1.0/np.sqrt(np.sum(1.0/A_edm_e**2))
+        c_weighted = np.sum(c * N)/np.sum(N)
+        c_weighted_e = 1.0/np.sqrt(np.sum(1.0/c_e**2))
+
+        
+        # plot A_bz
+        fig, ax = cu.plot_mom(x, A_bz, A_bz_e, cuts, N, label1=label1+" S"+str(station))
+        ax.set_ylabel(r"$A_{B_z} \ [\rm{\mu}$rad]")
+        fig.savefig("../fig/sum_mom_A_bz"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
+
+        # plot A_edm
+        fig, ax = cu.plot_mom(x, A_edm, A_edm_e, cuts, N, label2=r"$\langle A_{\rm{EDM}}  \rangle =$", label1=label1+" S"+str(station))
+        ax.set_ylabel(r"$A_{\rm{EDM}} \ [\rm{\mu}$rad]")
+        fig.savefig("../fig/sum_mom_A_edm"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
+
+        # plot c
+        fig, ax = cu.plot_mom(x, c, c_e, cuts, N, label2=r"$\langle c \rangle =$", label1=label1+" S"+str(station))
+        ax.set_ylabel(r"$c \ [\rm{\mu}$rad]")
+        fig.savefig("../fig/sum_mom_c"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
+
+        # plot sigma 
+        fig, ax = cu.plot_mom(x, sigma_y, None, cuts, N, weighted=False, label1=label1+" S"+str(station))
+        ax.set_ylabel(r"$\sigma_{\theta_y}$  [mrad]")
+        fig.savefig("../fig/sum_mom_sigma"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
 
 def corr():

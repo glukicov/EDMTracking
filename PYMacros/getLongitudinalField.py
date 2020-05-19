@@ -37,7 +37,8 @@ args=arg_parser.parse_args()
 ### Define constants and starting fit parameters
 font_size=14 # for plots
 #default is both stations in the fit, if both passed loop over S12 and S18 separately 
-stations=([1218])
+# stations=([1218])
+stations=(12, 18)
 if (args.both): stations=(12, 18)
 # Only allow expected input data - convert to official naming standard 
 expected_DSs = ("60h", "9D", "HK",   "EG", "Sim", "Bz",    "R1")
@@ -78,7 +79,7 @@ print("Magic omega set to", cu._omega, "MHz")
 #Resolve cuts from arguments 
 t_min = args.t_min # us 
 t_max = args.t_max # us 
-# if (sim): t_min=4.3; t_max=200
+if (sim): t_min=0; t_max=600
 print("Starting and end times:", t_min, "to", t_max, "us")
 p_min = args.p_min # MeV 
 p_max = args.p_max # MeV 
@@ -220,6 +221,7 @@ def plot_counts_theta(df_path):
         data_station_theta=data_station_theta.reset_index() # reset index from 0 after cuts 
         N=data_station_theta.shape[0]
         print("Total tracks after theta cuts", round(N/1e6,2), "M in S"+str(station))
+        print("Total tracks after theta cuts", N, "in S"+str(station))
 
         #binning 
         bin_w = args.bin_w*1e-3 # 10 ns 
@@ -299,7 +301,7 @@ def plot_counts_theta(df_path):
         #############
         # Make truth (un-blinded fits) if simulation
         #############
-        if(sim):
+        if(sim or True):
             print("Making truth plots in simulation")
 
             # Bin 
