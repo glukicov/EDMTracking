@@ -36,8 +36,8 @@ _phi=-1
 _LT=-1
 _DS=-1
 
-expected_DSs = ("60h", "9D", "HK", "EG", "Sim", "R1", "Bz")
-official_DSs = ("Run-1a", "Run-1c", "Run-1b", "Run-1e", "Sim", "Run-1", "Bz")
+expected_DSs = ("60h", "9D", "HK", "EG", "Sim", "R1", "Bz", "noBz")
+official_DSs = ("Run-1a", "Run-1c", "Run-1b", "Run-1e", "Sim", "Run-1", "Bz", "noBz")
 
 #define common constants
 meanS=r"$\mathrm{\mu}$"
@@ -47,7 +47,7 @@ chi2ndfS=r"$\frac{\chi^2}{DoF}$"
 
 def get_phase(ds_name):
     #determined phase from data for S1218 in each dataset
-    phases = (2.0832, 2.0616, 2.0603, 2.0610, 6.3662, 2.0637, 6.2568)
+    phases = (2.0832, 2.0616, 2.0603, 2.0610, 6.3662, 2.0637, 6.2568, 6.2568)
     phase_ds=phases[expected_DSs.index(ds_name)]
     print("Using pre-determined phase of", phase_ds, "rad from", ds_name)
     return phase_ds 
@@ -299,22 +299,28 @@ def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, ndf, t_mod, t_max, 
     return fig, ax
 
 
-def plot_mom(x, y, y_e, cuts, N, weighted=True, c='k', marker="o", label1="Run-1 S1218", label2= r"$\langle A_{B_z} \rangle$=", s18_y=None, s18_y_e=None, s18=False):  
+def plot_mom(x, y, y_e, cuts, N, weighted=True, c='k', marker="o", label1="Run-1 S1218", label2= r"$\langle A_{B_z} \rangle$=", s18_y=None, s18_y_e=None, s18=False, pmin=False):  
 
     if (s18==False): fig, ax = plot(x, y, y_err=y_e, c=c, marker=marker, error=True, label=label1, zorder=1)
     else:
-        x_s12 = np.array(x)-0.15
-        x_s18=  np.array(x)+0.15
+        if(pmin):
+            x_s12 = np.array(x)-20
+            x_s18=  np.array(x)+20
+        else:
+            x_s12 = np.array(x)-0.15
+            x_s18=  np.array(x)+0.15
         fig, ax = plot(x_s12, y, y_err=y_e, c="red", marker="+", error=True, label=label1, zorder=1)
-        ax.errorbar(x_s18, s18_y, yerr=s18_y_e, c="blue", marker="o", elinewidth=2, linewidth=0, label=label1.replace("12","18"), zorder=2)
+        ax.errorbar(x_s18, s18_y, yerr=s18_y_e, c="blue", marker="o", elinewidth=2, linewidth=0, label=label1.replace("12","18"), zorder=2) 
+    
+    if(pmin): 
+        ax.set_xlabel(r"$p_{\rm{min}}$ [MeV] in range: $p_{\rm{min}}<p<p_{\rm{min}}+100$ MeV")
+    else:
+        ax.set_xlabel("Momentum cut [MeV]")
+        ax.set_xticks(x)
+        ax.set_xticklabels(cuts)
+        for tick in ax.get_xticklabels():
+            tick.set_rotation(35)
 
-    
-    ax.set_xticks(x)
-    ax.set_xticklabels(cuts)
-    
-    ax.set_xlabel("Momentum cut [MeV]")
-    for tick in ax.get_xticklabels():
-        tick.set_rotation(35)
     plt.xticks(fontsize=14)
     plt.tight_layout()
     ax.tick_params(axis='x', which='minor', bottom=False, top=False)
@@ -338,7 +344,10 @@ def plot_mom(x, y, y_e, cuts, N, weighted=True, c='k', marker="o", label1="Run-1
             )
         )
         
-    ax.set_xlim(0.5, len(x)+0.5)
+    if(pmin): 
+        ax.set_xlim(x[0]-130, x.iloc[-1]+130)
+    else:
+        ax.set_xlim(0.5, len(x)+0.5)
     ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.1)
     plt.legend(fontsize=14, loc="best")
     return fig, ax

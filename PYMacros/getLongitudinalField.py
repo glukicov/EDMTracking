@@ -18,15 +18,16 @@ import BlindEDM # https://github.com/glukicov/EDMTracking/blob/master/PYMacros/B
 
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("--t_min", type=float, default=30.56, help="Fit start-time [us]") 
-arg_parser.add_argument("--t_max", type=float, default=454.00, help="Fit end-time [us]") 
-arg_parser.add_argument("--p_min", type=float, default=1500, help="Min momentum cut [MeV]")
-arg_parser.add_argument("--p_max", type=float, default=1800, help="Max momentum cut [MeV]")
+arg_parser.add_argument("--t_max", type=float, default=500.00, help="Fit end-time [us]") 
+arg_parser.add_argument("--p_min", type=float, default=1600, help="Min momentum cut [MeV]")
+arg_parser.add_argument("--p_max", type=float, default=2100, help="Max momentum cut [MeV]")
 arg_parser.add_argument("--p_min_count", type=float, default=1800, help="Min momentum cut [MeV]")
 arg_parser.add_argument("--p_max_count", type=float, default=3100, help="Max momentum cut [MeV]")
 arg_parser.add_argument("--bin_w_count", type=float, default=15, help="Bin width for counts plot [ns]")
 arg_parser.add_argument("--bin_w", type=float, default=149.2, help="Bin width for theta plot [ns]") 
 arg_parser.add_argument("--g2period", type=float, default=None, help="g-2 period, if none BNL value is used [us]") 
-arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/60h.h5", help="Full path to the data file: HDF5")
+# arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/60h.h5", help="Full path to the data file: HDF5")
+arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/R1.h5", help="Full path to the data file: HDF5")
 arg_parser.add_argument("--corr", action='store_true', default=False, help="Save covariance matrix for plotting")
 arg_parser.add_argument("--phase", action='store_true', default=False,  help="phase, if True determined from data") 
 arg_parser.add_argument("--scan", action='store_true', default=False, help="if run externally for iterative scans - dump chi2 and fitted pars to a file for summary plots") 
@@ -41,15 +42,15 @@ stations=([1218])
 # stations=(12, 18)
 if (args.both): stations=(12, 18)
 # Only allow expected input data - convert to official naming standard 
-expected_DSs = ("60h", "9D", "HK",   "EG", "Sim", "Bz",    "R1")
-official_DSs = ("1a",  "1c",  "1b",  "1d",  "Sim",  "Bz",   "1")
+expected_DSs = ("60h", "9D", "HK",   "EG", "Sim", "Bz", "noBz", "R1")
+official_DSs = ("1a",  "1c",  "1b",  "1d",  "Sim",  "Bz", "noBz",  "1")
 
 ### Get ds_name from filename + string magic 
 ds_name=args.hdf.replace(".","/").split("/")[-2] # if all special chars are "/" the DS name is just after extension
 ds_name_official=official_DSs[expected_DSs.index(ds_name)]
 folder=args.hdf.replace(".","/").split("/")[-3] 
 print("Detected DS name:", ds_name, ds_name_official, "from the input file!")
-if( (folder != "Sim") and (folder != "EDM") and (folder != "Qual_Sim")): raise Exception("Load a pre-skimmed simulation or an EDM file")
+if( (folder != "Sim") and (folder != "EDM")): raise Exception("Load a pre-skimmed simulation or an EDM file")
 if(not ds_name in expected_DSs): raise Exception("Unexpected input HDF name: if using Run-1 data, rename your file to DS.h5 (e.g. 60h.h5); Otherwise, modify functionality of this programme...exiting...")
 cu._DS=ds_name
 # output scan file, HDF5 keys, file labels, scan labels 
@@ -61,7 +62,7 @@ scan_label=None # for scans
 #set data or sim key (key here refers to the HDF5 key in the data file e.g. "Tree name")
 sim=False
 key_df="QualityVertices"
-if(ds_name == "Sim" or ds_name=="Bz"):
+if(folder=="Sim"):
     print("Simulation data is loaded!"); 
     sim=True; 
     stations=([1218])
@@ -263,8 +264,8 @@ def plot_counts_theta(df_path):
         ax.set_xlim(0, g2period);
         # ax.set_ylim(ax.get_ylim()[0]*1.5, ax.get_ylim()[1]*1.8)
         if(ds_name=="R1"):
-            ax.set_ylim(-0.7, -0.1)
-            if(p_min > 1500): ax.set_ylim(-0.5, 0.2)
+            ax.set_ylim(-0.6, 0.0)
+            # if(p_min > 1500): ax.set_ylim(-0.5, 0.2)
         # if(ds_name=="9D"): 
         #     ax.set_ylim(-0.95, 0.20)
         # elif(ds_name=="R1"):
