@@ -409,7 +409,7 @@ def pull_plots(residuals_theta, errors_theta, file_label="", eL=""):
 
     for i_station, (residuals, errors) in enumerate(zip(residuals_theta, errors_theta)):
         fig, ax = plt.subplots(figsize=(8, 5))
-        ax, lg = plotHist(residuals/errors, n_bins=19, prec=2, fs=14, units="", c="green", alpha=0.7,  label=ds_name_official+" dataset S"+str(stations[i_station])+" pulls")
+        ax, lg = plotHist(residuals/errors, n_bins=13, prec=2, fs=14, units="", c="green", alpha=0.7,  label=ds_name_official+" dataset S"+str(stations[i_station])+" pulls")
         textL(ax, 0.15, 0.85, str(lg), fs=16)
         ax.set_xlim(-3.5, 3.5)
         ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.2)

@@ -61,8 +61,8 @@ key_names=["(count)", r"($\theta$)", "(truth)"]
 g2period  = round(1/0.2290735,6) 
 
 
-# stations=([1218])
-stations=(12, 18)
+stations=([1218])
+# stations=(12, 18)
 
 # DS_path = (["../DATA/HDF/EDM/60h.h5"])
 # dss = (["60h"]) 
@@ -443,7 +443,7 @@ def plot(direction="start", bidir=False, second_direction=None):
                         ax.plot(x, cu.line(x, *par), c="red", label=r"$\frac{\Delta A_{B_{z}}}{\Delta \rm{Bin \ width}}$="+str(int(round(par[0]*1e4))).replace("-", u"\u2212")+r"$\times 10^{-4} \ \rm{\mu}$rad/ns", lw=2)
 
                         # ax.set_xlim(3, 28)
-                        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]+1.5)
+                        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]+2.8)
                         ax2.set_xlim(ax.get_xlim()[0], ax.get_xlim()[1])
 
                     if(args.plot_p_min and par_names[i_key][i_par]=='NA2'):
@@ -473,7 +473,7 @@ def plot(direction="start", bidir=False, second_direction=None):
 
 
                     ax.legend(fontsize=font_size, loc="best")
-                    fig.savefig("../fig/"dirName+"_"+key+"_"+par_names[i_key][i_par]+"_S"+str(station)+"_"+str(ds)+".png", dpi=300, bbox_inches='tight');
+                    fig.savefig("../fig/"+dirName+"_"+key+"_"+par_names[i_key][i_par]+"_S"+str(station)+"_"+str(ds)+".png", dpi=300, bbox_inches='tight');
 
                     # look into parameters
                     #if(par_names[i_key][i_par]=='A_cbo'): print(y, y_e, y_s); sys.exit()
