@@ -84,15 +84,15 @@ stations=([1218])
 # ds_name_official="Run-1d"
 # label1=ds_name_official
 
-DS_path = (["../DATA/HDF/EDM/R1.h5"])
-dss = (["R1"]) 
-ds_name_official="Run-1"
-label1=ds_name_official
+# DS_path = (["../DATA/HDF/EDM/R1.h5"])
+# dss = (["R1"]) 
+# ds_name_official="Run-1"
+# label1=ds_name_official
 
-# DS_path = (["../DATA/HDF/Sim/Bz.h5"])
-# label1=r"Sim $B_z=1700$ ppm"; sim=True
-# dss = (["Bz"])
-# ds_name_official=label1
+DS_path = (["../DATA/HDF/Sim/Bz.h5"])
+label1=r"Sim $B_z=1700$ ppm"; sim=True
+dss = (["Bz"])
+ds_name_official=label1
 
 # DS_path = (["../DATA/HDF/Sim/noBz.h5"])
 # label1=r"Sim $B_z=0$ ppm"; sim=True
@@ -162,14 +162,14 @@ if(args.p_min):
 
 if(args.mom):
 
-    p_min = [ 2000 ]
-    p_max = [ 2100 ]
+    # p_min = [ 2000 ]
+    # p_max = [ 2100 ]
 
     # p_min = [800,  1200, 1500, 1800]
     # p_max = [1200, 1500, 1800, 2300]
 
-    # p_min = np.linspace(900,  2400, 16, dtype=float)
-    # p_max = np.linspace(1000, 2500, 16, dtype=float)
+    p_min = np.linspace(1000,  2400, 8, dtype=float)
+    p_max = np.linspace(1200,  2600, 8, dtype=float)
 
     # p_min = np.linspace(1600,  2000, 5, dtype=float)
     # p_max = np.linspace(1700,  2100, 5, dtype=float)
@@ -501,13 +501,51 @@ def plot(direction="start", bidir=False, second_direction=None):
 
                     if(args.plot_p_minp_max and dss[0]=="Bz"):
                         print('Calculating asymmetry term')
+
+                        print("Ranges:", x)
+
+                        x_frac = []
+                        for x_i in x:
+                            # x_frac.append( (float(x_i.split("-")[1])+float(x_i.split("-")[0])+250)/(2*2800) )
+                            x_frac.append( (float(x_i.split("-")[1])+float(x_i.split("-")[0]))/(2*3100) )
                         
-                        fig, ax = cu.plot(x, y/1700, y_err=y_e/1700, error=True, elw=2, label=ds_name_official, tight=False,  marker=".")
+                        print("Mid point as a fraction of 2800 MeV", x_frac)
+     
+                        
+                        fig, ax = cu.plot(x_frac, y/1700, y_err=y_e/1700, error=True, elw=2, label=ds_name_official, tight=False,  marker=".")
+                        
+                        ax.set_xticks(x_frac);
+                        ax.set_xticklabels(x)
+                        ax.set_xlim(x_frac[0]-0.05, x_frac[-1]+0.05)
+
+                        ax2=ax.twiny()
+                        ax2.set_xticks(x_frac);
+                        x_frac_round=np.around(x_frac,decimals=1)
+                        ax2.set_xticklabels(x_frac_round);
+                        ax2.set_xlabel(r"$y=\frac{p}{p_{\rm{max}}}$")
+                        ax2.set_xlim(x_frac[0]-0.05, x_frac[-1]+0.05)
+
+
                         ax.set_xlabel(r"$p$ [MeV]", fontsize=font_size) 
                         for tick in ax.get_xticklabels():
                             tick.set_rotation(45)
                         ax.set_ylabel(r"Asymmetry ($d_{B_z}$)", fontsize=font_size);
-                        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.2)
+                        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.6)
+                        
+                        
+                        y = np.linspace(0, 1, 100) 
+                        def A_edm(y):
+                            return 0.3*( np.sqrt(y*(1-y))*(1+4*y)  ) / ( 5+5*y-4*y**2  ) 
+
+                        def NA2_edm(y):
+                        #     return 60*N(y)*A_edm(y)**2
+                            return 0.5*( y*(1-y)**2 * (1+4*y)**2 ) / ( 5 + 5*y - 4*y**2 )
+
+
+                        # ax.plot(y, A_edm(y), c="b", ls=":", label=r"$A_{\rm{EDM}}(y)=\frac{\sqrt{y(1-y)}(1+4y)}{5+5y-4y^2}$");
+                        ax.plot(y, NA2_edm(y), c="r", ls="--", label=r"$NA^2_{\rm{EDM}}(y)$", lw=2);
+
+
                         ax.legend(fontsize=font_size, loc="upper left")
                         fig.savefig("../fig/"+"asymm"+"_"+key+"_"+par_names[i_key][i_par]+"_S"+str(station)+"_"+str(ds)+".png", dpi=300, bbox_inches='tight');
 
