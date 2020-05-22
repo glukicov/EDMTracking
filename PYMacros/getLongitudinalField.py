@@ -43,7 +43,7 @@ stations=([1218])
 if (args.both): stations=(12, 18)
 # Only allow expected input data - convert to official naming standard 
 expected_DSs = ("60h", "9D", "HK",   "EG", "Sim", "Bz", "noBz", "R1")
-official_DSs = ("1a",  "1c",  "1b",  "1d",  "Sim",  "Bz", "noBz",  "1")
+official_DSs = ("1a",  "1c",  "1b",  "1d",  "Sim",  r"$B_z$ = 1700 ppm", "noBz",  "1")
 
 ### Get ds_name from filename + string magic 
 ds_name=args.hdf.replace(".","/").split("/")[-2] # if all special chars are "/" the DS name is just after extension
@@ -103,6 +103,7 @@ print("Starting pars count",*par_names_count, *p0_count)
 
 ### Define global variables (containers) - to re-use with existing function from the w_a analyses 
 residuals_counts, residuals_theta, times_counts, times_theta, errors_theta, errors_counts =[ [] ], [ [] ], [ [] ], [ [] ], [ [] ], [ [] ]
+total_N = -1 
 
 def main():
 
@@ -113,7 +114,8 @@ def plot_counts_theta(df_path):
     ### load data once, and apply two independent set of cuts to the copies of data
     print("Opening data...")
     data_hdf = pd.read_hdf(df_path, key=key_df)   #open skimmed 
-    print("Total tracks before cuts", round(data_hdf.shape[0]/1e6,2), "M") 
+    print("Total tracks before cuts", round(data_hdf.shape[0]/1e6,2), "M")
+    total_N = data_hdf.shape[0]
 
     # select all stations for simulation (S0,12,18) or when both station are used in the fit
     if(sim or len(stations)==1): data = [data_hdf]
@@ -223,6 +225,7 @@ def plot_counts_theta(df_path):
         N=data_station_theta.shape[0]
         print("Total tracks after theta cuts", round(N/1e6,2), "M in S"+str(station))
         print("Total tracks after theta cuts", N, "in S"+str(station))
+        print("Fraction (%) of tracks after theta cuts", round((N/total_N)*100,0), "% in S"+str(station))
 
         #binning 
         bin_w = args.bin_w*1e-3 # 10 ns 
@@ -248,6 +251,7 @@ def plot_counts_theta(df_path):
         par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x, y, y_e, cu.thetaY_phase, p0_theta_blinded[i_station])
         if (np.max(abs(par_e)) == np.Infinity ): raise Exception("\nOne of the fit parameters is infinity! Exiting...\n")
         if(args.corr): print("Covariance matrix\n", pcov); np.save("../DATA/misc/pcov_theta_S"+str(station)+".np", pcov);
+        if(ds_name=="Bz"): print("Asymmetry:", round(par[0]*1e3/1700,3), "+/-", round(par_e[0]*1e3/1700,3), "in range:", p_min, "to", p_max, "MeV")
 
         #Set legend title for the plot 
         if(sim): legend=ds_name_official+" S"+str(station);
@@ -262,26 +266,17 @@ def plot_counts_theta(df_path):
                                      font_size=font_size,
                                      prec=2)
         ax.set_xlim(0, g2period);
-        # ax.set_ylim(ax.get_ylim()[0]*1.5, ax.get_ylim()[1]*1.8)
-        if(ds_name=="R1"):
-            ax.set_ylim(-0.6, 0.0)
-            # if(p_min > 1500): ax.set_ylim(-0.5, 0.2)
-        # if(ds_name=="9D"): 
-        #     ax.set_ylim(-0.95, 0.20)
-        # elif(ds_name=="R1"):
-        #     ax.set_ylim(-0.66, -0.16)
-        # elif(ds_name=="EG"): 
-        #     ax.set_ylim(-0.9, -0.2)
-        # elif(ds_name=="HK"): 
-        #     ax.set_ylim(-0.90, 0.35)
-        # else:
-        #     ax.set_ylim(-0.90, 0.35);
-        # if(sim): ax.set_ylim(-2.9, 2.5)
+        if(ds_name=="R1"):  ax.set_ylim(-0.45, -0.1)
+        if(ds_name=="60h"): ax.set_ylim(-0.35, 0.15)
+        if(ds_name=="HK"):  ax.set_ylim(-0.35, 0.15)
+        if(ds_name=="9D"):  ax.set_ylim(-0.45, -0.05)
+        if(ds_name=="EG"):  ax.set_ylim(-0.6, -0.25)
+        if(sim): ax.set_ylim(-2.9, 2.5)
         cu.textL(ax, 0.75, 0.15, leg_data, fs=font_size)
         cu.textL(ax, 0.27, 0.17, leg_fit, fs=font_size, c="r")
         print("Fit in "+ds_name+" S:"+str(station), leg_fit)
         if(args.scan==False): fig.savefig("../fig/bz_"+ds_name+"_S"+str(station)+".png", dpi=200)
-        #if(args.scan==True): fig.savefig("../fig/bz_"+ds_name+"_S"+str(station)+"_"+str(p_min)+".png", dpi=200)
+
 
         if(args.scan==True):
             sigma_y = np.std(theta_y_mrad)
@@ -328,8 +323,7 @@ def plot_counts_theta(df_path):
             cu.textL(ax, 0.75, 0.15, leg_data, fs=font_size)
             cu.textL(ax, 0.27, 0.17, leg_fit, fs=font_size, c="r")
             ax.set_xlim(0, g2period);
-            ax.set_ylim(-0.80, 0.55);
-            if(sim): ax.set_ylim(-2.9, 2.5);
+            if(sim): ax.set_ylim(-1.6, 1.0);
             if(args.scan==False): fig.savefig("../fig/bz_truth_"+ds_name+"_S"+str(station)+".png", dpi=200)
         
         #make sanity plots 

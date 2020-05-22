@@ -162,19 +162,43 @@ if(args.p_min):
 
 if(args.mom):
 
-    # p_min = np.linspace(1100, 2400, 14, dtype=float)
-    # p_max = np.linspace(1200, 2500, 14, dtype=float)
+    p_min = [ 2000 ]
+    p_max = [ 2100 ]
 
-    p_min = [900,  1000, 2500, 2600]
-    p_max = [1000, 1100, 2600, 2700]
+    # p_min = [800,  1200, 1500, 1800]
+    # p_max = [1200, 1500, 1800, 2300]
+
+    # p_min = np.linspace(900,  2400, 16, dtype=float)
+    # p_max = np.linspace(1000, 2500, 16, dtype=float)
+
+    # p_min = np.linspace(1600,  2000, 5, dtype=float)
+    # p_max = np.linspace(1700,  2100, 5, dtype=float)
+
+
+    # p_min = [900,  1000, 2500, 2600]
+    # p_max = [1000, 1100, 2600, 2700]
 
     print("P min:", p_min)
     print("P max:", p_max)
     in_=input("Start scans?")
 
 if(args.p_minp_max):
-    p_min = np.linspace(0, 1400, 15, dtype=float)
-    p_max = np.linspace(3100, 1700, 15, dtype=float)
+    # p_min = np.linspace(0, 1400, 15, dtype=float)
+    # p_max = np.linspace(3100, 1700, 15, dtype=float)
+
+    # p_min = np.linspace(500,  1400, 10, dtype=float)
+    # p_max = np.linspace(2500, 1600, 10, dtype=float)
+
+    # p_min = np.linspace(1000, 2400, 8, dtype=float)
+    # p_max = np.linspace(1200, 2600, 8, dtype=float)
+
+    # p_min = ([800])
+    # p_max = ([1000])
+
+    # p_min = np.linspace(500, 2500, 9, dtype=float)
+    # p_max = np.linspace(700, 2700, 9, dtype=float)
+
+
     print("P min:", p_min)
     print("P max:", p_max)
     in_=input("Start scans?")
@@ -475,6 +499,21 @@ def plot(direction="start", bidir=False, second_direction=None):
                     ax.legend(fontsize=font_size, loc="best")
                     fig.savefig("../fig/"+dirName+"_"+key+"_"+par_names[i_key][i_par]+"_S"+str(station)+"_"+str(ds)+".png", dpi=300, bbox_inches='tight');
 
+                    if(args.plot_p_minp_max and dss[0]=="Bz"):
+                        print('Calculating asymmetry term')
+                        
+                        fig, ax = cu.plot(x, y/1700, y_err=y_e/1700, error=True, elw=2, label=ds_name_official, tight=False,  marker=".")
+                        ax.set_xlabel(r"$p$ [MeV]", fontsize=font_size) 
+                        for tick in ax.get_xticklabels():
+                            tick.set_rotation(45)
+                        ax.set_ylabel(r"Asymmetry ($d_{B_z}$)", fontsize=font_size);
+                        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.2)
+                        ax.legend(fontsize=font_size, loc="upper left")
+                        fig.savefig("../fig/"+"asymm"+"_"+key+"_"+par_names[i_key][i_par]+"_S"+str(station)+"_"+str(ds)+".png", dpi=300, bbox_inches='tight');
+
+
+
+
                     # look into parameters
                     #if(par_names[i_key][i_par]=='A_cbo'): print(y, y_e, y_s); sys.exit()
 
@@ -499,7 +538,7 @@ def plot_mom():
 
         N=data['n']
         print("Fraction of events in each bin\n", np.round(N/np.sum(N),2))
-        print("A_Bz in each bin\n", np.round(A_bz,2))
+        print("A_Bz in each bin\n", np.round(data['A_Bz']*1e3,2))
 
         print("N in each bin:", N)
         print("N total:", np.sum(N))
@@ -508,13 +547,15 @@ def plot_mom():
         # plot A_bz
         fig, ax = cu.plot_mom(x, data['A_Bz']*1e3, data['A_Bz_e']*1e3, cuts, N, label1=label1+" S"+str(station))
         ax.set_ylabel(r"$A_{B_z} \ [\rm{\mu}$rad]")
-
+        if(dss[0]=='Bz'):
+            plt.legend(fontsize=14, loc=(0.03, 0.66))
+            ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.1)
         fig.savefig("../fig/sum_mom_A_bz"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
         # plot A_edm
-        fig, ax = cu.plot_mom(x, data['A_edm_blind']*1e3, data['A_edm_blind_e']*1e3, cuts, N, label2=r"$\langle A_{\rm{EDM}}  \rangle =$", label1=label1+" S"+str(station))
-        ax.set_ylabel(r"$A_{\rm{EDM}} \ [\rm{\mu}$rad]")
-        fig.savefig("../fig/sum_mom_A_edm"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
+        # fig, ax = cu.plot_mom(x, data['A_edm_blind']*1e3, data['A_edm_blind_e']*1e3, cuts, N, label2=r"$\langle A_{\rm{EDM}}  \rangle =$", label1=label1+" S"+str(station))
+        # ax.set_ylabel(r"$A_{\rm{EDM}} \ [\rm{\mu}$rad]")
+        # fig.savefig("../fig/sum_mom_A_edm"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
         # plot c
         fig, ax = cu.plot_mom(x, data['c']*1e3, data['c_e']*1e3, cuts, N, label2=r"$\langle c \rangle =$", label1=label1+" S"+str(station))
@@ -555,9 +596,9 @@ def plot_mom():
         fig.savefig("../fig/sum_mom_A_bz"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
         # plot A_edm
-        fig, ax = cu.plot_mom(p_min, data_s12['A_edm_blind']*1e3, data_s12['A_edm_blind_e']*1e3, cuts, N, label2=r"$\langle A_{\rm{EDM}}  \rangle =$", label1=label1+" S12", s18=True, s18_y=data_s18['A_edm_blind']*1e3, s18_y_e=data_s18['A_edm_blind_e']*1e3, weighted=False, pmin=True)
-        ax.set_ylabel(r"$A_{\rm{EDM}} \ [\rm{\mu}$rad]")
-        fig.savefig("../fig/sum_mom_A_edm"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
+        # fig, ax = cu.plot_mom(p_min, data_s12['A_edm_blind']*1e3, data_s12['A_edm_blind_e']*1e3, cuts, N, label2=r"$\langle A_{\rm{EDM}}  \rangle =$", label1=label1+" S12", s18=True, s18_y=data_s18['A_edm_blind']*1e3, s18_y_e=data_s18['A_edm_blind_e']*1e3, weighted=False, pmin=True)
+        # ax.set_ylabel(r"$A_{\rm{EDM}} \ [\rm{\mu}$rad]")
+        # fig.savefig("../fig/sum_mom_A_edm"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
         # plot c
         fig, ax = cu.plot_mom(p_min, data_s12['c']*1e3, data_s12['c_e']*1e3, cuts, N, label2=r"$\langle c \rangle =$", label1=label1+" S12", s18=True, s18_y=data_s18['c']*1e3, s18_y_e=data_s18['c_e']*1e3, weighted=False, pmin=True)
