@@ -92,9 +92,9 @@ if (args.hist):
         
     # load the data 
     dataXY=np.load("../DATA/misc/dataXY.npy")
-    x=dataXY[0]
-    y=dataXY[1]
-    # x=dataXY
+    # x=dataXY[0]
+    # y=dataXY[1]
+    x=dataXY
 
     if(args.beam):
         # ax, legendX =cu.plotHist(x, n_bins=100, prec=2)
@@ -114,14 +114,22 @@ if (args.hist):
         cu.textL(jg.ax_joint, 1.32, 0.00, "N: "+N, fs=15)
         plt.savefig("../fig/beam.png", dpi=300)
     else:
-        jg,cb,legendX,legendY =cu.plotHist2D(x, y, n_binsXY=(75,75), cmin=5, prec=3)
-        jg.ax_joint.set_ylabel(r"$\theta_y$ [rad]", fontsize=18)
-        jg.ax_joint.set_xlabel(r"$t^{mod}_{g-2} \ \mathrm{[\mu}$s]", fontsize=18)
-        cu.textL(jg.ax_joint, 1.32, 1.15, r"$t^{mod}_{g-2} \ \mathrm{[\mu}$s]:"+"\n"+str(legendX), fs=15)
-        cu.textL(jg.ax_joint, 1.32, 1.00, r"$\theta_y$ [rad]:"+"\n"+str(legendY), fs=15)
+        # jg,cb,legendX,legendY =cu.plotHist2D(x, y, n_binsXY=(75,75), cmin=5, prec=3)
+        # jg.ax_joint.set_ylabel(r"$\theta_y$ [rad]", fontsize=18)
+        # jg.ax_joint.set_xlabel(r"$t^{mod}_{g-2} \ \mathrm{[\mu}$s]", fontsize=18)
+        # cu.textL(jg.ax_joint, 1.32, 1.15, r"$t^{mod}_{g-2} \ \mathrm{[\mu}$s]:"+"\n"+str(legendX), fs=15)
+        # cu.textL(jg.ax_joint, 1.32, 1.00, r"$\theta_y$ [rad]:"+"\n"+str(legendY), fs=15)
+        # N=cu.sci_notation(len(x)) # format as a 
+        # cu.textL(jg.ax_joint, 1.32, 0.00, "N: "+N, fs=17)
+        # plt.savefig("../fig/thetavsT.png", dpi=300)
+
+        ax, legendX =cu.plotHist(x, n_bins=99, prec=2)
+        ax.set_ylabel("N", fontsize=18)
+        ax.set_xlabel("Drift time [ns]", fontsize=18)
+        cu.textL(ax, 1.32, 1.15, "Drift time [ns]:"+"\n"+str(legendX), fs=15)
         N=cu.sci_notation(len(x)) # format as a 
-        cu.textL(jg.ax_joint, 1.32, 0.00, "N: "+N, fs=17)
-        plt.savefig("../fig/thetavsT.png", dpi=300)
+        cu.textL(ax, 1.32, 0.00, "N: "+N, fs=15)
+        plt.savefig("../fig/drift.png", dpi=300)
 
 
 # Profile Plot 

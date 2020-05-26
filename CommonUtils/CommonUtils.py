@@ -92,7 +92,6 @@ def plotHist(data, n_bins=100, prec=2, fs=14, units="units", c="green", alpha=0.
     ax.minorticks_on()
     plt.xticks(fontsize=fs-1)
     plt.yticks(fontsize=fs-1)
-    # plt.tight_layout()
 
     return ax, legend
 

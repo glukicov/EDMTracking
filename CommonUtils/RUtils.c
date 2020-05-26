@@ -1687,11 +1687,11 @@ __pyx_memoryview_copy_new_contig(const __Pyx_memviewslice *from_mvs,
 /* CIntFromPy.proto */
 static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *);
 
-/* PrintOne.proto */
-static int __Pyx_PrintOne(PyObject* stream, PyObject *o);
-
 /* CIntFromPy.proto */
 static CYTHON_INLINE long __Pyx_PyInt_As_long(PyObject *);
+
+/* PrintOne.proto */
+static int __Pyx_PrintOne(PyObject* stream, PyObject *o);
 
 /* CIntFromPy.proto */
 static CYTHON_INLINE char __Pyx_PyInt_As_char(PyObject *);
@@ -2745,7 +2745,7 @@ static PyObject *__pyx_pw_6RUtils_3hist2np(PyObject *__pyx_self, PyObject *__pyx
 }
 
 static PyObject *__pyx_pf_6RUtils_2hist2np(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_freq, PyObject *__pyx_v_edges, int __pyx_v_from_root, PyObject *__pyx_v_file_path, PyObject *__pyx_v_hist_path, int __pyx_v_cp, int __pyx_v_overflow, int __pyx_v_edges_bool) {
-  int __pyx_v_exp_total;
+  long __pyx_v_exp_total;
   PyObject *__pyx_v_tfile = NULL;
   PyObject *__pyx_v_thist = NULL;
   int __pyx_v_D;
@@ -2767,13 +2767,13 @@ static PyObject *__pyx_pf_6RUtils_2hist2np(CYTHON_UNUSED PyObject *__pyx_self, P
   PyObject *__pyx_t_2 = NULL;
   PyObject *__pyx_t_3 = NULL;
   PyObject *__pyx_t_4 = NULL;
-  int __pyx_t_5;
+  long __pyx_t_5;
   PyObject *__pyx_t_6 = NULL;
   PyObject *(*__pyx_t_7)(PyObject *);
   Py_ssize_t __pyx_t_8;
   PyObject *__pyx_t_9 = NULL;
   PyObject *__pyx_t_10 = NULL;
-  long __pyx_t_11;
+  int __pyx_t_11;
   long __pyx_t_12;
   int __pyx_t_13;
   int __pyx_t_14;
@@ -2789,7 +2789,7 @@ static PyObject *__pyx_pf_6RUtils_2hist2np(CYTHON_UNUSED PyObject *__pyx_self, P
 
   /* "RUtils.pyx":63
  *     '''
- *     cdef int exp_total;
+ *     cdef long int exp_total;
  *     if(from_root==True):             # <<<<<<<<<<<<<<
  *         print("RUtils::hist2np Opening",hist_path,"in",file_path)
  *         tfile=TFile.Open(file_path)
@@ -2798,7 +2798,7 @@ static PyObject *__pyx_pf_6RUtils_2hist2np(CYTHON_UNUSED PyObject *__pyx_self, P
   if (__pyx_t_1) {
 
     /* "RUtils.pyx":64
- *     cdef int exp_total;
+ *     cdef long int exp_total;
  *     if(from_root==True):
  *         print("RUtils::hist2np Opening",hist_path,"in",file_path)             # <<<<<<<<<<<<<<
  *         tfile=TFile.Open(file_path)
@@ -2905,7 +2905,7 @@ static PyObject *__pyx_pf_6RUtils_2hist2np(CYTHON_UNUSED PyObject *__pyx_self, P
     __pyx_t_4 = __Pyx_PyNumber_Int(__pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 67, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 67, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_As_long(__pyx_t_4); if (unlikely((__pyx_t_5 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 67, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __pyx_v_exp_total = __pyx_t_5;
 
@@ -2918,7 +2918,7 @@ static PyObject *__pyx_pf_6RUtils_2hist2np(CYTHON_UNUSED PyObject *__pyx_self, P
  */
     __pyx_t_4 = __Pyx_GetItemInt(__pyx_v_thist, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 68, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_exp_total); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 68, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyInt_From_long(__pyx_v_exp_total); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 68, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_t_3 = PyTuple_New(6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 68, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
@@ -3030,7 +3030,7 @@ static PyObject *__pyx_pf_6RUtils_2hist2np(CYTHON_UNUSED PyObject *__pyx_self, P
 
     /* "RUtils.pyx":63
  *     '''
- *     cdef int exp_total;
+ *     cdef long int exp_total;
  *     if(from_root==True):             # <<<<<<<<<<<<<<
  *         print("RUtils::hist2np Opening",hist_path,"in",file_path)
  *         tfile=TFile.Open(file_path)
@@ -3196,7 +3196,7 @@ static PyObject *__pyx_pf_6RUtils_2hist2np(CYTHON_UNUSED PyObject *__pyx_self, P
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_t_2 = NULL;
-    __pyx_t_5 = 0;
+    __pyx_t_11 = 0;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_6))) {
       __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_6);
       if (likely(__pyx_t_2)) {
@@ -3204,13 +3204,13 @@ static PyObject *__pyx_pf_6RUtils_2hist2np(CYTHON_UNUSED PyObject *__pyx_self, P
         __Pyx_INCREF(__pyx_t_2);
         __Pyx_INCREF(function);
         __Pyx_DECREF_SET(__pyx_t_6, function);
-        __pyx_t_5 = 1;
+        __pyx_t_11 = 1;
       }
     }
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_6)) {
       PyObject *__pyx_temp[4] = {__pyx_t_2, __pyx_t_9, __pyx_t_10, __pyx_v_n_bins};
-      __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_5, 3+__pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 92, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_11, 3+__pyx_t_11); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 92, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
@@ -3220,7 +3220,7 @@ static PyObject *__pyx_pf_6RUtils_2hist2np(CYTHON_UNUSED PyObject *__pyx_self, P
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_6)) {
       PyObject *__pyx_temp[4] = {__pyx_t_2, __pyx_t_9, __pyx_t_10, __pyx_v_n_bins};
-      __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_5, 3+__pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 92, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_11, 3+__pyx_t_11); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 92, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
@@ -3228,18 +3228,18 @@ static PyObject *__pyx_pf_6RUtils_2hist2np(CYTHON_UNUSED PyObject *__pyx_self, P
     } else
     #endif
     {
-      __pyx_t_3 = PyTuple_New(3+__pyx_t_5); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 92, __pyx_L1_error)
+      __pyx_t_3 = PyTuple_New(3+__pyx_t_11); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 92, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       if (__pyx_t_2) {
         __Pyx_GIVEREF(__pyx_t_2); PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_2); __pyx_t_2 = NULL;
       }
       __Pyx_GIVEREF(__pyx_t_9);
-      PyTuple_SET_ITEM(__pyx_t_3, 0+__pyx_t_5, __pyx_t_9);
+      PyTuple_SET_ITEM(__pyx_t_3, 0+__pyx_t_11, __pyx_t_9);
       __Pyx_GIVEREF(__pyx_t_10);
-      PyTuple_SET_ITEM(__pyx_t_3, 1+__pyx_t_5, __pyx_t_10);
+      PyTuple_SET_ITEM(__pyx_t_3, 1+__pyx_t_11, __pyx_t_10);
       __Pyx_INCREF(__pyx_v_n_bins);
       __Pyx_GIVEREF(__pyx_v_n_bins);
-      PyTuple_SET_ITEM(__pyx_t_3, 2+__pyx_t_5, __pyx_v_n_bins);
+      PyTuple_SET_ITEM(__pyx_t_3, 2+__pyx_t_11, __pyx_v_n_bins);
       __pyx_t_9 = 0;
       __pyx_t_10 = 0;
       __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_3, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 92, __pyx_L1_error)
@@ -3269,8 +3269,8 @@ static PyObject *__pyx_pf_6RUtils_2hist2np(CYTHON_UNUSED PyObject *__pyx_self, P
  *             data.extend( (binC[i_bin]*np.ones(int(freq[i_bin]))) )
  * 
  */
-    __pyx_t_11 = __Pyx_PyInt_As_long(__pyx_v_n_bins); if (unlikely((__pyx_t_11 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 97, __pyx_L1_error)
-    __pyx_t_12 = __pyx_t_11;
+    __pyx_t_5 = __Pyx_PyInt_As_long(__pyx_v_n_bins); if (unlikely((__pyx_t_5 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 97, __pyx_L1_error)
+    __pyx_t_12 = __pyx_t_5;
     for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_12; __pyx_t_8+=1) {
       __pyx_v_i_bin = __pyx_t_8;
 
@@ -3346,7 +3346,7 @@ static PyObject *__pyx_pf_6RUtils_2hist2np(CYTHON_UNUSED PyObject *__pyx_self, P
       __pyx_t_8 = PyList_GET_SIZE(__pyx_v_data); if (unlikely(__pyx_t_8 == ((Py_ssize_t)-1))) __PYX_ERR(0, 101, __pyx_L1_error)
       __pyx_t_10 = PyInt_FromSsize_t(__pyx_t_8); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 101, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_10);
-      __pyx_t_6 = __Pyx_PyInt_From_int(__pyx_v_exp_total); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 101, __pyx_L1_error)
+      __pyx_t_6 = __Pyx_PyInt_From_long(__pyx_v_exp_total); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 101, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __pyx_t_4 = PyTuple_New(4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 101, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
@@ -3462,8 +3462,8 @@ static PyObject *__pyx_pf_6RUtils_2hist2np(CYTHON_UNUSED PyObject *__pyx_self, P
  * 
  *             #extract the edges from the array of arrays
  */
-    __pyx_t_5 = __pyx_v_D;
-    __pyx_t_15 = __pyx_t_5;
+    __pyx_t_11 = __pyx_v_D;
+    __pyx_t_15 = __pyx_t_11;
     for (__pyx_t_16 = 0; __pyx_t_16 < __pyx_t_15; __pyx_t_16+=1) {
       __pyx_v_i_dim = __pyx_t_16;
 
@@ -3941,8 +3941,8 @@ static PyObject *__pyx_pf_6RUtils_2hist2np(CYTHON_UNUSED PyObject *__pyx_self, P
  *             if (len(data[i_dim]) != exp_total and from_root):
  *                 raise Exception("Did not get expected entries! Got ", len(data[i_dim]), "for D:", i_dim, "expected", exp_total)
  */
-    __pyx_t_5 = __pyx_v_D;
-    __pyx_t_15 = __pyx_t_5;
+    __pyx_t_11 = __pyx_v_D;
+    __pyx_t_15 = __pyx_t_11;
     for (__pyx_t_16 = 0; __pyx_t_16 < __pyx_t_15; __pyx_t_16+=1) {
       __pyx_v_i_dim = __pyx_t_16;
 
@@ -3983,7 +3983,7 @@ static PyObject *__pyx_pf_6RUtils_2hist2np(CYTHON_UNUSED PyObject *__pyx_self, P
         __Pyx_GOTREF(__pyx_t_18);
         __pyx_t_6 = __Pyx_PyInt_From_int(__pyx_v_i_dim); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 143, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_9 = __Pyx_PyInt_From_int(__pyx_v_exp_total); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 143, __pyx_L1_error)
+        __pyx_t_9 = __Pyx_PyInt_From_long(__pyx_v_exp_total); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 143, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_9);
         __pyx_t_3 = PyTuple_New(6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 143, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
@@ -22387,43 +22387,6 @@ raise_neg_overflow:
     return (int) -1;
 }
 
-/* PrintOne */
-  #if !CYTHON_COMPILING_IN_PYPY && PY_MAJOR_VERSION < 3
-static int __Pyx_PrintOne(PyObject* f, PyObject *o) {
-    if (!f) {
-        if (!(f = __Pyx_GetStdout()))
-            return -1;
-    }
-    Py_INCREF(f);
-    if (PyFile_SoftSpace(f, 0)) {
-        if (PyFile_WriteString(" ", f) < 0)
-            goto error;
-    }
-    if (PyFile_WriteObject(o, f, Py_PRINT_RAW) < 0)
-        goto error;
-    if (PyFile_WriteString("\n", f) < 0)
-        goto error;
-    Py_DECREF(f);
-    return 0;
-error:
-    Py_DECREF(f);
-    return -1;
-    /* the line below is just to avoid C compiler
-     * warnings about unused functions */
-    return __Pyx_Print(f, NULL, 0);
-}
-#else
-static int __Pyx_PrintOne(PyObject* stream, PyObject *o) {
-    int res;
-    PyObject* arg_tuple = PyTuple_Pack(1, o);
-    if (unlikely(!arg_tuple))
-        return -1;
-    res = __Pyx_Print(stream, arg_tuple, 1);
-    Py_DECREF(arg_tuple);
-    return res;
-}
-#endif
-
 /* CIntFromPy */
   static CYTHON_INLINE long __Pyx_PyInt_As_long(PyObject *x) {
     const long neg_one = (long) ((long) 0 - (long) 1), const_zero = (long) 0;
@@ -22612,6 +22575,43 @@ raise_neg_overflow:
         "can't convert negative value to long");
     return (long) -1;
 }
+
+/* PrintOne */
+  #if !CYTHON_COMPILING_IN_PYPY && PY_MAJOR_VERSION < 3
+static int __Pyx_PrintOne(PyObject* f, PyObject *o) {
+    if (!f) {
+        if (!(f = __Pyx_GetStdout()))
+            return -1;
+    }
+    Py_INCREF(f);
+    if (PyFile_SoftSpace(f, 0)) {
+        if (PyFile_WriteString(" ", f) < 0)
+            goto error;
+    }
+    if (PyFile_WriteObject(o, f, Py_PRINT_RAW) < 0)
+        goto error;
+    if (PyFile_WriteString("\n", f) < 0)
+        goto error;
+    Py_DECREF(f);
+    return 0;
+error:
+    Py_DECREF(f);
+    return -1;
+    /* the line below is just to avoid C compiler
+     * warnings about unused functions */
+    return __Pyx_Print(f, NULL, 0);
+}
+#else
+static int __Pyx_PrintOne(PyObject* stream, PyObject *o) {
+    int res;
+    PyObject* arg_tuple = PyTuple_Pack(1, o);
+    if (unlikely(!arg_tuple))
+        return -1;
+    res = __Pyx_Print(stream, arg_tuple, 1);
+    Py_DECREF(arg_tuple);
+    return res;
+}
+#endif
 
 /* CIntFromPy */
   static CYTHON_INLINE char __Pyx_PyInt_As_char(PyObject *x) {

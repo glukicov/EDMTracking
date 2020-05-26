@@ -59,7 +59,7 @@ def hist2np(freq, edges, # default
     #Example of getting some data, bins and bind width from ROOT 1D or 2D Histogram
     # dataXY, binsXY, dBinXY = ru.hist2np(file_path="DATA/noEDM.root", hist_path="AllStationsNoTQ/VertexExtap/t>0/0<p<3600/radialPos")
     '''
-    cdef int exp_total;
+    cdef long int exp_total;
     if(from_root==True):
         print("RUtils::hist2np Opening",hist_path,"in",file_path)
         tfile=TFile.Open(file_path)
