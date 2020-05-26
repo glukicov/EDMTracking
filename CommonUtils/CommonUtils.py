@@ -63,7 +63,6 @@ def get_asym(p):
         for a, p_range in asym_list.items():
             if(p>=p_range[0] and p<p_range[1]):
                 asym=a
-                print(a)
                 continue
     return asym
 
@@ -315,7 +314,7 @@ def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, ndf, t_mod, t_max, 
     return fig, ax
 
 
-def plot_mom(x, y, y_e, cuts, N, weighted=True, c='k', marker="o", label1="Run-1 S1218", label2= r"$\langle A_{B_z} \rangle$=", s18_y=None, s18_y_e=None, s18=False, pmin=False):  
+def plot_mom(x, y, y_e, cuts, N, p_mean = None, asym=False, weighted=True, c='k', marker="o", label1="Run-1 S1218", label2= r"$\langle A_{B_z} \rangle$=", s18_y=None, s18_y_e=None, s18=False, pmin=False):  
 
     if (s18==False): fig, ax = plot(x, y, y_err=y_e, c=c, marker=marker, error=True, label=label1, zorder=1)
     else:
@@ -343,8 +342,29 @@ def plot_mom(x, y, y_e, cuts, N, weighted=True, c='k', marker="o", label1="Run-1
 
     #now add the weighted mean
     if(weighted==True):
-        weighted = np.sum(y * N)/np.sum(N)
-        weighted_e = 1.0/np.sqrt(np.sum(1.0/y_e**2))  
+        
+        if(asym==False):
+            weighted = np.sum(y * N)/np.sum(N)
+            weighted_e = 1.0/np.sqrt(np.sum(1.0/y_e**2)) 
+        else:
+
+            print("Bin centres", p_mean)
+            A = []
+            for p_mean_i in p_mean:
+                A.append( get_asym(p_mean_i) )
+            A=np.array(A)
+            print("Asym:", A)
+
+            weighted = np.sum(y * N * A ** 2)/np.sum(N*A**2)
+
+            print(y_e)
+            y_e = y_e * A ** 2/np.sum(A**2)
+            print(y_e)
+
+            weighted_e = 1.0/np.sqrt(np.sum(1.0/y_e**2))
+
+
+
         label2_c =label2+str(round(weighted,1))+"("+str(round(weighted_e,1))+r") $\rm{\mu}$rad"
         ax.plot([0,len(x)+2],[weighted, weighted], ls=":", c="g", zorder=3, label=label2_c)
         ax.add_patch(patches.Rectangle(

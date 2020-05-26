@@ -269,7 +269,7 @@ def plot_counts_theta(df_path):
         if(ds_name=="60h"): ax.set_ylim(-0.45, 0.15)
         if(ds_name=="HK"):  ax.set_ylim(-0.45, 0.15)
         if(ds_name=="9D"):  ax.set_ylim(-0.45, 0.0)
-        if(ds_name=="EG"):  ax.set_ylim(-0.6, -0.15)
+        if(ds_name=="EG"):  ax.set_ylim(-0.9, -0.05)
         if(sim): ax.set_ylim(-2.9, 2.5)
         cu.textL(ax, 0.75, 0.15, leg_data, fs=font_size)
         cu.textL(ax, 0.27, 0.17, leg_fit, fs=font_size, c="r")

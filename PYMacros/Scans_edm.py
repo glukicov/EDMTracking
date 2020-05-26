@@ -137,8 +137,8 @@ if(args.p_min):
 
 if(args.mom):
 
-    p_min = np.linspace(900,   2400, 16, dtype=float)
-    p_max = np.linspace(1000,  2500, 16, dtype=float)
+    # p_min = np.linspace(900,   2400, 16, dtype=float)
+    # p_max = np.linspace(1000,  2500, 16, dtype=float)
 
     # p_min = [ 1800, 1900 ]
     # p_max = [ 1900, 2000 ]
@@ -148,6 +148,9 @@ if(args.mom):
 
     # p_min = np.linspace(1000,  2400, 8, dtype=float)
     # p_max = np.linspace(1200,  2600, 8, dtype=float)
+
+    p_min = np.linspace(1000,  2200,  7, dtype=float)
+    p_max = np.linspace(1200,  2400,  7, dtype=float)
 
     # p_min = np.linspace(1600,  2000, 5, dtype=float)
     # p_max = np.linspace(1700,  2100, 5, dtype=float)
@@ -476,7 +479,7 @@ def plot(direction="start", bidir=False, second_direction=None):
                     ax.legend(fontsize=font_size, loc="best")
                     fig.savefig("../fig/"+dirName+"_"+key+"_"+par_names[i_key][i_par]+"_S"+str(station)+"_"+str(ds)+".png", dpi=300, bbox_inches='tight');
 
-                    if(args.plot_p_minp_max and dss[0]=="Bz" and False):
+                    if(args.plot_p_minp_max and dss[0]=="Bz"):
                         print('Calculating asymmetry term')
 
                         print("Ranges:", x)
@@ -561,9 +564,11 @@ def plot_mom():
         print("N in each bin:", N)
         print("N total:", np.sum(N))
 
+        p_mean = (p_min+p_max)/2
+
         
         # plot A_bz
-        fig, ax = cu.plot_mom(x, data['A_Bz']*1e3, data['A_Bz_e']*1e3, cuts, N, label1=label1+" S"+str(station))
+        fig, ax = cu.plot_mom(x, data['A_Bz']*1e3, data['A_Bz_e']*1e3, cuts, N, p_mean=p_mean, asym=True, label1=label1+" S"+str(station))
         ax.set_ylabel(r"$A_{B_z} \ [\rm{\mu}$rad]")
         if(dss[0]=='Bz'):
             plt.legend(fontsize=14, loc=(0.03, 0.66))
@@ -575,12 +580,12 @@ def plot_mom():
         # ax.set_ylabel(r"$A_{\rm{EDM}} \ [\rm{\mu}$rad]")
         # fig.savefig("../fig/sum_mom_A_edm"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
-        # plot c
+        ##plot c
         fig, ax = cu.plot_mom(x, data['c']*1e3, data['c_e']*1e3, cuts, N, label2=r"$\langle c \rangle =$", label1=label1+" S"+str(station))
         ax.set_ylabel(r"$c \ [\rm{\mu}$rad]")
         fig.savefig("../fig/sum_mom_c"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
-        # plot sigma 
+        # #plot sigma 
         fig, ax = cu.plot_mom(x, data['sigma_y'], None, cuts, N, weighted=False, label1=label1+" S"+str(station))
         ax.set_ylabel(r"$\sigma_{\theta_y}$  [mrad]")
         fig.savefig("../fig/sum_mom_sigma"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
