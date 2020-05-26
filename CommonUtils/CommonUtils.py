@@ -39,6 +39,11 @@ _DS=-1
 expected_DSs = ("60h", "9D", "HK", "EG", "Sim", "R1", "Bz", "noBz")
 official_DSs = ("Run-1a", "Run-1c", "Run-1b", "Run-1e", "Sim", "Run-1", "Bz", "noBz")
 
+p_min = np.linspace(1000,  2400, 8, dtype=float)
+p_max = np.linspace(1200,  2600, 8, dtype=float)
+asym_range=(0.030837, 0.059846, 0.106115, 0.114003, 0.083297, 0.071133, 0.015887, 0.010283)
+asym_list = {z[0]:list(z[1:]) for z in zip(asym_range,p_min,p_max)}
+
 #define common constants
 meanS=r"$\mathrm{\mu}$"
 sigmaS=r"$\sigma$"
@@ -51,6 +56,17 @@ def get_phase(ds_name):
     phase_ds=phases[expected_DSs.index(ds_name)]
     print("Using pre-determined phase of", phase_ds, "rad from", ds_name)
     return phase_ds 
+
+def get_asym(p):
+    asym=0
+    if(p>=p_min[0] and p<p_max[-1]):
+        for a, p_range in asym_list.items():
+            if(p>=p_range[0] and p<p_range[1]):
+                asym=a
+                print(a)
+                continue
+    return asym
+
 
 
 def plotHist(data, n_bins=100, prec=2, fs=14, units="units", c="green", alpha=0.7, label=""):
@@ -348,7 +364,7 @@ def plot_mom(x, y, y_e, cuts, N, weighted=True, c='k', marker="o", label1="Run-1
         ax.set_xlim(x[0]-130, x.iloc[-1]+130)
     else:
         ax.set_xlim(0.5, len(x)+0.5)
-    ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.1)
+    # ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.1)
     plt.legend(fontsize=14, loc="best")
     return fig, ax
 

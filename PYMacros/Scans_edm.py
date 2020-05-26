@@ -49,55 +49,30 @@ arg_parser.add_argument("--corr", action='store_true', default=False)
 arg_parser.add_argument("--band_off", action='store_true', default=False) 
 arg_parser.add_argument("--abs", action='store_true', default=False) 
 arg_parser.add_argument("--input", type=str, default=None) 
+
+arg_parser.add_argument("--both", action='store_true', default=False, help="Separate fists for S12 and S18")
+arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/R1.h5", help="Full path to the data file: HDF5")
 args=arg_parser.parse_args()
 
 ### Constants 
-# DS_path = (["../DATA/HDF/Sim/Sim.h5"])
-# stations=([1218])
-# dss = (["Sim"])
-# keys=["count", "theta", "truth"]
-
 key_names=["(count)", r"($\theta$)", "(truth)"]
 g2period  = round(1/0.2290735,6) 
 
+stations=(12, 18)
+if (args.both):stations=([1218])
 
-stations=([1218])
-# stations=(12, 18)
-
-# DS_path = (["../DATA/HDF/EDM/60h.h5"])
-# dss = (["60h"]) 
-# ds_name_official="Run-1a"
-# label1=ds_name_official
-
-# DS_path = (["../DATA/HDF/EDM/HK.h5"])
-# dss = (["HK"]) 
-# ds_name_official="Run-1b"
-# label1=ds_name_official
-
-# DS_path = (["../DATA/HDF/EDM/9D.h5"])
-# dss = (["9D"]) 
-# ds_name_official="Run-1c"
-# label1=ds_name_official
-
-# DS_path = (["../DATA/HDF/EDM/EG.h5"])
-# dss = (["EG"]) 
-# ds_name_official="Run-1d"
-# label1=ds_name_official
-
-# DS_path = (["../DATA/HDF/EDM/R1.h5"])
-# dss = (["R1"]) 
-# ds_name_official="Run-1"
-# label1=ds_name_official
-
-DS_path = (["../DATA/HDF/Sim/Bz.h5"])
-label1=r"Sim $B_z=1700$ ppm"; sim=True
-dss = (["Bz"])
-ds_name_official=label1
-
-# DS_path = (["../DATA/HDF/Sim/noBz.h5"])
-# label1=r"Sim $B_z=0$ ppm"; sim=True
-# dss = (["noBz"])
-# ds_name_official=label1
+DS_path=([args.hdf])
+expected_DSs = ("60h", "9D", "HK",   "EG", "Sim", "Bz", "noBz", "R1")
+official_DSs = ("Run-1a",  "Run-1c",  "Run-1b",  "Run-1d",  "Sim",  r"$B_z$ = 1700 ppm", "noBz",  "Run-1")
+ds_name=args.hdf.replace(".","/").split("/")[-2] # if all special chars are "/" the DS name is just after extension
+ds_name_official=official_DSs[expected_DSs.index(ds_name)]
+folder=args.hdf.replace(".","/").split("/")[-3] 
+print("Detected DS name:", ds_name, ds_name_official, "from the input file!")
+if( (folder != "Sim") and (folder != "EDM")): raise Exception("Load a pre-skimmed simulation or an EDM file")
+if(not ds_name in expected_DSs): raise Exception("Unexpected input HDF name: if using Run-1 data, rename your file to DS.h5 (e.g. 60h.h5); Otherwise, modify functionality of this programme...exiting...")
+cu._DS=ds_name
+dss=([ds_name])
+label1=ds_name_official
 
 
 # keys=["count", "theta"] # HDF5 keys of input scan result files 
@@ -162,18 +137,20 @@ if(args.p_min):
 
 if(args.mom):
 
-    # p_min = [ 2000 ]
-    # p_max = [ 2100 ]
+    p_min = np.linspace(900,   2400, 16, dtype=float)
+    p_max = np.linspace(1000,  2500, 16, dtype=float)
+
+    # p_min = [ 1800, 1900 ]
+    # p_max = [ 1900, 2000 ]
 
     # p_min = [800,  1200, 1500, 1800]
     # p_max = [1200, 1500, 1800, 2300]
 
-    p_min = np.linspace(1000,  2400, 8, dtype=float)
-    p_max = np.linspace(1200,  2600, 8, dtype=float)
+    # p_min = np.linspace(1000,  2400, 8, dtype=float)
+    # p_max = np.linspace(1200,  2600, 8, dtype=float)
 
     # p_min = np.linspace(1600,  2000, 5, dtype=float)
     # p_max = np.linspace(1700,  2100, 5, dtype=float)
-
 
     # p_min = [900,  1000, 2500, 2600]
     # p_max = [1000, 1100, 2600, 2700]
@@ -186,8 +163,8 @@ if(args.p_minp_max):
     # p_min = np.linspace(0, 1400, 15, dtype=float)
     # p_max = np.linspace(3100, 1700, 15, dtype=float)
 
-    # p_min = np.linspace(500,  1400, 10, dtype=float)
-    # p_max = np.linspace(2500, 1600, 10, dtype=float)
+    p_min = np.linspace(500,  1400, 10, dtype=float)
+    p_max = np.linspace(2500, 1600, 10, dtype=float)
 
     # p_min = np.linspace(1000, 2400, 8, dtype=float)
     # p_max = np.linspace(1200, 2600, 8, dtype=float)
@@ -499,7 +476,7 @@ def plot(direction="start", bidir=False, second_direction=None):
                     ax.legend(fontsize=font_size, loc="best")
                     fig.savefig("../fig/"+dirName+"_"+key+"_"+par_names[i_key][i_par]+"_S"+str(station)+"_"+str(ds)+".png", dpi=300, bbox_inches='tight');
 
-                    if(args.plot_p_minp_max and dss[0]=="Bz"):
+                    if(args.plot_p_minp_max and dss[0]=="Bz" and False):
                         print('Calculating asymmetry term')
 
                         print("Ranges:", x)
@@ -514,13 +491,15 @@ def plot(direction="start", bidir=False, second_direction=None):
                         
                         fig, ax = cu.plot(x_frac, y/1700, y_err=y_e/1700, error=True, elw=2, label=ds_name_official, tight=False,  marker=".")
                         
+                        print("Asymmetry:", y/1700)
+
                         ax.set_xticks(x_frac);
                         ax.set_xticklabels(x)
                         ax.set_xlim(x_frac[0]-0.05, x_frac[-1]+0.05)
 
                         ax2=ax.twiny()
                         ax2.set_xticks(x_frac);
-                        x_frac_round=np.around(x_frac,decimals=1)
+                        x_frac_round=np.around(x_frac,decimals=2)
                         ax2.set_xticklabels(x_frac_round);
                         ax2.set_xlabel(r"$y=\frac{p}{p_{\rm{max}}}$")
                         ax2.set_xlim(x_frac[0]-0.05, x_frac[-1]+0.05)
@@ -547,7 +526,8 @@ def plot(direction="start", bidir=False, second_direction=None):
 
 
                         ax.legend(fontsize=font_size, loc="upper left")
-                        fig.savefig("../fig/"+"asymm"+"_"+key+"_"+par_names[i_key][i_par]+"_S"+str(station)+"_"+str(ds)+".png", dpi=300, bbox_inches='tight');
+                        fig.savefig("../fig/asymm.png", dpi=300, bbox_inches='tight');
+                        #fig.savefig("../fig/"+"asymm"+"_"+key+"_"+par_names[i_key][i_par]+"_S"+str(station)+"_"+str(ds)+".png", dpi=300, bbox_inches='tight');
 
 
 
@@ -590,7 +570,7 @@ def plot_mom():
             ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.1)
         fig.savefig("../fig/sum_mom_A_bz"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
-        # plot A_edm
+        # # plot A_edm
         # fig, ax = cu.plot_mom(x, data['A_edm_blind']*1e3, data['A_edm_blind_e']*1e3, cuts, N, label2=r"$\langle A_{\rm{EDM}}  \rangle =$", label1=label1+" S"+str(station))
         # ax.set_ylabel(r"$A_{\rm{EDM}} \ [\rm{\mu}$rad]")
         # fig.savefig("../fig/sum_mom_A_edm"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
@@ -633,7 +613,7 @@ def plot_mom():
         ax.set_ylabel(r"$A_{B_z} \ [\rm{\mu}$rad]")
         fig.savefig("../fig/sum_mom_A_bz"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
-        # plot A_edm
+        # # plot A_edm
         # fig, ax = cu.plot_mom(p_min, data_s12['A_edm_blind']*1e3, data_s12['A_edm_blind_e']*1e3, cuts, N, label2=r"$\langle A_{\rm{EDM}}  \rangle =$", label1=label1+" S12", s18=True, s18_y=data_s18['A_edm_blind']*1e3, s18_y_e=data_s18['A_edm_blind_e']*1e3, weighted=False, pmin=True)
         # ax.set_ylabel(r"$A_{\rm{EDM}} \ [\rm{\mu}$rad]")
         # fig.savefig("../fig/sum_mom_A_edm"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');

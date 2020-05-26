@@ -38,9 +38,8 @@ args=arg_parser.parse_args()
 ### Define constants and starting fit parameters
 font_size=14 # for plots
 #default is both stations in the fit, if both passed loop over S12 and S18 separately 
-stations=([1218])
-# stations=(12, 18)
-if (args.both): stations=(12, 18)
+stations=(12, 18)
+if (args.both): stations=([1218])
 # Only allow expected input data - convert to official naming standard 
 expected_DSs = ("60h", "9D", "HK",   "EG", "Sim", "Bz", "noBz", "R1")
 official_DSs = ("1a",  "1c",  "1b",  "1d",  "Sim",  r"$B_z$ = 1700 ppm", "noBz",  "1")
@@ -138,8 +137,8 @@ def plot_counts_theta(df_path):
         if(args.phase): 
 
             #apply cuts 
-            mom_cut = ( (data_station['trackMomentum'] > p_min_counts) & (data_station['trackMomentum'] < p_max_counts) ) # MeV  
-            time_cut =( (data_station['trackT0'] > t_min) & (data_station['trackT0'] < t_max) ) # MeV  
+            mom_cut = ( (data_station['trackMomentum'] >= p_min_counts) & (data_station['trackMomentum'] < p_max_counts) ) # MeV  
+            time_cut =( (data_station['trackT0'] >= t_min) & (data_station['trackT0'] < t_max) ) # MeV  
             data_station_count=data_station[mom_cut & time_cut]
             data_station_count=data_station_count.reset_index() # reset index from 0 after cuts 
             N = data_station_count.shape[0]
@@ -218,8 +217,8 @@ def plot_counts_theta(df_path):
         ###########   
         
         #apply cuts 
-        mom_cut = ( (data_station['trackMomentum'] > p_min) & (data_station['trackMomentum'] < p_max) ) # MeV  
-        time_cut =( (data_station['trackT0'] > t_min) & (data_station['trackT0'] < t_max) ) # MeV  
+        mom_cut = ( (data_station['trackMomentum'] >= p_min) & (data_station['trackMomentum'] < p_max) ) # MeV  
+        time_cut =( (data_station['trackT0'] >= t_min) & (data_station['trackT0'] < t_max) ) # MeV  
         data_station_theta=data_station[mom_cut & time_cut]
         data_station_theta=data_station_theta.reset_index() # reset index from 0 after cuts 
         N=data_station_theta.shape[0]

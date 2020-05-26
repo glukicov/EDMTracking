@@ -99,7 +99,7 @@ def skim():
     for i_file, file in enumerate(sorted(os.listdir(args.trees))):
         for i_key, key in enumerate(keys):
             print("Opening", key, "data in", args.trees+"/"+file)
-            data_all = read_root(args.trees+"/"+file, key, columns=["station", "trackT0", "trackMomentum", "trackMomentumY"])
+            data_all = read_root(args.trees+"/"+file, key, columns=["station", "trackT0", "trackMomentum", "trackMomentumY", "trackPValue"])
             data_all['trackT0']=data_all['trackT0']*1e-3   # ns -> us
             total_tv[i_key]+=data_all.shape[0] # add to total from each file 
             print("Total of", data_all.shape[0], "entries")
@@ -116,7 +116,8 @@ def skim():
             # here we are appending to the file over tracks and then vertices
             print("Saving compressed data...")
             data=data.reset_index() # reset index from 0 
-            cols_to_keep = ["station", "trackT0", "trackMomentum", "trackMomentumY"] # only write for time and station 
+            cols_to_keep = ["trackMomentum", "trackPValue"] # only write for time and station 
+            # cols_to_keep = ["station", "trackT0", "trackMomentum", "trackMomentumY"] # only write for time and station 
             data[cols_to_keep].to_hdf(args.df+"_"+str(i_file)+".h5", key=key, mode='a', complevel=9, complib="zlib", format="fixed")
             print("Skimmed dataframe saved to disk", args.df, "\n")
 
