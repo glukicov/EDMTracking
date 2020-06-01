@@ -33,6 +33,7 @@ arg_parser.add_argument("--phase", action='store_true', default=False,  help="ph
 arg_parser.add_argument("--scan", action='store_true', default=False, help="if run externally for iterative scans - dump chi2 and fitted pars to a file for summary plots") 
 arg_parser.add_argument("--hist", action='store_true', default=False, help="plot sanity histograms")
 arg_parser.add_argument("--both", action='store_true', default=False, help="Separate fists for S12 and S18")
+arg_parser.add_argument("--equal", action='store_true', default=False) 
 args=arg_parser.parse_args()
 
 ### Define constants and starting fit parameters
@@ -61,11 +62,13 @@ scan_label=None # for scans
 #set data or sim key (key here refers to the HDF5 key in the data file e.g. "Tree name")
 sim=False
 key_df="QualityVertices"
+equal_len=int(1e10)
 if(folder=="Sim"):
     print("Simulation data is loaded!"); 
     sim=True; 
     stations=([1218])
     key_df=None
+    equal_len=int(270*1e3)
 
 #Set gm2 period and omega from BNL, unless scanning  
 if(args.g2period == None): 
@@ -221,6 +224,10 @@ def plot_counts_theta(df_path):
         time_cut =( (data_station['trackT0'] >= t_min) & (data_station['trackT0'] < t_max) ) # MeV  
         data_station_theta=data_station[mom_cut & time_cut]
         data_station_theta=data_station_theta.reset_index() # reset index from 0 after cuts 
+        
+        if(args.equal or True):
+            data_station_theta=data_station_theta[0:equal_len]
+
         N=data_station_theta.shape[0]
         print("Total tracks after theta cuts", round(N/1e6,2), "M in S"+str(station))
         print("Total tracks after theta cuts", N, "in S"+str(station))

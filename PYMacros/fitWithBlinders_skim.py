@@ -124,7 +124,7 @@ def main():
     #open the hdf file and fit!
     times_binned, residuals, errors =fit()
 
-    if(args.scan==False):
+    # if(args.scan==False):
         #now plot the (data - fit)
         # cu.residual_plots(times_binned, residuals, file_label=file_label, scan_label=scan_label)
         
@@ -134,10 +134,10 @@ def main():
         # print(file_label)
         # sys.exit()
 
-        cu.pull_plots(residuals, errors, file_label=file_label)
+        #cu.pull_plots(residuals, errors, file_label=file_label)
 
         #FFTs
-        cu.fft(residuals, bin_w, file_label=file_label, scan_label=scan_label)
+        # cu.fft(residuals, bin_w, file_label=file_label, scan_label=scan_label)
 
         #finally add plots into single canvas
         #canvas()

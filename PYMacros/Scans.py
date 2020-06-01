@@ -46,8 +46,8 @@ bin_w = 149.2*1e-3 # 150 ns
 
 factor=1
 step=bin_w*factor
-stop_desired=60 # us 
-start=55.6516 # us 
+stop_desired=55 # us 
+start=45.2076 # us 
 
 
 dt = stop_desired - start

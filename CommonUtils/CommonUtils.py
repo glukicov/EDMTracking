@@ -17,7 +17,7 @@ from math import floor, log10
 sys.path.append("../Blinding") # path to Blinding libs
 from BlindersPy3 import Blinders
 from BlindersPy3 import FitType
-# getBlinded = Blinders(FitType.Omega_a, "EDM all day") 
+getBlinded = Blinders(FitType.Omega_a, "EDM all day") 
 
 #fix the random seed
 def get_random_engine(init_seed=123456789):
@@ -617,6 +617,7 @@ def fit_and_chi2(x, y, y_err, func, p0):
     fit and calculate chi2
     '''
     # Levenberg-Marquardt algorithm as implemented in MINPACK
+    
     par, pcov = optimize.curve_fit(func, x, y, sigma=y_err, p0=p0, absolute_sigma=True, method='lm')
     par_e = np.sqrt(np.diag(pcov))
     print("Params:", par)
