@@ -356,7 +356,7 @@ def plot_counts_theta(df_path):
             print(legend)
             cu.textL(ax, 0.8, 0.85, str(legend), fs=12)
             ax.set_ylim(ax.get_ylim()[0],ax.get_ylim()[1]*1.3)
-            ax.set_xlim(-80,80)
+            ax.set_xlim(-80, 80)
             ax.set_xlabel(r"$\theta_y$ [mrad]", fontsize=font_size);
             ax.set_ylabel("Entries per "+str(round((max(theta_y_mrad)-min(theta_y_mrad))/n_bins_ang,3))+" mrad", fontsize=font_size);
             ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.3, 1.0))

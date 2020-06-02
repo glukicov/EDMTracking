@@ -57,7 +57,7 @@ def get_phase(ds_name):
     print("Using pre-determined phase of", phase_ds, "rad from", ds_name)
     return phase_ds 
 
-def get_asym(p):
+def get_asym_number(p):
     asym=0
     if(p>=p_min[0] and p<p_max[-1]):
         for a, p_range in asym_list.items():
@@ -66,7 +66,11 @@ def get_asym(p):
                 continue
     return asym
 
-
+def get_asym(p):
+    '''
+    Empirically determined asymmetry function from simulation
+    '''
+    return -2.368462922e-07*p**2+7.972557327e-04*p-5.642233685e-01
 
 def plotHist(data, n_bins=100, prec=2, fs=14, units="units", c="green", alpha=0.7, label=""):
     '''
@@ -353,15 +357,6 @@ def plot_mom(x, y, y_e, cuts, N, p_mean = None, asym=False, weighted=True, c='k'
                 A.append( get_asym(p_mean_i) )
             A=np.array(A)
             print("Asym:", A)
-
-            weighted = np.sum(y * N * A ** 2)/np.sum(N*A**2)
-
-            print(y_e)
-            y_e = y_e * A ** 2/np.sum(A**2)
-            print(y_e)
-
-            weighted_e = 1.0/np.sqrt(np.sum(1.0/y_e**2))
-
 
 
         label2_c =label2+str(round(weighted,1))+"("+str(round(weighted_e,1))+r") $\rm{\mu}$rad"
@@ -772,6 +767,9 @@ def line(x, a, b):
 
 def na2(x, a, b, c, d, e):
     return a*x**4 + b*x**3 + c*x**2 + d*x + e 
+
+def parab(x, a, b, c):
+    return a*x**2+b*x+c
 
 def sin(t, A, b, p, c):
     return A * np.sin(b * t+p)+c

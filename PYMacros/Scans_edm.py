@@ -74,7 +74,9 @@ if(not ds_name in expected_DSs): raise Exception("Unexpected input HDF name: if 
 cu._DS=ds_name
 dss=([ds_name])
 label1=ds_name_official
-
+if (dss[0]=='Bz'):
+    args.both=True
+    stations=([1218])
 
 # keys=["count", "theta"] # HDF5 keys of input scan result files 
 ##plotting and retrieving from HDF5 
@@ -471,12 +473,27 @@ def plot(direction="start", bidir=False, second_direction=None):
                         ax.set_xlim(ax.get_xlim()[0],ax.get_xlim()[1])
                         ax.plot([ax.get_xlim()[0], ax.get_xlim()[1]],[170, 170], c="r", ls=":")
 
+                        x_frac = []
+                        for x_i in x:
+                            # x_frac.append( (float(x_i.split("-")[1])+float(x_i.split("-")[0])+250)/(2*2800) )
+                            x_frac.append( (float(x_i.split("-")[1])+float(x_i.split("-")[0]))/(2*3100) )
+                        ax2=ax.twiny()
+                        ax2.set_xticks(x_frac);
+                        x_frac_round=np.around(x_frac,decimals=2)
+                        ax2.set_xticklabels(x_frac_round);
+                        ax2.set_xlabel(r"$y=\frac{p}{p_{\rm{max}}}$", labelpad=10)
+                        ax2.set_xlim(x_frac[0]-0.05, x_frac[-1]+0.05)
+
+
                     if(args.plot_p_min or args.plot_p_minp_max and dss[0]=="noBz"):
                         ax.set_xlim(ax.get_xlim()[0],ax.get_xlim()[1])
                         ax.plot([ax.get_xlim()[0], ax.get_xlim()[1]],[0, 0], c="r", ls=":")
 
-
-                    ax.legend(fontsize=font_size, loc="best")
+                    
+                    if(dss[0] == "Bz"):
+                        ax.legend(fontsize=14, loc='lower center')
+                        ax.set_ylim(-40, 245) 
+                    else: ax.legend(fontsize=font_size, loc="best")
                     fig.savefig("../fig/"+dirName+"_"+key+"_"+par_names[i_key][i_par]+"_S"+str(station)+"_"+str(ds)+".png", dpi=300, bbox_inches='tight');
 
                     if(args.plot_p_minp_max and dss[0]=="Bz"):
@@ -504,35 +521,49 @@ def plot(direction="start", bidir=False, second_direction=None):
                         ax2.set_xticks(x_frac);
                         x_frac_round=np.around(x_frac,decimals=2)
                         ax2.set_xticklabels(x_frac_round);
-                        ax2.set_xlabel(r"$y=\frac{p}{p_{\rm{max}}}$")
+                        ax2.set_xlabel(r"$y=\frac{p}{p_{\rm{max}}}$", labelpad=10)
                         ax2.set_xlim(x_frac[0]-0.05, x_frac[-1]+0.05)
 
 
                         ax.set_xlabel(r"$p$ [MeV]", fontsize=font_size) 
                         for tick in ax.get_xticklabels():
                             tick.set_rotation(45)
-                        ax.set_ylabel(r"Asymmetry ($d_{B_z}$)", fontsize=font_size);
+                        ax.set_ylabel(r"Asymmetry-dilution, $d_{B_z}(p)$", fontsize=font_size);
                         ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.6)
+                        ax.legend(fontsize=14, loc='lower center')
                         
                         
-                        y = np.linspace(0, 1, 100) 
-                        def A_edm(y):
-                            return 0.3*( np.sqrt(y*(1-y))*(1+4*y)  ) / ( 5+5*y-4*y**2  ) 
+                        y_lin = np.linspace(0, 1, 100) 
+                        def A_edm(y_lin):
+                            return 0.3*( np.sqrt(y_lin*(1-y_lin))*(1+4*y_lin)  ) / ( 5+5*y_lin-4*y_lin**2  ) 
 
-                        def NA2_edm(y):
-                        #     return 60*N(y)*A_edm(y)**2
-                            return 0.5*( y*(1-y)**2 * (1+4*y)**2 ) / ( 5 + 5*y - 4*y**2 )
-
-
-                        # ax.plot(y, A_edm(y), c="b", ls=":", label=r"$A_{\rm{EDM}}(y)=\frac{\sqrt{y(1-y)}(1+4y)}{5+5y-4y^2}$");
-                        ax.plot(y, NA2_edm(y), c="r", ls="--", label=r"$NA^2_{\rm{EDM}}(y)$", lw=2);
+                        def NA2_edm(y_lin):
+                        #     return 60*N(y_lin)*A_edm(y_lin)**2
+                            return 0.5*( y_lin*(1-y_lin)**2 * (1+4*y_lin)**2 ) / ( 5 + 5*y_lin - 4*y_lin**2 )
+                        # ax.plot(y_lin, A_edm(y_lin), c="b", ls=":", label=r"$A_{\rm{EDM}}(y)=\frac{\sqrt{y(1-y)}(1+4y)}{5+5y-4y^2}$");
+                        #ax.plot(y_lin, NA2_edm(y_lin), c="r", ls="--", label=r"$NA^2_{\rm{EDM}}(y)$", lw=2);
 
 
-                        ax.legend(fontsize=font_size, loc="upper left")
+                        ax.legend(fontsize=font_size, loc="lower center")
+                        ax.set_ylim(-0.015, 0.15) 
                         fig.savefig("../fig/asymm.png", dpi=300, bbox_inches='tight');
                         #fig.savefig("../fig/"+"asymm"+"_"+key+"_"+par_names[i_key][i_par]+"_S"+str(station)+"_"+str(ds)+".png", dpi=300, bbox_inches='tight');
 
 
+                        #Fit asymmetry
+                        x_mid = np.array(x1+x2)/2
+                        fig, ax = cu.plot(x_mid, y/1700, y_err=y_e/1700, error=True, elw=2, label=ds_name_official, tight=False,  marker=".")
+                        ax.set_ylim(-0.015, 0.15)
+                        ax.set_xlim(1000, 2400)
+                        ax.set_xlabel(r"$p$ [MeV]", fontsize=font_size);
+                        ax.set_ylabel(r"Asymmetry-dilution, $d_{B_z}(p)$", fontsize=font_size);
+
+                        par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x_mid, y/1700, y_e/1700, cu.parab, [1,1,1])
+                        x_lin = np.linspace(0, 3100, 1000) 
+                        ax.plot(x_lin, cu.parab(x_lin, *par), c="r", ls="-", label=r"$d_{B_z}(p)=ap^2+bp+d_0$", lw=2);
+
+                        ax.legend(fontsize=font_size, loc="lower center")
+                        fig.savefig("../fig/fit_asymm.png", dpi=300, bbox_inches='tight');
 
 
                     # look into parameters
@@ -580,16 +611,16 @@ def plot_mom():
         fig, ax = cu.plot_mom(x, data['A_Bz']*1e3, data['A_Bz_e']*1e3, cuts, N, p_mean=p_mean, weighted=False, label1=label)
         ax.set_ylabel(r"$A_{B_z} \ [\rm{\mu}$rad]")
         if(dss[0]=='Bz'):
-            plt.legend(fontsize=14, loc=(0.03, 0.66))
+            # plt.legend(fontsize=14, loc=(0.03, 0.66))
             ax.plot([ax.get_xlim()[0], ax.get_xlim()[1]],[170, 170], c="r", ls=":")
             ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.3)
         fig.savefig("../fig/sum_mom_A_bz"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
         fig, ax = cu.plot_mom(x, data['A_Bz_e']*1e3, None, cuts, N, p_mean=p_mean, weighted=False, label1=label)
         ax.set_ylabel(r"$\delta A_{B_z} \ [\rm{\mu}$rad]")
-        if(dss[0]=='Bz'):
-            plt.legend(fontsize=14, loc=(0.03, 0.66))
-            ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.3)
+        #if(dss[0]=='Bz'):
+            # plt.legend(fontsize=14, loc=(0.03, 0.66))
+            # ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.3)
         fig.savefig("../fig/sum_mom_delta_A_bz"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
         # # plot A_edm
@@ -657,7 +688,7 @@ def plot_mom():
 
         fig, ax = cu.plot_mom(p_min, np.sqrt(data_s12['n']), None, cuts, N, label1=label1+" S12"+n_label, s18=True, s18_y=np.sqrt(data_s18['n']), s18_y_e=None, weighted=False, pmin=True)
         # ax.xaxis.set_major_locator(loc)
-        ax.set_ylabel(r"N (entries)")
+        ax.set_ylabel(r"$\sqrt{N}$ (entries)")
         fig.savefig("../fig/sum_mom_sqrt_N"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
         # # plot A_edm
