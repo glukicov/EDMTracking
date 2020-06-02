@@ -68,7 +68,7 @@ def get_asym_number(p):
 
 def get_asym(p):
     '''
-    Empirically determined asymmetry function from simulation
+    Empirically determined asymmetry function from simulation 
     '''
     return -2.368462922e-07*p**2+7.972557327e-04*p-5.642233685e-01
 
@@ -327,8 +327,40 @@ def plot_mom(x, y, y_e, cuts, N, p_mean = None, asym=False, weighted=True, c='k'
         else:
             x_s12 = np.array(x)-0.15
             x_s18=  np.array(x)+0.15
-        fig, ax = plot(x_s12, y, y_err=y_e, c="red", marker="+", error=True, label=label1, zorder=1)
-        ax.errorbar(x_s18, s18_y, yerr=s18_y_e, c="blue", marker="o", elinewidth=2, linewidth=0, label=label1.replace("12","18"), zorder=2) 
+        
+        if(weighted==False):
+            fig, ax = plot(x_s12, y, y_err=y_e, c="red", marker="+", error=True, label=label1, zorder=1)
+            ax.errorbar(x_s18, s18_y, yerr=s18_y_e, c="blue", marker="o", elinewidth=2, linewidth=0, label=label1.replace("12","18"), zorder=2) 
+        #now add the weighted mean
+        else:
+            
+            if(asym==False):
+                weighted = np.sum(y * N)/np.sum(N)
+                weighted_e = 1.0/np.sqrt(np.sum(1.0/y_e**2)) 
+            else:
+
+                print("Bin centres", p_mean)
+                A = []
+                for p_mean_i in p_mean:
+                    A.append( get_asym(p_mean_i) )
+                A=np.array(A)
+                print("Asym:", A)
+
+
+            # label2_c =label2+str(round(weighted,1))+"("+str(round(weighted_e,1))+r") $\rm{\mu}$rad"
+            # ax.plot([0,len(x)+2],[weighted, weighted], ls=":", c="g", zorder=3, label=label2_c)
+            # ax.add_patch(patches.Rectangle(
+            #     xy=(0, weighted-weighted_e),  # point of origin.
+            #     width=len(x)+2,
+            #     height=weighted_e*2,
+            #     linewidth=0,
+            #     color='green',
+            #     fill=True,
+            #     alpha=0.7,
+            #     zorder=4,
+            #     label=r"$1\sigma$ band"
+            #     )
+            # )
     
     if(pmin): 
         ax.set_xlabel(r"$p_{\rm{min}}$ [MeV] in range: $p_{\rm{min}}<p<p_{\rm{min}}+100$ MeV")
@@ -343,36 +375,7 @@ def plot_mom(x, y, y_e, cuts, N, p_mean = None, asym=False, weighted=True, c='k'
     plt.tight_layout()
     ax.tick_params(axis='x', which='minor', bottom=False, top=False)
 
-    #now add the weighted mean
-    if(weighted==True):
-        
-        if(asym==False):
-            weighted = np.sum(y * N)/np.sum(N)
-            weighted_e = 1.0/np.sqrt(np.sum(1.0/y_e**2)) 
-        else:
-
-            print("Bin centres", p_mean)
-            A = []
-            for p_mean_i in p_mean:
-                A.append( get_asym(p_mean_i) )
-            A=np.array(A)
-            print("Asym:", A)
-
-
-        label2_c =label2+str(round(weighted,1))+"("+str(round(weighted_e,1))+r") $\rm{\mu}$rad"
-        ax.plot([0,len(x)+2],[weighted, weighted], ls=":", c="g", zorder=3, label=label2_c)
-        ax.add_patch(patches.Rectangle(
-            xy=(0, weighted-weighted_e),  # point of origin.
-            width=len(x)+2,
-            height=weighted_e*2,
-            linewidth=0,
-            color='green',
-            fill=True,
-            alpha=0.7,
-            zorder=4,
-            label=r"$1\sigma$ band"
-            )
-        )
+    
         
     if(pmin): 
         ax.set_xlim(x[0]-130, x.iloc[-1]+130)

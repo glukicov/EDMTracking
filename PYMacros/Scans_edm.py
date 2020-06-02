@@ -655,6 +655,7 @@ def plot_mom():
         p_max = data_s12['p_max']
         cuts = [str(int(p_min[i]))+r"$<p<$"+str(int(p_max[i])) for i,k in enumerate(p_min)] 
         x=np.arange(1,data_s12.shape[0]+1)
+        p_mean = (p_min+p_max)/2
         
         n_label=""
         if(args.equal):
@@ -663,8 +664,8 @@ def plot_mom():
             else:
                 n_label="\n" +r" $N_{\rm{bin}}$="+str(cu.sci_notation(N[0]))
 
-        print("Max N in a bin", max(data_s12['n']), max(data_s18['n']))
-        print("Min N in a bin", min(data_s12['n']), min(data_s18['n']))
+        # print("Max N in a bin", max(data_s12['n']), max(data_s18['n']))
+        # print("Min N in a bin", min(data_s12['n']), min(data_s18['n']))
         # print(N[-1])
         # loc = plticker.MultipleLocator(base=1) # this locator puts ticks at regular intervals
 
@@ -675,36 +676,46 @@ def plot_mom():
         ax.set_ylabel(r"$A_{B_z} \ [\rm{\mu}$rad]")
         fig.savefig("../fig/sum_mom_A_bz"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
+        fig, ax = cu.plot(p_min, cu.get_asym(p_min), scatter=True)
+        # ax.xaxis.set_major_locator(loc)
+        ax.set_ylabel(r"$d_{B_z}(p)$")
+        fig.savefig("../fig/sum_mom_d"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
+
+        fig, ax = cu.plot_mom(p_min, data_s12['A_Bz']*1e3, data_s12['A_Bz_e']*1e3, cuts, N, p_mean=p_mean,   label1=label1+" S12"+n_label, s18=True, s18_y=data_s18['A_Bz']*1e3, s18_y_e=data_s18['A_Bz_e']*1e3, weighted=True, asym=True, pmin=True)
+        # ax.xaxis.set_major_locator(loc)
+        ax.set_ylabel(r"$B_z$ (ppm)")
+        fig.savefig("../fig/sum_mom_B_z"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
+
         # A_bz uncertainty
-        fig, ax = cu.plot_mom(p_min, data_s12['A_Bz_e']*1e3, None, cuts, N, label1=label1+" S12"+n_label, s18=True, s18_y=data_s18['A_Bz_e']*1e3, s18_y_e=None, weighted=False, pmin=True)
-        # ax.xaxis.set_major_locator(loc)
-        ax.set_ylabel(r"$\delta A_{B_z} \ [\rm{\mu}$rad]")
-        fig.savefig("../fig/sum_mom_delta_A_bz"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
+        # fig, ax = cu.plot_mom(p_min, data_s12['A_Bz_e']*1e3, None, cuts, N, label1=label1+" S12"+n_label, s18=True, s18_y=data_s18['A_Bz_e']*1e3, s18_y_e=None, weighted=False, pmin=True)
+        # # ax.xaxis.set_major_locator(loc)
+        # ax.set_ylabel(r"$\delta A_{B_z} \ [\rm{\mu}$rad]")
+        # fig.savefig("../fig/sum_mom_delta_A_bz"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
-        fig, ax = cu.plot_mom(p_min, data_s12['n'], None, cuts, N, label1=label1+" S12"+n_label, s18=True, s18_y=data_s18['n'], s18_y_e=None, weighted=False, pmin=True)
-        # ax.xaxis.set_major_locator(loc)
-        ax.set_ylabel(r"N (entries)")
-        fig.savefig("../fig/sum_mom_N"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
+        # fig, ax = cu.plot_mom(p_min, data_s12['n'], None, cuts, N, label1=label1+" S12"+n_label, s18=True, s18_y=data_s18['n'], s18_y_e=None, weighted=False, pmin=True)
+        # # ax.xaxis.set_major_locator(loc)
+        # ax.set_ylabel(r"N (entries)")
+        # fig.savefig("../fig/sum_mom_N"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
-        fig, ax = cu.plot_mom(p_min, np.sqrt(data_s12['n']), None, cuts, N, label1=label1+" S12"+n_label, s18=True, s18_y=np.sqrt(data_s18['n']), s18_y_e=None, weighted=False, pmin=True)
-        # ax.xaxis.set_major_locator(loc)
-        ax.set_ylabel(r"$\sqrt{N}$ (entries)")
-        fig.savefig("../fig/sum_mom_sqrt_N"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
+        # fig, ax = cu.plot_mom(p_min, np.sqrt(data_s12['n']), None, cuts, N, label1=label1+" S12"+n_label, s18=True, s18_y=np.sqrt(data_s18['n']), s18_y_e=None, weighted=False, pmin=True)
+        # # ax.xaxis.set_major_locator(loc)
+        # ax.set_ylabel(r"$\sqrt{N}$ (entries)")
+        # fig.savefig("../fig/sum_mom_sqrt_N"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
         # # plot A_edm
         # fig, ax = cu.plot_mom(p_min, data_s12['A_edm_blind']*1e3, data_s12['A_edm_blind_e']*1e3, cuts, N, label2=r"$\langle A_{\rm{EDM}}  \rangle =$", label1=label1+" S12", s18=True, s18_y=data_s18['A_edm_blind']*1e3, s18_y_e=data_s18['A_edm_blind_e']*1e3, weighted=False, pmin=True)
         # ax.set_ylabel(r"$A_{\rm{EDM}} \ [\rm{\mu}$rad]")
         # fig.savefig("../fig/sum_mom_A_edm"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
-        # plot c
-        fig, ax = cu.plot_mom(p_min, data_s12['c']*1e3, data_s12['c_e']*1e3, cuts, N, label2=r"$\langle c \rangle =$", label1=label1+" S12"+n_label, s18=True, s18_y=data_s18['c']*1e3, s18_y_e=data_s18['c_e']*1e3, weighted=False, pmin=True)
-        ax.set_ylabel(r"$c \ [\rm{\mu}$rad]")
-        fig.savefig("../fig/sum_mom_c"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
+        # # plot c
+        # fig, ax = cu.plot_mom(p_min, data_s12['c']*1e3, data_s12['c_e']*1e3, cuts, N, label2=r"$\langle c \rangle =$", label1=label1+" S12"+n_label, s18=True, s18_y=data_s18['c']*1e3, s18_y_e=data_s18['c_e']*1e3, weighted=False, pmin=True)
+        # ax.set_ylabel(r"$c \ [\rm{\mu}$rad]")
+        # fig.savefig("../fig/sum_mom_c"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
-        # plot sigma 
-        fig, ax = cu.plot_mom(p_min, data_s12['sigma_y'], None, cuts, N, weighted=False, label1=label1+" S12"+n_label, s18=True, s18_y=data_s12['sigma_y'], s18_y_e=None, pmin=True)
-        ax.set_ylabel(r"$\sigma_{\theta_y}$  [mrad]")
-        fig.savefig("../fig/sum_mom_sigma"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
+        # # plot sigma 
+        # fig, ax = cu.plot_mom(p_min, data_s12['sigma_y'], None, cuts, N, weighted=False, label1=label1+" S12"+n_label, s18=True, s18_y=data_s12['sigma_y'], s18_y_e=None, pmin=True)
+        # ax.set_ylabel(r"$\sigma_{\theta_y}$  [mrad]")
+        # fig.savefig("../fig/sum_mom_sigma"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
 
 def plot_all_mom():
