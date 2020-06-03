@@ -70,7 +70,14 @@ def get_asym(p):
     '''
     Empirically determined asymmetry function from simulation 
     '''
-    return -2.368462922e-07*p**2+7.972557327e-04*p-5.642233685e-01
+    a = -2.368462922e-07*p**2+7.972557327e-04*p-5.642233685e-01 
+    return a
+    # if(a > 0):
+    #     return asym
+    # else: 
+    #     print("\n Returning negative asymmetry \n")
+    #     return 0.0
+    
 
 def plotHist(data, n_bins=100, prec=2, fs=14, units="units", c="green", alpha=0.7, label=""):
     '''
@@ -317,13 +324,13 @@ def modulo_wiggle_fit_plot(x, y, func, par, par_e, chi2_ndf, ndf, t_mod, t_max, 
     return fig, ax
 
 
-def plot_mom(x, y, y_e, cuts, N, p_mean = None, asym=False, weighted=True, c='k', marker="o", label1="Run-1 S1218", label2= r"$\langle A_{B_z} \rangle$=", s18_y=None, s18_y_e=None, s18=False, pmin=False):  
+def plot_mom(x, y, y_e, scan=False, ds_name=None, cuts=None, N_s1218=None, p_mean = None, asym=False, weighted=True, c='k', marker="o", label1="Run-1 S1218", label2= r"$\langle A_{B_z} \rangle$=", s18_y=None, s18_y_e=None, s18=False):  
 
     if (s18==False): fig, ax = plot(x, y, y_err=y_e, c=c, marker=marker, error=True, label=label1, zorder=1)
     else:
-        if(pmin):
-            x_s12 = np.array(x)-20
-            x_s18=  np.array(x)+20
+        if(p_mean.any() != None):
+            x_s12 = np.array(p_mean)-20
+            x_s18=  np.array(p_mean)+20
         else:
             x_s12 = np.array(x)-0.15
             x_s18=  np.array(x)+0.15
@@ -333,41 +340,96 @@ def plot_mom(x, y, y_e, cuts, N, p_mean = None, asym=False, weighted=True, c='k'
             ax.errorbar(x_s18, s18_y, yerr=s18_y_e, c="blue", marker="o", elinewidth=2, linewidth=0, label=label1.replace("12","18"), zorder=2) 
         #now add the weighted mean
         else:
-            
             if(asym==False):
-                weighted = np.sum(y * N)/np.sum(N)
+                weighted = np.sum(y * N_s1218)/np.sum(N_s1218)
                 weighted_e = 1.0/np.sqrt(np.sum(1.0/y_e**2)) 
             else:
-
-                print("Bin centres", p_mean)
+                # print("Bin starts", x)
+                # print("Bin centres", p_mean)
                 A = []
-                for p_mean_i in p_mean:
-                    A.append( get_asym(p_mean_i) )
+                a_s12_y, a_s12_y_e, a_s18_y, a_s18_y_e, x_s12, x_s18= [], [], [], [], [], []
+                mean_fit_x=[]
+                for i, p_mean_i in enumerate(p_mean):
+                    asym=get_asym(p_mean_i)
+                    if(asym>0.025):
+                        A.append(asym)
+                        a_s12_y.append(y[i] / asym)
+                        a_s12_y_e.append( np.abs(y[i] / asym)*np.sqrt( y_e[i]**2/ y[i]**2)  )
+                        a_s18_y.append(s18_y[i] / asym)
+                        a_s18_y_e.append( s18_y[i] / asym * s18_y_e[i]/ s18_y[i]  )
+                        x_s12.append(p_mean_i-20)
+                        x_s18.append(p_mean_i+20)
+                        mean_fit_x.append(p_mean_i)
+                        
                 A=np.array(A)
-                print("Asym:", A)
+                # print("Asym:", A)
+                # print("a_s12_y:", a_s12_y)
+                # print("a_s12_y_e:", a_s12_y_e)
+
+                # print("Asym:", len(A))
+                # print("a_s12_y:", len(a_s12_y))
+                # print("a_s12_y_e:", len(a_s12_y_e))
+                # print("x_s12:", len(x_s12))
+
+                fig, ax = plot(x_s12, a_s12_y, y_err=a_s12_y_e, c="red", marker="+", error=True, label=label1, zorder=1)
+                ax.errorbar(x_s18, a_s18_y, yerr=a_s18_y_e, c="blue", marker="o", elinewidth=2, linewidth=0, label=label1.replace("12","18"), zorder=2) 
+
+                #Fit 
+                x_1218 = np.append(mean_fit_x,  mean_fit_x)
+                y_1218 = np.append(a_s12_y,  a_s18_y)
+                y_e_1218 = np.append(a_s12_y_e,  a_s12_y_e)
+            
+                par, par_e, pcov, chi2_ndf, ndf = fit_and_chi2(x_1218, y_1218, y_e_1218, parallel, [0.0])
+                
+                if(args.scan==True):
+                    sigma_y = np.std(theta_y_mrad)
+                    par_dump=np.array([[ds_name], par[0], par_e[0]])
+                    par_dump_keys = ['ds', "B_z", "B_z_e"]
+                    dict_dump = dict(zip(par_dump_keys,par_dump))
+                    df = pd.DataFrame.from_records(dict_dump, index='ds')
+                    with open("../DATA/scans/bz_scan_"+keys[1]+".csv", 'a') as f:
+                        df.to_csv(f, mode='a', header=f.tell()==0)
 
 
-            # label2_c =label2+str(round(weighted,1))+"("+str(round(weighted_e,1))+r") $\rm{\mu}$rad"
-            # ax.plot([0,len(x)+2],[weighted, weighted], ls=":", c="g", zorder=3, label=label2_c)
-            # ax.add_patch(patches.Rectangle(
-            #     xy=(0, weighted-weighted_e),  # point of origin.
-            #     width=len(x)+2,
-            #     height=weighted_e*2,
-            #     linewidth=0,
-            #     color='green',
-            #     fill=True,
-            #     alpha=0.7,
-            #     zorder=4,
-            #     label=r"$1\sigma$ band"
-            #     )
-            # )
+                x_lin = np.linspace(0, 3100, 1000) 
+                ax.plot(x_lin, parallel(x_lin, *par), c="g", ls="-", label=r"$\langle B_z \rangle$="+str(round(par[0],1))+"("+str(round(par_e[0],1))+") ppm", lw=2);
+                ax.add_patch(patches.Rectangle(
+                    xy=(0, par[0]-par_e[0]),  # point of origin.
+                    width=3100,
+                    height=par_e[0]*2,
+                    linewidth=0,
+                    color='green',
+                    fill=True,
+                    alpha=0.7,
+                    zorder=4,
+                    label=r"$1\sigma$ band"
+                    )
+                )
+
+                # label2_c =label2+str(round(weighted,1))+"("+str(round(weighted_e,1))+r") $\rm{\mu}$rad"
+                # ax.plot([0,len(x)+2],[weighted, weighted], ls=":", c="g", zorder=3, label=label2_c)
+                # ax.add_patch(patches.Rectangle(
+                #     xy=(0, weighted-weighted_e),  # point of origin.
+                #     width=len(x)+2,
+                #     height=weighted_e*2,
+                #     linewidth=0,
+                #     color='green',
+                #     fill=True,
+                #     alpha=0.7,
+                #     zorder=4,
+                #     label=r"$1\sigma$ band"
+                #     )
+                # )
     
-    if(pmin): 
-        ax.set_xlabel(r"$p_{\rm{min}}$ [MeV] in range: $p_{\rm{min}}<p<p_{\rm{min}}+100$ MeV")
+    if(p_mean.any() != None): 
+        # ax.set_xlabel(r"$p_{\rm{min}}$ [MeV] in range: $p_{\rm{min}}<p<p_{\rm{min}}+100$ MeV")
+        ax.set_xlabel(r"$p$ [MeV] in range: $p-50<p<p+50$ MeV")
+        ax.set_xlim(p_mean[0]-100, p_mean.iloc[-1]+100)
     else:
         ax.set_xlabel("Momentum cut [MeV]")
         ax.set_xticks(x)
         ax.set_xticklabels(cuts)
+        ax.set_xlim(0.5, len(x)+0.5)
         for tick in ax.get_xticklabels():
             tick.set_rotation(35)
 
@@ -375,12 +437,6 @@ def plot_mom(x, y, y_e, cuts, N, p_mean = None, asym=False, weighted=True, c='k'
     plt.tight_layout()
     ax.tick_params(axis='x', which='minor', bottom=False, top=False)
 
-    
-        
-    if(pmin): 
-        ax.set_xlim(x[0]-130, x.iloc[-1]+130)
-    else:
-        ax.set_xlim(0.5, len(x)+0.5)
     # ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.1)
     plt.legend(fontsize=14, loc="best")
     return fig, ax
@@ -767,6 +823,9 @@ def Bz_only_phase(t, *pars):
 
 def line(x, a, b):
     return a*x+b
+
+def parallel(x, b):
+    return 0*x+b
 
 def na2(x, a, b, c, d, e):
     return a*x**4 + b*x**3 + c*x**2 + d*x + e 
