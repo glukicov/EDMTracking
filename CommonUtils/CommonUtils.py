@@ -17,7 +17,7 @@ from math import floor, log10
 sys.path.append("../Blinding") # path to Blinding libs
 from BlindersPy3 import Blinders
 from BlindersPy3 import FitType
-getBlinded = Blinders(FitType.Omega_a, "EDM all day") 
+# getBlinded = Blinders(FitType.Omega_a, "EDM all day") 
 
 #fix the random seed
 def get_random_engine(init_seed=123456789):
@@ -349,9 +349,11 @@ def plot_mom(x, y, y_e, scan=False, ds_name=None, cuts=None, N_s1218=None, p_mea
                 A = []
                 a_s12_y, a_s12_y_e, a_s18_y, a_s18_y_e, x_s12, x_s18= [], [], [], [], [], []
                 mean_fit_x=[]
+                asym_limit = 0.025
+                print('\n !!! Using asym_limit=', asym_limit)
                 for i, p_mean_i in enumerate(p_mean):
                     asym=get_asym(p_mean_i)
-                    if(asym>0.025):
+                    if(asym>asym_limit):
                         A.append(asym)
                         a_s12_y.append(y[i] / asym)
                         a_s12_y_e.append( np.abs(y[i] / asym)*np.sqrt( y_e[i]**2/ y[i]**2)  )
@@ -381,13 +383,12 @@ def plot_mom(x, y, y_e, scan=False, ds_name=None, cuts=None, N_s1218=None, p_mea
             
                 par, par_e, pcov, chi2_ndf, ndf = fit_and_chi2(x_1218, y_1218, y_e_1218, parallel, [0.0])
                 
-                if(args.scan==True):
-                    sigma_y = np.std(theta_y_mrad)
+                if(scan==True):
                     par_dump=np.array([[ds_name], par[0], par_e[0]])
                     par_dump_keys = ['ds', "B_z", "B_z_e"]
                     dict_dump = dict(zip(par_dump_keys,par_dump))
                     df = pd.DataFrame.from_records(dict_dump, index='ds')
-                    with open("../DATA/scans/bz_scan_"+keys[1]+".csv", 'a') as f:
+                    with open("../DATA/scans/bz_scan.csv", 'a') as f:
                         df.to_csv(f, mode='a', header=f.tell()==0)
 
 

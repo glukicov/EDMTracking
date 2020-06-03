@@ -47,6 +47,7 @@ arg_parser.add_argument("--plot_lt", action='store_true', default=False)
 arg_parser.add_argument("--plot_bin_w", action='store_true', default=False) 
 
 arg_parser.add_argument("--equal", action='store_true', default=False) 
+arg_parser.add_argument("--sum", action='store_true', default=False) 
 arg_parser.add_argument("--corr", action='store_true', default=False) 
 arg_parser.add_argument("--band_off", action='store_true', default=False) 
 arg_parser.add_argument("--abs", action='store_true', default=False) 
@@ -66,7 +67,7 @@ if (args.both):stations=([1218])
 
 expected_DSs = ("60h", "9D", "HK",   "EG", "Sim", "Bz", "noBz", "R1")
 official_DSs = ("Run-1a",  "Run-1c",  "Run-1b",  "Run-1d",  "Sim",  r"$B_z$ = 1700 ppm", "noBz",  "Run-1")
-if(not args.plot_mom):
+if(not args.plot_mom and not args.plot_bz):
     DS_path=([args.hdf])
     ds_name=args.hdf.replace(".","/").split("/")[-2] # if all special chars are "/" the DS name is just after extension
     ds_name_official=official_DSs[expected_DSs.index(ds_name)]
@@ -237,10 +238,16 @@ def main():
     if(args.plot_bin_w): plot(direction="bin_w")
     if(args.plot_p_minp_max): plot(direction="p_min", bidir=True, second_direction="p_max")
     if(args.plot_mom): plot_mom()
-    if(args.plot_bzz): 
-        paths=["../DATA/scans/60h_edm_scan_theta.csv", "../DATA/scans/HK_edm_scan_theta.csv", "../DATA/scans/9D_edm_scan_theta.csv", "../DATA/scans/EG_edm_scan_theta.csv"]
-        for path in paths:        
-            plot_mom(df=path, scan=True)
+    if(args.plot_bz): 
+        in_=input("Start Bz scans?")
+
+        if(not args.sum):
+            subprocess.call(['trash', "../DATA/scans/bz_scan.csv"])
+            paths=["../DATA/scans/60h_edm_scan_theta.csv", "../DATA/scans/HK_edm_scan_theta.csv", "../DATA/scans/9D_edm_scan_theta.csv", "../DATA/scans/EG_edm_scan_theta.csv"]
+            for path in paths:         
+               plot_mom(df=path, scan=True)
+        
+        if(args.sum): plot_all_mom(df="../DATA/scans/bz_scan.csv", scan=True)
     
     if(args.plot_all_mom): plot_all_mom()
 
@@ -687,18 +694,18 @@ def plot_mom(df=args.file, scan=False):
         fig, ax = cu.plot_mom(p_min, data_s12['A_Bz']*1e3, data_s12['A_Bz_e']*1e3, p_mean=p_mean, label1=label1+" S12"+n_label, s18=True, s18_y=data_s18['A_Bz']*1e3, s18_y_e=data_s18['A_Bz_e']*1e3, weighted=False)
         # ax.xaxis.set_major_locator(loc)
         ax.set_ylabel(r"$A_{B_z} \ [\rm{\mu}$rad]")
-        fig.savefig("../fig/+"ds_name"+sum_mom_A_bz"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
+        fig.savefig("../fig/"+ds_name+"_sum_mom_A_bz"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
         fig, ax = cu.plot(p_mean, cu.get_asym(p_mean), scatter=True)
         # ax.xaxis.set_major_locator(loc)
         ax.set_ylabel(r"$d_{B_z}(p)$")
         ax.set_xlabel(r"$p$ [MeV]")
-        fig.savefig("../fig/+"ds_name"+sum_mom_d"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
+        fig.savefig("../fig/"+ds_name+"_sum_mom_d"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
         fig, ax = cu.plot_mom(p_min, data_s12['A_Bz']*1e3, data_s12['A_Bz_e']*1e3, scan=scan, ds_name=ds_name_official, p_mean=p_mean,  label1=label1+" S12"+n_label, s18=True, s18_y=data_s18['A_Bz']*1e3, s18_y_e=data_s18['A_Bz_e']*1e3, weighted=True, asym=True)
         # ax.xaxis.set_major_locator(loc)
         ax.set_ylabel(r"$B_z$ (ppm)")
-        fig.savefig("../fig/+"ds_name"+sum_mom_B_z"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
+        fig.savefig("../fig/"+ds_name+"_sum_mom_B_z"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
         # A_bz uncertainty
         # fig, ax = cu.plot_mom(p_min, data_s12['A_Bz_e']*1e3, None, cuts, N, label1=label1+" S12"+n_label, s18=True, s18_y=data_s18['A_Bz_e']*1e3, s18_y_e=None, weighted=False, pmin=True)
@@ -738,43 +745,29 @@ def plot_all_mom(df=args.file, scan=False):
 
     if(scan==True):
 
-        ds_names=('Run-1a', "Run-1b", "Run-1c", "Run-1d")
 
         #S1218
-        B_z=   data['Bz']
-        Bz_e= data['Bz_e']
-        N=data_s1218['n']
+        ds_names=data['ds']
+        Bz=   data['B_z']
+        Bz_e= data['B_z_e']
         ds_colors=["k", "k", "k", "k"]
         ds_markers=["d", "d", "d", "d"]
-        A_bz_mean= round(np.sum(A_bz * N)/np.sum(N),1)
-        A_bz_mean_e = round(1.0/np.sqrt(np.sum(1.0/A_bz_e**2))  ,1)
+        Bz_mean= round(np.sum(Bz * Bz_e)/np.sum(Bz_e),1)
+        Bz_mean_e = round(1.0/np.sqrt(np.sum(1.0/Bz_e**2))  ,1)
 
-        #S12 and S18 
-        A_bz_s12=   data_s12['A_Bz']*1e3
-        A_bz_e_s12= data_s12['A_Bz_e']*1e3
-        ds_colors_s12=["r", "r", "r", "r"]
-        ds_markers_s12=["+", "+", "+", "+"]
-        A_bz_s18=   data_s18['A_Bz']*1e3
-        A_bz_e_s18= data_s18['A_Bz_e']*1e3
-        ds_colors_s18=["b", "b", "b", "b"]
-        ds_markers_s18=["o", "o", "o", "o"]
-
-
-        fig, ax = cu.plot_fom(ds_names, A_bz_s12, A_bz_e_s12, ds_colors_s12, ds_markers_s12, y_label=r"$A_{B_z} \ [\rm{\mu}$rad]", eL=" ", label="S12", zorder=1)
-        fig, ax = cu.plot_fom(ds_names, A_bz, A_bz_e, ds_colors, ds_markers, y_label=r"$A_{B_z} \ [\rm{\mu}$rad]", fig=fig, ax=ax, eL=" ", label="S1218", zorder=2)
-        fig, ax = cu.plot_fom(ds_names, A_bz_s18, A_bz_e_s18, ds_colors_s18, ds_markers_s18, y_label=r"$A_{B_z} \ [\rm{\mu}$rad]", fig=fig, ax=ax, eL=" ", label="S18", zorder=3)
+        fig, ax = cu.plot_fom(ds_names, Bz, Bz_e, ds_colors, ds_markers, y_label=r"$B_z$ (ppm)", eL=" ", label="S1218", zorder=2)
 
         band_width=2
         ax.set_xlim(0.7, 4.3)
-        ax.set_ylim(-35, 45)
-        ax.plot([0,5],[A_bz_mean, A_bz_mean], ls=":", c="g", zorder=3, label=r"$\langle A_{B_z} \rangle$="+str(A_bz_mean)+"("+str(A_bz_mean_e)+r") $\rm{\mu}$rad")
+        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.2)
+        ax.plot([0,5],[Bz_mean, Bz_mean], ls=":", c="g", zorder=3, label=r"$\langle B_z\rangle$="+str(Bz_mean)+"("+str(Bz_mean_e)+") ppm")
         ax.set_xlabel("")
         plt.xticks(fontsize=14)
 
         ax.add_patch(patches.Rectangle(
-                xy=(0, A_bz_mean-A_bz_mean_e),  # point of origin.
+                xy=(0, Bz_mean-Bz_mean_e),  # point of origin.
                 width=5,
-                height=A_bz_mean_e*2,
+                height=Bz_mean_e*2,
                 linewidth=0,
                 color='green',
                 fill=True,
@@ -785,9 +778,9 @@ def plot_all_mom(df=args.file, scan=False):
         )
 
         ax.add_patch(patches.Rectangle(
-                xy=(0, A_bz_mean-(A_bz_mean_e*band_width)),  # point of origin.
+                xy=(0, Bz_mean-(Bz_mean_e*band_width)),  # point of origin.
                 width=5,
-                height=A_bz_mean_e*band_width*2,
+                height=Bz_mean_e*band_width*2,
                 linewidth=0,
                 color='blue',
                 fill=True,
@@ -797,9 +790,9 @@ def plot_all_mom(df=args.file, scan=False):
             )
         )
 
-        plt.legend(fontsize=11, loc=(0.02,0.62))
+        plt.legend(fontsize=11, loc='best')
         plt.tight_layout()
-        fig.savefig("../fig/sum_A_bz_s12s18.png", dpi=200, bbox_inches='tight');
+        fig.savefig("../fig/sum_Bz_s12s18.png", dpi=200, bbox_inches='tight');
 
 
 
