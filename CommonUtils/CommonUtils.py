@@ -349,7 +349,8 @@ def plot_mom(x, y, y_e, scan=False, ds_name=None, cuts=None, N_s1218=None, p_mea
                 A = []
                 a_s12_y, a_s12_y_e, a_s18_y, a_s18_y_e, x_s12, x_s18= [], [], [], [], [], []
                 mean_fit_x=[]
-                asym_limit = 0.025
+                asym_limit = float("-inf")
+                # asym_limit = 0.025
                 print('\n !!! Using asym_limit=', asym_limit)
                 for i, p_mean_i in enumerate(p_mean):
                     asym=get_asym(p_mean_i)

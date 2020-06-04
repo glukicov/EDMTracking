@@ -486,7 +486,7 @@ def plot(direction="start", bidir=False, second_direction=None):
                     
                     if(args.plot_p_min or args.plot_p_minp_max and dss[0]=="Bz"):
                         ax.set_xlim(ax.get_xlim()[0],ax.get_xlim()[1])
-                        ax.plot([ax.get_xlim()[0], ax.get_xlim()[1]],[170, 170], c="r", ls=":")
+                        #ax.plot([ax.get_xlim()[0], ax.get_xlim()[1]],[170, 170], c="r", ls=":")
 
                         x_frac = []
                         for x_i in x:
@@ -556,7 +556,7 @@ def plot(direction="start", bidir=False, second_direction=None):
                         #     return 60*N(y_lin)*A_edm(y_lin)**2
                             return 0.5*( y_lin*(1-y_lin)**2 * (1+4*y_lin)**2 ) / ( 5 + 5*y_lin - 4*y_lin**2 )
                         # ax.plot(y_lin, A_edm(y_lin), c="b", ls=":", label=r"$A_{\rm{EDM}}(y)=\frac{\sqrt{y(1-y)}(1+4y)}{5+5y-4y^2}$");
-                        #ax.plot(y_lin, NA2_edm(y_lin), c="r", ls="--", label=r"$NA^2_{\rm{EDM}}(y)$", lw=2);
+                        ax.plot(y_lin, NA2_edm(y_lin), c="r", ls="--", label=r"$NA^2_{\rm{EDM}}(y)$", lw=2);
 
 
                         ax.legend(fontsize=font_size, loc="lower center")
@@ -575,6 +575,8 @@ def plot(direction="start", bidir=False, second_direction=None):
 
                         par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x_mid, y/1700, y_e/1700, cu.parab, [1,1,1])
                         x_lin = np.linspace(0, 3100, 1000) 
+                        ax.plot(x_lin, cu.parab(x_lin, *par), c="r", ls="-", label=r"$d_{B_z}(p)=ap^2+bp+d_0$", lw=2);
+                        
                         ax.plot(x_lin, cu.parab(x_lin, *par), c="r", ls="-", label=r"$d_{B_z}(p)=ap^2+bp+d_0$", lw=2);
 
                         ax.legend(fontsize=font_size, loc="lower center")
@@ -633,7 +635,7 @@ def plot_mom(df=args.file, scan=False):
         ax.set_ylabel(r"$A_{B_z} \ [\rm{\mu}$rad]")
         if(dss[0]=='Bz'):
             # plt.legend(fontsize=14, loc=(0.03, 0.66))
-            ax.plot([ax.get_xlim()[0], ax.get_xlim()[1]],[170, 170], c="r", ls=":")
+            #ax.plot([ax.get_xlim()[0], ax.get_xlim()[1]],[170, 170], c="r", ls=":")
             ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.3)
         fig.savefig("../fig/sum_mom_A_bz"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
