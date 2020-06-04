@@ -759,7 +759,8 @@ def plot_all_mom(df=args.file, scan=False, A_bz=False):
 
         band_width=2
         ax.set_xlim(0.7, 4.3)
-        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.2)
+        # ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.2)
+        ax.set_ylim(-30, 30)
         label_sum=r"$\langle B_z\rangle$="+str(Bz_mean)+"("+str(Bz_mean_e)+") ppm"
         if(A_bz): label_sum=r"$\langle A_{B_z}\rangle$="+str(Bz_mean)+"("+str(Bz_mean_e)+r") $\rm{\mu}$rad"
         ax.plot([0,5],[Bz_mean, Bz_mean], ls=":", c="g", zorder=2, label=label_sum)
@@ -792,7 +793,7 @@ def plot_all_mom(df=args.file, scan=False, A_bz=False):
             )
         )
 
-        plt.legend(fontsize=11, loc='best')
+        plt.legend(fontsize=13, loc='upper center')
         plt.tight_layout()
         if(not A_bz): fig.savefig("../fig/sum_Bz_s12s18.png", dpi=200, bbox_inches='tight');
         if(A_bz): fig.savefig("../fig/sum_A_Bz_s12s18.png", dpi=200, bbox_inches='tight');
