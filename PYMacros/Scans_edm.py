@@ -148,21 +148,11 @@ if(args.mom):
         p_min = [800,  1200, 1500, 1800]
         p_max = [1200, 1500, 1800, 2300]
     else:   
-        # p_min = [800,  1200, 1500, 1800]
-        # p_max = [1200, 1500, 1800, 2300]
-        #p_min = np.linspace(1000,  2400, 8, dtype=float)
-        #p_max = np.linspace(1200,  2600, 8, dtype=float)
-        p_min = np.linspace(900,   2400, 16, dtype=float)
-        p_max = np.linspace(1000,  2500, 16, dtype=float)
+        # p_min = np.linspace(1200,  1900, 6, dtype=float)
+        # p_max = np.linspace(1300,  2000, 6, dtype=float)
+        p_min = np.linspace(800,  2200, 15, dtype=float)
+        p_max = np.linspace(900,  2300, 15, dtype=float)
 
-    # p_min = np.linspace(1000,  2200,  7, dtype=float)
-    # p_max = np.linspace(1200,  2400,  7, dtype=float)
-
-    # p_min = np.linspace(1600,  2000, 5, dtype=float)
-    # p_max = np.linspace(1700,  2100, 5, dtype=float)
-
-    # p_min = [900,  1000, 2500, 2600]
-    # p_max = [1000, 1100, 2600, 2700]
 
     print("P min:", p_min)
     print("P max:", p_max)
@@ -243,11 +233,14 @@ def main():
 
         if(not args.sum):
             subprocess.call(['trash', "../DATA/scans/bz_scan.csv"])
+            subprocess.call(['trash', "../DATA/scans/a_bz_scan.csv"])
             paths=["../DATA/scans/60h_edm_scan_theta.csv", "../DATA/scans/HK_edm_scan_theta.csv", "../DATA/scans/9D_edm_scan_theta.csv", "../DATA/scans/EG_edm_scan_theta.csv"]
             for path in paths:         
                plot_mom(df=path, scan=True)
         
-        if(args.sum): plot_all_mom(df="../DATA/scans/bz_scan.csv", scan=True)
+        if(args.sum): 
+            plot_all_mom(df="../DATA/scans/bz_scan.csv", scan=True, A_bz=False)
+            plot_all_mom(df="../DATA/scans/a_bz_scan.csv", scan=True, A_bz=True)
     
     if(args.plot_all_mom): plot_all_mom()
 
@@ -693,7 +686,7 @@ def plot_mom(df=args.file, scan=False):
         # loc = plticker.MultipleLocator(base=1) # this locator puts ticks at regular intervals
 
         # plot A_bz
-        fig, ax = cu.plot_mom(p_min, data_s12['A_Bz']*1e3, data_s12['A_Bz_e']*1e3, p_mean=p_mean, label1=label1+" S12"+n_label, s18=True, s18_y=data_s18['A_Bz']*1e3, s18_y_e=data_s18['A_Bz_e']*1e3, weighted=False)
+        fig, ax = cu.plot_mom(p_min, data_s12['A_Bz']*1e3, data_s12['A_Bz_e']*1e3, p_mean=p_mean, ds_name=ds_name_official, scan=scan, label1=label1+" S12"+n_label, s18=True, s18_y=data_s18['A_Bz']*1e3, s18_y_e=data_s18['A_Bz_e']*1e3, weighted=False, asym=False)
         # ax.xaxis.set_major_locator(loc)
         ax.set_ylabel(r"$A_{B_z} \ [\rm{\mu}$rad]")
         fig.savefig("../fig/"+ds_name+"_sum_mom_A_bz"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
@@ -741,28 +734,35 @@ def plot_mom(df=args.file, scan=False):
         # fig.savefig("../fig/sum_mom_sigma"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
 
-def plot_all_mom(df=args.file, scan=False):
+def plot_all_mom(df=args.file, scan=False, A_bz=False):
 
     data = pd.read_csv(df)
 
     if(scan==True):
 
-
         #S1218
         ds_names=data['ds']
-        Bz=   data['B_z']
-        Bz_e= data['B_z_e']
+        if(A_bz==False):
+            Bz=   data['B_z']
+            Bz_e= data['B_z_e']
+        else:
+            Bz=   data['A_B_z']
+            Bz_e= data['A_B_z_e']
         ds_colors=["k", "k", "k", "k"]
         ds_markers=["d", "d", "d", "d"]
         Bz_mean= round(np.sum(Bz * Bz_e)/np.sum(Bz_e),1)
         Bz_mean_e = round(1.0/np.sqrt(np.sum(1.0/Bz_e**2))  ,1)
 
-        fig, ax = cu.plot_fom(ds_names, Bz, Bz_e, ds_colors, ds_markers, y_label=r"$B_z$ (ppm)", eL=" ", label="S1218", zorder=2)
+        y_label=r"$B_z$ (ppm)"
+        if(A_bz): y_label= r"$A_{B_z}\ [\rm{\mu}$rad]"
+        fig, ax = cu.plot_fom(ds_names, Bz, Bz_e, ds_colors, ds_markers, y_label=y_label, eL="", label="S1218", zorder=1)
 
         band_width=2
         ax.set_xlim(0.7, 4.3)
         ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.2)
-        ax.plot([0,5],[Bz_mean, Bz_mean], ls=":", c="g", zorder=3, label=r"$\langle B_z\rangle$="+str(Bz_mean)+"("+str(Bz_mean_e)+") ppm")
+        label_sum=r"$\langle B_z\rangle$="+str(Bz_mean)+"("+str(Bz_mean_e)+") ppm"
+        if(A_bz): label_sum=r"$\langle A_{B_z}\rangle$="+str(Bz_mean)+"("+str(Bz_mean_e)+r") $\rm{\mu}$rad"
+        ax.plot([0,5],[Bz_mean, Bz_mean], ls=":", c="g", zorder=2, label=label_sum)
         ax.set_xlabel("")
         plt.xticks(fontsize=14)
 
@@ -774,7 +774,7 @@ def plot_all_mom(df=args.file, scan=False):
                 color='green',
                 fill=True,
                 alpha=0.7,
-                zorder=4,
+                zorder=3,
                 label=r"$1\sigma$ band"
             )
         )
@@ -787,14 +787,15 @@ def plot_all_mom(df=args.file, scan=False):
                 color='blue',
                 fill=True,
                 alpha=0.2,
-                zorder=5,
+                zorder=4,
                 label=str(band_width)+r"$\sigma$ band"
             )
         )
 
         plt.legend(fontsize=11, loc='best')
         plt.tight_layout()
-        fig.savefig("../fig/sum_Bz_s12s18.png", dpi=200, bbox_inches='tight');
+        if(not A_bz): fig.savefig("../fig/sum_Bz_s12s18.png", dpi=200, bbox_inches='tight');
+        if(A_bz): fig.savefig("../fig/sum_A_Bz_s12s18.png", dpi=200, bbox_inches='tight');
 
 
 

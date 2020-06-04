@@ -338,10 +338,30 @@ def plot_mom(x, y, y_e, scan=False, ds_name=None, cuts=None, N_s1218=None, p_mea
         if(weighted==False):
             fig, ax = plot(x_s12, y, y_err=y_e, c="red", marker="+", error=True, label=label1, zorder=1)
             ax.errorbar(x_s18, s18_y, yerr=s18_y_e, c="blue", marker="o", elinewidth=2, linewidth=0, label=label1.replace("12","18"), zorder=2) 
+            #Fit 
+            x_1218 = np.append(p_mean,  p_mean)
+            y_1218 = np.append(y,  s18_y)
+            y_e_1218 = np.append(y_e,  s18_y_e)
+            
+            par, par_e, pcov, chi2_ndf, ndf = fit_and_chi2(x_1218, y_1218, y_e_1218, parallel, [0.0])
+
+            if(scan==True):
+                par_dump=np.array([[ds_name], par[0], par_e[0]])
+                par_dump_keys = ['ds', "A_B_z", "A_B_z_e"]
+                dict_dump = dict(zip(par_dump_keys,par_dump))
+                df = pd.DataFrame.from_records(dict_dump, index='ds')
+                with open("../DATA/scans/a_bz_scan.csv", 'a') as f:
+                    df.to_csv(f, mode='a', header=f.tell()==0)
+
+            x_lin = np.linspace(0, 3100, 1000) 
+            ax.plot(x_lin, parallel(x_lin, *par), c="g", ls="-", label=r"$\langle B_z \rangle$="+str(round(par[0],1))+"("+str(round(par_e[0],1))+") ppm", lw=2);
+
+
+
         #now add the weighted mean
         else:
             if(asym==False):
-                weighted = np.sum(y * N_s1218)/np.sum(N_s1218)
+                weighted = np.sum(y * y_e)/np.sum(y_e)
                 weighted_e = 1.0/np.sqrt(np.sum(1.0/y_e**2)) 
             else:
                 # print("Bin starts", x)
@@ -383,6 +403,10 @@ def plot_mom(x, y, y_e, scan=False, ds_name=None, cuts=None, N_s1218=None, p_mea
                 y_e_1218 = np.append(a_s12_y_e,  a_s12_y_e)
             
                 par, par_e, pcov, chi2_ndf, ndf = fit_and_chi2(x_1218, y_1218, y_e_1218, parallel, [0.0])
+                # weighted = np.mean(y_1218)
+                # # weighted = np.sum(y_1218 * y_e_1218)/np.sum(y_e_1218)
+                # weighted_e = 1.0/np.sqrt(np.sum(1.0/y_e_1218**2)) 
+                # print("Print weighted B_z=", weighted, "+-", weighted_e)
                 
                 if(scan==True):
                     par_dump=np.array([[ds_name], par[0], par_e[0]])

@@ -19,8 +19,8 @@ import BlindEDM # https://github.com/glukicov/EDMTracking/blob/master/PYMacros/B
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("--t_min", type=float, default=30.56, help="Fit start-time [us]") 
 arg_parser.add_argument("--t_max", type=float, default=500.00, help="Fit end-time [us]") 
-arg_parser.add_argument("--p_min", type=float, default=1600, help="Min momentum cut [MeV]")
-arg_parser.add_argument("--p_max", type=float, default=2100, help="Max momentum cut [MeV]")
+arg_parser.add_argument("--p_min", type=float, default=1200, help="Min momentum cut [MeV]")
+arg_parser.add_argument("--p_max", type=float, default=2000, help="Max momentum cut [MeV]")
 arg_parser.add_argument("--p_min_count", type=float, default=1800, help="Min momentum cut [MeV]")
 arg_parser.add_argument("--p_max_count", type=float, default=3100, help="Max momentum cut [MeV]")
 arg_parser.add_argument("--bin_w_count", type=float, default=15, help="Bin width for counts plot [ns]")
@@ -225,7 +225,7 @@ def plot_counts_theta(df_path):
         data_station_theta=data_station[mom_cut & time_cut]
         data_station_theta=data_station_theta.reset_index() # reset index from 0 after cuts 
         
-        if(args.equal or True):
+        if(args.equal):
             data_station_theta=data_station_theta[0:equal_len]
 
         N=data_station_theta.shape[0]
