@@ -329,7 +329,7 @@ def plot_counts_theta(df_path):
             cu.textL(ax, 0.75, 0.15, leg_data, fs=font_size)
             cu.textL(ax, 0.27, 0.17, leg_fit, fs=font_size, c="r")
             ax.set_xlim(0, g2period);
-            if(sim): ax.set_ylim(-1.6, 1.0);
+            if(sim): ax.set_ylim(-2.0, 1.0);
             if(args.scan==False): fig.savefig("../fig/bz_truth_"+ds_name+"_S"+str(station)+".png", dpi=200)
         
         #make sanity plots 

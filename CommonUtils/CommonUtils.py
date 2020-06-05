@@ -71,6 +71,8 @@ def get_asym(p):
     Empirically determined asymmetry function from simulation 
     '''
     a = -2.368462922e-07*p**2+7.972557327e-04*p-5.642233685e-01 
+    # print("\nSystematically adjusting asymmetry by +-5%\n")
+    # a=a*0.95
     return a
     # if(a > 0):
     #     return asym
@@ -354,7 +356,7 @@ def plot_mom(x, y, y_e, scan=False, ds_name=None, cuts=None, N_s1218=None, p_mea
                     df.to_csv(f, mode='a', header=f.tell()==0)
 
             x_lin = np.linspace(0, 3100, 1000) 
-            ax.plot(x_lin, parallel(x_lin, *par), c="g", ls="-", label=r"$\langle B_z \rangle$="+str(round(par[0],1))+"("+str(round(par_e[0],1))+") ppm", lw=2);
+            ax.plot(x_lin, parallel(x_lin, *par), c="g", ls="-", label=r"$\langle A_{B_z} \rangle$="+str(round(par[0],1))+"("+str(round(par_e[0],1))+") ppm", lw=2);
 
 
 
@@ -464,7 +466,7 @@ def plot_mom(x, y, y_e, scan=False, ds_name=None, cuts=None, N_s1218=None, p_mea
     ax.tick_params(axis='x', which='minor', bottom=False, top=False)
 
     # ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.1)
-    plt.legend(fontsize=14, loc="best")
+    plt.legend(fontsize=12, loc="upper center")
     return fig, ax
 
 

@@ -150,8 +150,8 @@ if(args.mom):
     else:   
         # p_min = np.linspace(1200,  1900, 6, dtype=float)
         # p_max = np.linspace(1300,  2000, 6, dtype=float)
-        p_min = np.linspace(800,  2200, 15, dtype=float)
-        p_max = np.linspace(900,  2300, 15, dtype=float)
+        p_min = np.linspace(1100,  2200, 12, dtype=float)
+        p_max = np.linspace(1200,  2300, 12, dtype=float)
 
 
     print("P min:", p_min)
@@ -689,13 +689,14 @@ def plot_mom(df=args.file, scan=False):
         fig, ax = cu.plot_mom(p_min, data_s12['A_Bz']*1e3, data_s12['A_Bz_e']*1e3, p_mean=p_mean, ds_name=ds_name_official, scan=scan, label1=label1+" S12"+n_label, s18=True, s18_y=data_s18['A_Bz']*1e3, s18_y_e=data_s18['A_Bz_e']*1e3, weighted=False, asym=False)
         # ax.xaxis.set_major_locator(loc)
         ax.set_ylabel(r"$A_{B_z} \ [\rm{\mu}$rad]")
+        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.3)
         fig.savefig("../fig/"+ds_name+"_sum_mom_A_bz"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
-        fig, ax = cu.plot(p_mean, cu.get_asym(p_mean), scatter=True)
-        # ax.xaxis.set_major_locator(loc)
-        ax.set_ylabel(r"$d_{B_z}(p)$")
-        ax.set_xlabel(r"$p$ [MeV]")
-        fig.savefig("../fig/"+ds_name+"_sum_mom_d"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
+        # fig, ax = cu.plot(p_mean, cu.get_asym(p_mean), scatter=True)
+        # # ax.xaxis.set_major_locator(loc)
+        # ax.set_ylabel(r"$d_{B_z}(p)$")
+        # ax.set_xlabel(r"$p$ [MeV]")
+        # fig.savefig("../fig/"+ds_name+"_sum_mom_d"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
         fig, ax = cu.plot_mom(p_min, data_s12['A_Bz']*1e3, data_s12['A_Bz_e']*1e3, scan=scan, ds_name=ds_name_official, p_mean=p_mean,  label1=label1+" S12"+n_label, s18=True, s18_y=data_s18['A_Bz']*1e3, s18_y_e=data_s18['A_Bz_e']*1e3, weighted=True, asym=True)
         # ax.xaxis.set_major_locator(loc)
@@ -759,13 +760,14 @@ def plot_all_mom(df=args.file, scan=False, A_bz=False):
 
         band_width=2
         ax.set_xlim(0.7, 4.3)
-        # ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.2)
-        ax.set_ylim(-30, 30)
+        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.2)
+        # ax.set_ylim(-30, 30)
         label_sum=r"$\langle B_z\rangle$="+str(Bz_mean)+"("+str(Bz_mean_e)+") ppm"
         if(A_bz): label_sum=r"$\langle A_{B_z}\rangle$="+str(Bz_mean)+"("+str(Bz_mean_e)+r") $\rm{\mu}$rad"
         ax.plot([0,5],[Bz_mean, Bz_mean], ls=":", c="g", zorder=2, label=label_sum)
         ax.set_xlabel("")
-        plt.xticks(fontsize=14)
+        plt.xticks(fontsize=14+2)
+        plt.yticks(fontsize=14+2)
 
         ax.add_patch(patches.Rectangle(
                 xy=(0, Bz_mean-Bz_mean_e),  # point of origin.
