@@ -477,84 +477,84 @@ def plot(direction="start", bidir=False, second_direction=None):
                     ax.set_ylabel(par_labels[i_key][i_par], fontsize=font_size);
                     # ax.legend(fontsize=font_size, loc='upper center', bbox_to_anchor=(0.5, 1.1))
                     
-                    if(args.plot_p_min or args.plot_p_minp_max and dss[0]=="Bz"):
-                        ax.set_xlim(ax.get_xlim()[0],ax.get_xlim()[1])
-                        #ax.plot([ax.get_xlim()[0], ax.get_xlim()[1]],[170, 170], c="r", ls=":")
+                    # if(args.plot_p_min or args.plot_p_minp_max and dss[0]=="Bz"):
+                    #     ax.set_xlim(ax.get_xlim()[0],ax.get_xlim()[1])
+                    #     #ax.plot([ax.get_xlim()[0], ax.get_xlim()[1]],[170, 170], c="r", ls=":")
 
-                        x_frac = []
-                        for x_i in x:
-                            # x_frac.append( (float(x_i.split("-")[1])+float(x_i.split("-")[0])+250)/(2*2800) )
-                            x_frac.append( (float(x_i.split("-")[1])+float(x_i.split("-")[0]))/(2*3100) )
-                        ax2=ax.twiny()
-                        ax2.set_xticks(x_frac);
-                        x_frac_round=np.around(x_frac,decimals=2)
-                        ax2.set_xticklabels(x_frac_round);
-                        ax2.set_xlabel(r"$y=\frac{p}{p_{\rm{max}}}$", labelpad=10)
-                        ax2.set_xlim(x_frac[0]-0.05, x_frac[-1]+0.05)
+                    #     x_frac = []
+                    #     for x_i in x:
+                    #         # x_frac.append( (float(x_i.split("-")[1])+float(x_i.split("-")[0])+250)/(2*2800) )
+                    #         x_frac.append( (float(x_i.split("-")[1])+float(x_i.split("-")[0]))/(2*3100) )
+                    #     ax2=ax.twiny()
+                    #     ax2.set_xticks(x_frac);
+                    #     x_frac_round=np.around(x_frac,decimals=2)
+                    #     ax2.set_xticklabels(x_frac_round);
+                    #     ax2.set_xlabel(r"$y=\frac{p}{p_{\rm{max}}}$", labelpad=10)
+                    #     ax2.set_xlim(x_frac[0]-0.05, x_frac[-1]+0.05)
 
 
-                    if(args.plot_p_min or args.plot_p_minp_max and dss[0]=="noBz"):
-                        ax.set_xlim(ax.get_xlim()[0],ax.get_xlim()[1])
-                        ax.plot([ax.get_xlim()[0], ax.get_xlim()[1]],[0, 0], c="r", ls=":")
+                    # if(args.plot_p_min or args.plot_p_minp_max and dss[0]=="noBz"):
+                    #     ax.set_xlim(ax.get_xlim()[0],ax.get_xlim()[1])
+                    #     ax.plot([ax.get_xlim()[0], ax.get_xlim()[1]],[0, 0], c="r", ls=":")
 
                     
-                    if(dss[0] == "Bz"):
-                        ax.legend(fontsize=14, loc='lower center')
-                        ax.set_ylim(-40, 245) 
-                    else: ax.legend(fontsize=font_size, loc="best")
-                    fig.savefig("../fig/"+dirName+"_"+key+"_"+par_names[i_key][i_par]+"_S"+str(station)+"_"+str(ds)+".png", dpi=300, bbox_inches='tight');
+                    # if(dss[0] == "Bz"):
+                    #     ax.legend(fontsize=14, loc='lower center')
+                    #     ax.set_ylim(-40, 245) 
+                    # else: ax.legend(fontsize=font_size, loc="best")
+                    # fig.savefig("../fig/"+dirName+"_"+key+"_"+par_names[i_key][i_par]+"_S"+str(station)+"_"+str(ds)+".png", dpi=300, bbox_inches='tight');
 
                     if(args.plot_p_minp_max and dss[0]=="Bz"):
-                        print('Calculating asymmetry term')
+                        # print('Calculating asymmetry term')
 
-                        print("Ranges:", x)
+                        # print("Ranges:", x)
 
-                        x_frac = []
-                        for x_i in x:
-                            # x_frac.append( (float(x_i.split("-")[1])+float(x_i.split("-")[0])+250)/(2*2800) )
-                            x_frac.append( (float(x_i.split("-")[1])+float(x_i.split("-")[0]))/(2*3100) )
+                        # x_frac = []
+                        # for x_i in x:
+                        #     # x_frac.append( (float(x_i.split("-")[1])+float(x_i.split("-")[0])+250)/(2*2800) )
+                        #     x_frac.append( (float(x_i.split("-")[1])+float(x_i.split("-")[0]))/(2*3100) )
                         
-                        print("Mid point as a fraction of 2800 MeV", x_frac)
+                        # print("Mid point as a fraction of 2800 MeV", x_frac)
      
                         
-                        fig, ax = cu.plot(x_frac, y/1700, y_err=y_e/1700, error=True, elw=2, label=ds_name_official, tight=False,  marker=".")
+                        # fig, ax = cu.plot(x_frac, y/1700, y_err=y_e/1700, error=True, elw=2, label=ds_name_official, tight=False,  marker=".")
                         
-                        print("Asymmetry:", y/1700)
+                        # print("Asymmetry:", y/1700)
 
-                        ax.set_xticks(x_frac);
-                        ax.set_xticklabels(x)
-                        ax.set_xlim(x_frac[0]-0.05, x_frac[-1]+0.05)
+                        # ax.set_xticks(x_frac);
+                        # ax.set_xticklabels(x)
+                        # ax.set_xlim(x_frac[0]-0.05, x_frac[-1]+0.05)
 
-                        ax2=ax.twiny()
-                        ax2.set_xticks(x_frac);
-                        x_frac_round=np.around(x_frac,decimals=2)
-                        ax2.set_xticklabels(x_frac_round);
-                        ax2.set_xlabel(r"$y=\frac{p}{p_{\rm{max}}}$", labelpad=10)
-                        ax2.set_xlim(x_frac[0]-0.05, x_frac[-1]+0.05)
+                        # ax2=ax.twiny()
+                        # ax2.set_xticks(x_frac);
+                        # x_frac_round=np.around(x_frac,decimals=2)
+                        # ax2.set_xticklabels(x_frac_round);
+                        # ax2.set_xlabel(r"$y=\frac{p}{p_{\rm{max}}}$", labelpad=10)
+                        # ax2.set_xlim(x_frac[0]-0.05, x_frac[-1]+0.05)
 
 
-                        ax.set_xlabel(r"$p$ [MeV]", fontsize=font_size) 
-                        for tick in ax.get_xticklabels():
-                            tick.set_rotation(45)
-                        ax.set_ylabel(r"Asymmetry-dilution, $d_{B_z}(p)$", fontsize=font_size);
-                        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.6)
-                        ax.legend(fontsize=14, loc='lower center')
+                        # ax.set_xlabel(r"$p$ [MeV]", fontsize=font_size) 
+                        # for tick in ax.get_xticklabels():
+                        #     tick.set_rotation(45)
+                        # ax.set_ylabel(r"Asymmetry-dilution, $d_{B_z}(p)$", fontsize=font_size);
+                        # ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.6)
+                        # ax.legend(fontsize=14, loc='lower center')
                         
                         
-                        y_lin = np.linspace(0, 1, 100) 
-                        def A_edm(y_lin):
-                            return 0.3*( np.sqrt(y_lin*(1-y_lin))*(1+4*y_lin)  ) / ( 5+5*y_lin-4*y_lin**2  ) 
+                        # y_lin = np.linspace(0, 1, 100) 
+                        # def A_edm(y_lin):
+                        #     return 0.3*( np.sqrt(y_lin*(1-y_lin))*(1+4*y_lin)  ) / ( 5+5*y_lin-4*y_lin**2  ) 
 
-                        def NA2_edm(y_lin):
-                        #     return 60*N(y_lin)*A_edm(y_lin)**2
-                            return 0.5*( y_lin*(1-y_lin)**2 * (1+4*y_lin)**2 ) / ( 5 + 5*y_lin - 4*y_lin**2 )
-                        # ax.plot(y_lin, A_edm(y_lin), c="b", ls=":", label=r"$A_{\rm{EDM}}(y)=\frac{\sqrt{y(1-y)}(1+4y)}{5+5y-4y^2}$");
-                        ax.plot(y_lin, NA2_edm(y_lin), c="r", ls="--", label=r"$NA^2_{\rm{EDM}}(y)$", lw=2);
+                        # def NA2_edm(y_lin):
+                        # #     return 60*N(y_lin)*A_edm(y_lin)**2
+                        #     return 0.5*( y_lin*(1-y_lin)**2 * (1+4*y_lin)**2 ) / ( 5 + 5*y_lin - 4*y_lin**2 )
+                        # # ax.plot(y_lin, A_edm(y_lin), c="b", ls=":", label=r"$A_{\rm{EDM}}(y)=\frac{\sqrt{y(1-y)}(1+4y)}{5+5y-4y^2}$");
+                        # ax.plot(y_lin, NA2_edm(y_lin), c="r", ls="--", label=r"$NA^2_{\rm{EDM}}(y)$", lw=2);
 
 
-                        ax.legend(fontsize=font_size, loc="lower center")
-                        ax.set_ylim(-0.015, 0.15) 
-                        fig.savefig("../fig/asymm.png", dpi=300, bbox_inches='tight');
+                        # ax.legend(fontsize=font_size, loc="lower center")
+                        # ax.set_ylim(-0.015, 0.15) 
+                        # fig.savefig("../fig/asymm.png", dpi=300, bbox_inches='tight');
                         #fig.savefig("../fig/"+"asymm"+"_"+key+"_"+par_names[i_key][i_par]+"_S"+str(station)+"_"+str(ds)+".png", dpi=300, bbox_inches='tight');
 
 
@@ -567,13 +567,40 @@ def plot(direction="start", bidir=False, second_direction=None):
                         ax.set_ylabel(r"Asymmetry-dilution, $d_{B_z}(p)$", fontsize=font_size);
 
                         par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x_mid, y/1700, y_e/1700, cu.parab, [1,1,1])
-                        x_lin = np.linspace(0, 3100, 1000) 
-                        ax.plot(x_lin, cu.parab(x_lin, *par), c="r", ls="-", label=r"$d_{B_z}(p)=ap^2+bp+d_0$", lw=2);
                         
-                        ax.plot(x_lin, cu.parab(x_lin, *par), c="r", ls="-", label=r"$d_{B_z}(p)=ap^2+bp+d_0$", lw=2);
+                        print(pcov)
 
-                        ax.legend(fontsize=font_size, loc="lower center")
+                        # df_corr = pd.DataFrame(corr)
+                        # fig,ax = plt.subplots()
+                        # ax=sn.heatmap(df_corr, annot=True, fmt='.3f', linewidths=.5, cmap="bwr")
+                        # cu.textL(ax, 0.5, 1.1, "S"+str(station))
+                        # fig.savefig("../fig/corr.png", dpi=300)
+
+                        x_lin = np.linspace(0, 3100, 1000) 
+                        ax.plot(x_lin, cu.parab(x_lin, *par), c="r", ls="--", label=r"$d_{B_z}(p)=ap^2+bp+d_0$", lw=2);
+                        
+                        # npts=10
+                        # for i in range(npts):
+
+                        print(par, par_e)
+                        # par_p = par+0.1*par_e
+                        # par_m = par-0.1*par_e
+                        par_p = 1.2*par
+                        par_m = 0.8*par
+                        print(par_p, par_m)
+
+                        y_p = cu.parab(x_lin, *par_p)
+                        y_m=  cu.parab(x_lin, *par_m)
+
+                        # ax.fill_between(x_lin, y_p , y_m, where= y_p >=y_m, facecolor='blue', interpolate=False, alpha=0.6, label=r"$1\sigma$")
+                        ax.fill_between(x_lin, y_p , y_m, where= y_p >=y_m, facecolor='blue', interpolate=False, alpha=0.4, label=r"$\pm20\%$ band")
+                        # ax.set_ylim(-1.015, 2.15)
+                        # ax.set_xlim(0, 3100)
+
+                        ax.legend(fontsize=font_size-2, loc="lower center")
                         fig.savefig("../fig/fit_asymm.png", dpi=300, bbox_inches='tight');
+
+
 
 
                     # look into parameters
@@ -751,8 +778,10 @@ def plot_all_mom(df=args.file, scan=False, A_bz=False):
             Bz_e= data['A_B_z_e']
         ds_colors=["k", "k", "k", "k"]
         ds_markers=["d", "d", "d", "d"]
-        Bz_mean= round(np.sum(Bz * Bz_e)/np.sum(Bz_e),1)
-        Bz_mean_e = round(1.0/np.sqrt(np.sum(1.0/Bz_e**2))  ,1)
+        
+        par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(np.array([0,1,2,3]), Bz, Bz_e, cu.parallel, [0.0])
+        Bz_mean=round(par[0],1)
+        Bz_mean_e=round(par_e[0],1)
 
         y_label=r"$B_z$ (ppm)"
         if(A_bz): y_label= r"$A_{B_z}\ [\rm{\mu}$rad]"
@@ -760,7 +789,7 @@ def plot_all_mom(df=args.file, scan=False, A_bz=False):
 
         band_width=2
         ax.set_xlim(0.7, 4.3)
-        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.2)
+        ax.set_ylim(ax.get_ylim()[0]*1.1, ax.get_ylim()[1]*1.4)
         # ax.set_ylim(-30, 30)
         label_sum=r"$\langle B_z\rangle$="+str(Bz_mean)+"("+str(Bz_mean_e)+") ppm"
         if(A_bz): label_sum=r"$\langle A_{B_z}\rangle$="+str(Bz_mean)+"("+str(Bz_mean_e)+r") $\rm{\mu}$rad"

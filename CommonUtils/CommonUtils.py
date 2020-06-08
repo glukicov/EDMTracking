@@ -14,9 +14,9 @@ import re
 from math import floor, log10
 
 # Import blinding libraries 
-sys.path.append("../Blinding") # path to Blinding libs
-from BlindersPy3 import Blinders
-from BlindersPy3 import FitType
+# sys.path.append("../Blinding") # path to Blinding libs
+# from BlindersPy3 import Blinders
+# from BlindersPy3 import FitType
 # getBlinded = Blinders(FitType.Omega_a, "EDM all day") 
 
 #fix the random seed
@@ -71,15 +71,22 @@ def get_asym(p):
     Empirically determined asymmetry function from simulation 
     '''
     a = -2.368462922e-07*p**2+7.972557327e-04*p-5.642233685e-01 
+    # print("\nSystematically adjusting asymmetry by +-10%\n")
+    # a=a*0.8
+    return a
+
+
+def get_asym_e(p):
+    '''
+    Empirically determined asymmetry function from simulation 
+    '''
+    #a = -2.368462922e-07*p**2+7.972557327e-04*p-5.642233685e-01 
     # print("\nSystematically adjusting asymmetry by +-5%\n")
     # a=a*0.95
+    # a=get_asym(p)-0.9*get_asym(p)
+    a=0.0   
     return a
-    # if(a > 0):
-    #     return asym
-    # else: 
-    #     print("\n Returning negative asymmetry \n")
-    #     return 0.0
-    
+
 
 def plotHist(data, n_bins=100, prec=2, fs=14, units="units", c="green", alpha=0.7, label=""):
     '''
@@ -347,6 +354,10 @@ def plot_mom(x, y, y_e, scan=False, ds_name=None, cuts=None, N_s1218=None, p_mea
             
             par, par_e, pcov, chi2_ndf, ndf = fit_and_chi2(x_1218, y_1218, y_e_1218, parallel, [0.0])
 
+            weighted = np.average(y_1218,weights=1/y_e_1218**2)
+            weighted_e = 1.0/np.sqrt(np.sum(1.0/y_e_1218**2)) 
+            print("weighted, weighted_e", weighted, weighted_e)
+
             if(scan==True):
                 par_dump=np.array([[ds_name], par[0], par_e[0]])
                 par_dump_keys = ['ds', "A_B_z", "A_B_z_e"]
@@ -363,7 +374,7 @@ def plot_mom(x, y, y_e, scan=False, ds_name=None, cuts=None, N_s1218=None, p_mea
         #now add the weighted mean
         else:
             if(asym==False):
-                weighted = np.sum(y * y_e)/np.sum(y_e)
+                weighted = np.average(y,weights=1/y_e**2)
                 weighted_e = 1.0/np.sqrt(np.sum(1.0/y_e**2)) 
             else:
                 # print("Bin starts", x)
@@ -376,12 +387,13 @@ def plot_mom(x, y, y_e, scan=False, ds_name=None, cuts=None, N_s1218=None, p_mea
                 print('\n !!! Using asym_limit=', asym_limit)
                 for i, p_mean_i in enumerate(p_mean):
                     asym=get_asym(p_mean_i)
+                    asym_e=get_asym_e(p_mean_i)
                     if(asym>asym_limit):
                         A.append(asym)
                         a_s12_y.append(y[i] / asym)
-                        a_s12_y_e.append( np.abs(y[i] / asym)*np.sqrt( y_e[i]**2/ y[i]**2)  )
+                        a_s12_y_e.append( np.abs(y[i] / asym)*np.sqrt( y_e[i]**2/ y[i]**2  +  asym_e**2/asym**2)  )
                         a_s18_y.append(s18_y[i] / asym)
-                        a_s18_y_e.append( s18_y[i] / asym * s18_y_e[i]/ s18_y[i]  )
+                        a_s18_y_e.append( np.abs(s18_y[i] / asym) * np.sqrt( s18_y_e[i]**2/ s18_y[i]**2 + asym_e**2/asym**2  )  )
                         x_s12.append(p_mean_i-20)
                         x_s18.append(p_mean_i+20)
                         mean_fit_x.append(p_mean_i)
@@ -405,10 +417,6 @@ def plot_mom(x, y, y_e, scan=False, ds_name=None, cuts=None, N_s1218=None, p_mea
                 y_e_1218 = np.append(a_s12_y_e,  a_s12_y_e)
             
                 par, par_e, pcov, chi2_ndf, ndf = fit_and_chi2(x_1218, y_1218, y_e_1218, parallel, [0.0])
-                # weighted = np.mean(y_1218)
-                # # weighted = np.sum(y_1218 * y_e_1218)/np.sum(y_e_1218)
-                # weighted_e = 1.0/np.sqrt(np.sum(1.0/y_e_1218**2)) 
-                # print("Print weighted B_z=", weighted, "+-", weighted_e)
                 
                 if(scan==True):
                     par_dump=np.array([[ds_name], par[0], par_e[0]])
