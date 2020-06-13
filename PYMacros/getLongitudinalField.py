@@ -23,7 +23,7 @@ arg_parser.add_argument("--p_min", type=float, default=1200, help="Min momentum 
 arg_parser.add_argument("--p_max", type=float, default=2000, help="Max momentum cut [MeV]")
 arg_parser.add_argument("--p_min_count", type=float, default=1800, help="Min momentum cut [MeV]")
 arg_parser.add_argument("--p_max_count", type=float, default=3100, help="Max momentum cut [MeV]")
-arg_parser.add_argument("--bin_w_count", type=float, default=15, help="Bin width for counts plot [ns]")
+arg_parser.add_argument("--bin_w_count", type=float, default=2, help="Bin width for counts plot [ns]")
 arg_parser.add_argument("--bin_w", type=float, default=149.2, help="Bin width for theta plot [ns]") 
 arg_parser.add_argument("--g2period", type=float, default=None, help="g-2 period, if none BNL value is used [us]") 
 # arg_parser.add_argument("--hdf", type=str, default="../DATA/HDF/EDM/60h.h5", help="Full path to the data file: HDF5")
@@ -276,8 +276,8 @@ def plot_counts_theta(df_path):
         if(ds_name=="60h"): ax.set_ylim(-1.5, 0.2)
         if(ds_name=="HK"):  ax.set_ylim(-0.45, 0.15)
         if(ds_name=="9D"):  ax.set_ylim(-0.45, 0.0)
-        if(ds_name=="EG"):  ax.set_ylim(-0.9, -0.05)
-        if(sim): ax.set_ylim(-2.9, 2.5)
+        if(ds_name=="EG"):  ax.set_ylim(-1.3, -0.3)
+        if(sim): ax.set_ylim(-1.1, 0.3);
         cu.textL(ax, 0.75, 0.15, leg_data, fs=font_size)
         cu.textL(ax, 0.27, 0.17, leg_fit, fs=font_size, c="r")
         print("Fit in "+ds_name+" S:"+str(station), leg_fit)
@@ -329,7 +329,7 @@ def plot_counts_theta(df_path):
             cu.textL(ax, 0.75, 0.15, leg_data, fs=font_size)
             cu.textL(ax, 0.27, 0.17, leg_fit, fs=font_size, c="r")
             ax.set_xlim(0, g2period);
-            if(sim): ax.set_ylim(-2.0, 1.0);
+            if(sim): ax.set_ylim(-1.1, 0.3);
             if(args.scan==False): fig.savefig("../fig/bz_truth_"+ds_name+"_S"+str(station)+".png", dpi=200)
         
         #make sanity plots 

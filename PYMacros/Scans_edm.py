@@ -229,7 +229,7 @@ def main():
     if(args.plot_p_minp_max): plot(direction="p_min", bidir=True, second_direction="p_max")
     if(args.plot_mom): plot_mom()
     if(args.plot_bz): 
-        in_=input("Start Bz scans?")
+        #in_=input("Start Bz scans?")
 
         if(not args.sum):
             subprocess.call(['trash', "../DATA/scans/bz_scan.csv"])
@@ -237,10 +237,11 @@ def main():
             paths=["../DATA/scans/60h_edm_scan_theta.csv", "../DATA/scans/HK_edm_scan_theta.csv", "../DATA/scans/9D_edm_scan_theta.csv", "../DATA/scans/EG_edm_scan_theta.csv"]
             for path in paths:         
                plot_mom(df=path, scan=True)
+            plot_all_mom(df="../DATA/scans/bz_scan.csv", scan=True, A_bz=False)
         
         if(args.sum): 
             plot_all_mom(df="../DATA/scans/bz_scan.csv", scan=True, A_bz=False)
-            plot_all_mom(df="../DATA/scans/a_bz_scan.csv", scan=True, A_bz=True)
+            # plot_all_mom(df="../DATA/scans/a_bz_scan.csv", scan=True, A_bz=True)
     
     if(args.plot_all_mom): plot_all_mom()
 
@@ -712,12 +713,12 @@ def plot_mom(df=args.file, scan=False):
         # print(N[-1])
         # loc = plticker.MultipleLocator(base=1) # this locator puts ticks at regular intervals
 
-        # plot A_bz
-        fig, ax = cu.plot_mom(p_min, data_s12['A_Bz']*1e3, data_s12['A_Bz_e']*1e3, p_mean=p_mean, ds_name=ds_name_official, scan=scan, label1=label1+" S12"+n_label, s18=True, s18_y=data_s18['A_Bz']*1e3, s18_y_e=data_s18['A_Bz_e']*1e3, weighted=False, asym=False)
-        # ax.xaxis.set_major_locator(loc)
-        ax.set_ylabel(r"$A_{B_z} \ [\rm{\mu}$rad]")
-        ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.3)
-        fig.savefig("../fig/"+ds_name+"_sum_mom_A_bz"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
+        # # plot A_bz
+        # fig, ax = cu.plot_mom(p_min, data_s12['A_Bz']*1e3, data_s12['A_Bz_e']*1e3, p_mean=p_mean, ds_name=ds_name_official, scan=scan, label1=label1+" S12"+n_label, s18=True, s18_y=data_s18['A_Bz']*1e3, s18_y_e=data_s18['A_Bz_e']*1e3, weighted=False, asym=False)
+        # # ax.xaxis.set_major_locator(loc)
+        # ax.set_ylabel(r"$A_{B_z} \ [\rm{\mu}$rad]")
+        # ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.3)
+        # fig.savefig("../fig/"+ds_name+"_sum_mom_A_bz"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
         # fig, ax = cu.plot(p_mean, cu.get_asym(p_mean), scatter=True)
         # # ax.xaxis.set_major_locator(loc)
@@ -752,12 +753,12 @@ def plot_mom(df=args.file, scan=False):
         # fig.savefig("../fig/sum_mom_A_edm"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
         # # plot c
-        # fig, ax = cu.plot_mom(p_min, data_s12['c']*1e3, data_s12['c_e']*1e3, cuts, N, label2=r"$\langle c \rangle =$", label1=label1+" S12"+n_label, s18=True, s18_y=data_s18['c']*1e3, s18_y_e=data_s18['c_e']*1e3, weighted=False, pmin=True)
+        # fig, ax = cu.plot_mom(p_min, data_s12['c']*1e3, data_s12['c_e']*1e3, cuts, N, p_mean=p_mean, label2=r"$\langle c \rangle =$", label1=label1+" S12"+n_label, s18=True, s18_y=data_s18['c']*1e3, s18_y_e=data_s18['c_e']*1e3, weighted=False)
         # ax.set_ylabel(r"$c \ [\rm{\mu}$rad]")
         # fig.savefig("../fig/sum_mom_c"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
         # # plot sigma 
-        # fig, ax = cu.plot_mom(p_min, data_s12['sigma_y'], None, cuts, N, weighted=False, label1=label1+" S12"+n_label, s18=True, s18_y=data_s12['sigma_y'], s18_y_e=None, pmin=True)
+        # fig, ax = cu.plot_mom(p_min, data_s12['sigma_y'], None, cuts, N, p_mean=p_mean, weighted=False, label1=label1+" S12"+n_label, s18=True, s18_y=data_s12['sigma_y'], s18_y_e=None)
         # ax.set_ylabel(r"$\sigma_{\theta_y}$  [mrad]")
         # fig.savefig("../fig/sum_mom_sigma"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
@@ -789,7 +790,7 @@ def plot_all_mom(df=args.file, scan=False, A_bz=False):
 
         band_width=2
         ax.set_xlim(0.7, 4.3)
-        ax.set_ylim(ax.get_ylim()[0]*1.1, ax.get_ylim()[1]*1.4)
+        # ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1])
         # ax.set_ylim(-30, 30)
         label_sum=r"$\langle B_z\rangle$="+str(Bz_mean)+"("+str(Bz_mean_e)+") ppm"
         if(A_bz): label_sum=r"$\langle A_{B_z}\rangle$="+str(Bz_mean)+"("+str(Bz_mean_e)+r") $\rm{\mu}$rad"

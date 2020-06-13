@@ -80,11 +80,18 @@ def get_asym_e(p):
     '''
     Empirically determined asymmetry function from simulation 
     '''
-    #a = -2.368462922e-07*p**2+7.972557327e-04*p-5.642233685e-01 
-    # print("\nSystematically adjusting asymmetry by +-5%\n")
-    # a=a*0.95
-    # a=get_asym(p)-0.9*get_asym(p)
-    a=0.0   
+    d_a = 7.570283835e-08 
+    d_b = 2.596718051e-04
+    d_c = 2.144047467e-01
+
+    df_a = p**2
+    df_b = p 
+    df_c = 1
+
+    a = np.sqrt( df_a**2*d_a**2 + df_b**2*d_b**2 + df_c**2*d_c**2 )
+
+    # a=0
+
     return a
 
 
@@ -383,7 +390,7 @@ def plot_mom(x, y, y_e, scan=False, ds_name=None, cuts=None, N_s1218=None, p_mea
                 a_s12_y, a_s12_y_e, a_s18_y, a_s18_y_e, x_s12, x_s18= [], [], [], [], [], []
                 mean_fit_x=[]
                 asym_limit = float("-inf")
-                # asym_limit = 0.025
+                # asym_limit = 0.1
                 print('\n !!! Using asym_limit=', asym_limit)
                 for i, p_mean_i in enumerate(p_mean):
                     asym=get_asym(p_mean_i)
@@ -460,7 +467,7 @@ def plot_mom(x, y, y_e, scan=False, ds_name=None, cuts=None, N_s1218=None, p_mea
     if(p_mean.any() != None): 
         # ax.set_xlabel(r"$p_{\rm{min}}$ [MeV] in range: $p_{\rm{min}}<p<p_{\rm{min}}+100$ MeV")
         ax.set_xlabel(r"$p$ [MeV] in range: $p-50<p<p+50$ MeV")
-        ax.set_xlim(p_mean[0]-100, p_mean.iloc[-1]+100)
+        ax.set_xlim(p_mean[0]-150, p_mean.iloc[-1]+150)
     else:
         ax.set_xlabel("Momentum cut [MeV]")
         ax.set_xticks(x)
