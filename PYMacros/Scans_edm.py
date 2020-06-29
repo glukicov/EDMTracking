@@ -150,8 +150,10 @@ if(args.mom):
     else:   
         # p_min = np.linspace(1200,  1900, 6, dtype=float)
         # p_max = np.linspace(1300,  2000, 6, dtype=float)
-        p_min = np.linspace(1100,  2200, 12, dtype=float)
-        p_max = np.linspace(1200,  2300, 12, dtype=float)
+        #p_min = np.linspace(1100,  2200, 12, dtype=float)
+        #p_max = np.linspace(1200,  2300, 12, dtype=float)
+        p_min = np.linspace(800,  2500, 18, dtype=float)
+        p_max = np.linspace(900,  2600, 18, dtype=float)
 
 
     print("P min:", p_min)
@@ -569,13 +571,28 @@ def plot(direction="start", bidir=False, second_direction=None):
 
                         par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(x_mid, y/1700, y_e/1700, cu.parab, [1,1,1])
                         
-                        print(pcov)
+                        print(pcov)                    
 
-                        # df_corr = pd.DataFrame(corr)
-                        # fig,ax = plt.subplots()
-                        # ax=sn.heatmap(df_corr, annot=True, fmt='.3f', linewidths=.5, cmap="bwr")
-                        # cu.textL(ax, 0.5, 1.1, "S"+str(station))
-                        # fig.savefig("../fig/corr.png", dpi=300)
+                        pcov_string=[[0 for k in range(3)] for j in range(3)]
+
+                        print(pcov_string)
+                        
+                        
+                        for ix,iy in np.ndindex(pcov.shape):
+                            print(cu.sci_notation(pcov[ix,iy]))
+                            pcov_string[ix][iy]=(cu.sci_notation(pcov[ix,iy]))
+
+                        # print(pcov_string[0][0].replace('b', 'r'))
+
+                        # sys.exit()
+
+                        df_corr = pd.DataFrame(pcov, columns=[r'$a$', r'$b$', r'$d_0$'], index=[r'$a$', r'$b$', r'$d_0$'])
+                        fig,ax = plt.subplots()
+                        ax=sn.heatmap(df_corr, annot=pcov_string, fmt="s", linewidths=.5, cmap="bwr", annot_kws={"fontsize":10})
+                        ax.tick_params(axis="x", labelsize=12)
+                        ax.tick_params(axis="y", labelsize=12)
+                        fig.savefig("../fig/cov.png", dpi=300)
+
 
                         x_lin = np.linspace(0, 3100, 1000) 
                         ax.plot(x_lin, cu.parab(x_lin, *par), c="r", ls="--", label=r"$d_{B_z}(p)=ap^2+bp+d_0$", lw=2);
@@ -586,15 +603,15 @@ def plot(direction="start", bidir=False, second_direction=None):
                         print(par, par_e)
                         # par_p = par+0.1*par_e
                         # par_m = par-0.1*par_e
-                        par_p = 1.2*par
-                        par_m = 0.8*par
-                        print(par_p, par_m)
+                        #par_p = 1.2*par
+                        #par_m = 0.8*par
+                        #print(par_p, par_m)
 
-                        y_p = cu.parab(x_lin, *par_p)
-                        y_m=  cu.parab(x_lin, *par_m)
+                        #y_p = cu.parab(x_lin, *par_p)
+                        #y_m=  cu.parab(x_lin, *par_m)
 
                         # ax.fill_between(x_lin, y_p , y_m, where= y_p >=y_m, facecolor='blue', interpolate=False, alpha=0.6, label=r"$1\sigma$")
-                        ax.fill_between(x_lin, y_p , y_m, where= y_p >=y_m, facecolor='blue', interpolate=False, alpha=0.4, label=r"$\pm20\%$ band")
+                        #ax.fill_between(x_lin, y_p , y_m, where= y_p >=y_m, facecolor='blue', interpolate=False, alpha=0.4, label=r"$\pm20\%$ band")
                         # ax.set_ylim(-1.015, 2.15)
                         # ax.set_xlim(0, 3100)
 
@@ -753,9 +770,9 @@ def plot_mom(df=args.file, scan=False):
         # fig.savefig("../fig/sum_mom_A_edm"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
         # # plot c
-        # fig, ax = cu.plot_mom(p_min, data_s12['c']*1e3, data_s12['c_e']*1e3, cuts, N, p_mean=p_mean, label2=r"$\langle c \rangle =$", label1=label1+" S12"+n_label, s18=True, s18_y=data_s18['c']*1e3, s18_y_e=data_s18['c_e']*1e3, weighted=False)
-        # ax.set_ylabel(r"$c \ [\rm{\mu}$rad]")
-        # fig.savefig("../fig/sum_mom_c"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
+        fig, ax = cu.plot_mom(p_min, data_s12['c']*1e3, data_s12['c_e']*1e3, cuts, N, p_mean=p_mean, label2=r"$\langle c \rangle =$", label1=label1+" S12"+n_label, s18=True, s18_y=data_s18['c']*1e3, s18_y_e=data_s18['c_e']*1e3, weighted=False)
+        ax.set_ylabel(r"$c \ [\rm{\mu}$rad]")
+        fig.savefig("../fig/sum_mom_c"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
         # # plot sigma 
         # fig, ax = cu.plot_mom(p_min, data_s12['sigma_y'], None, cuts, N, p_mean=p_mean, weighted=False, label1=label1+" S12"+n_label, s18=True, s18_y=data_s12['sigma_y'], s18_y_e=None)
@@ -781,8 +798,15 @@ def plot_all_mom(df=args.file, scan=False, A_bz=False):
         ds_markers=["d", "d", "d", "d"]
         
         par, par_e, pcov, chi2_ndf, ndf = cu.fit_and_chi2(np.array([0,1,2,3]), Bz, Bz_e, cu.parallel, [0.0])
+        t1= (Bz-par[0])**2
+        t2=Bz_e**2
+
+        print(t1/t2)
+
+
         Bz_mean=round(par[0],1)
         Bz_mean_e=round(par_e[0],1)
+        print("chi2_ndf", chi2_ndf)
 
         y_label=r"$B_z$ (ppm)"
         if(A_bz): y_label= r"$A_{B_z}\ [\rm{\mu}$rad]"
@@ -792,7 +816,7 @@ def plot_all_mom(df=args.file, scan=False, A_bz=False):
         ax.set_xlim(0.7, 4.3)
         # ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1])
         # ax.set_ylim(-30, 30)
-        label_sum=r"$\langle B_z\rangle$="+str(Bz_mean)+"("+str(Bz_mean_e)+") ppm"
+        label_sum=r"$\langle B_z\rangle$="+str(Bz_mean)+"("+str(Bz_mean_e)+") ppm"+r" ($\chi^2=$"+str(round(chi2_ndf*ndf,1))+")"
         if(A_bz): label_sum=r"$\langle A_{B_z}\rangle$="+str(Bz_mean)+"("+str(Bz_mean_e)+r") $\rm{\mu}$rad"
         ax.plot([0,5],[Bz_mean, Bz_mean], ls=":", c="g", zorder=2, label=label_sum)
         ax.set_xlabel("")
@@ -827,8 +851,8 @@ def plot_all_mom(df=args.file, scan=False, A_bz=False):
 
         plt.legend(fontsize=13, loc='upper center')
         plt.tight_layout()
-        if(not A_bz): fig.savefig("../fig/sum_Bz_s12s18.png", dpi=200, bbox_inches='tight');
-        if(A_bz): fig.savefig("../fig/sum_A_Bz_s12s18.png", dpi=200, bbox_inches='tight');
+        if(not A_bz): fig.savefig("../fig/sum_Bz_s12s18.png", dpi=300, bbox_inches='tight');
+        if(A_bz): fig.savefig("../fig/sum_A_Bz_s12s18.png", dpi=300, bbox_inches='tight');
 
 
 

@@ -374,7 +374,9 @@ def plot_mom(x, y, y_e, scan=False, ds_name=None, cuts=None, N_s1218=None, p_mea
                     df.to_csv(f, mode='a', header=f.tell()==0)
 
             x_lin = np.linspace(0, 3100, 1000) 
-            ax.plot(x_lin, parallel(x_lin, *par), c="g", ls="-", label=r"$\langle A_{B_z} \rangle$="+str(round(par[0],1))+"("+str(round(par_e[0],1))+") ppm", lw=2);
+            ax.plot([1100, 1100],[200, -1200], c='g', ls=":")
+            ax.plot([2300, 2300],[200, -1200], c='g', ls=":")
+            #ax.plot(x_lin, parallel(x_lin, *par), c="g", ls="-", label=r"$\langle A_{B_z} \rangle$="+str(round(par[0],1))+"("+str(round(par_e[0],1))+") ppm", lw=2);
 
 
 
@@ -478,6 +480,8 @@ def plot_mom(x, y, y_e, scan=False, ds_name=None, cuts=None, N_s1218=None, p_mea
 
     plt.xticks(fontsize=14)
     plt.tight_layout()
+    ax.set_ylim(-1000, 100)
+    ax.set_xlim(750, 2650)
     ax.tick_params(axis='x', which='minor', bottom=False, top=False)
 
     # ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.1)
@@ -720,7 +724,7 @@ def fit_and_chi2(x, y, y_err, func, p0):
     print("Params:", par)
     print("Errors:", par_e)
     chi2ndf, chi2, ndf=chi2_ndf(x, y, y_err, func, par)
-    print("Fit 𝝌2/DoF=", str(round(chi2ndf,2))+"("+ str(int(round(chi2_ndf_e(par, ndf)*10**2))) +") 𝝌2:", int(chi2), "DoF:", ndf)
+    print("Fit 𝝌2/DoF=", str(round(chi2ndf,2))+"("+ str(int(round(chi2_ndf_e(par, ndf)*10**2))) +") 𝝌2:", chi2, "DoF:", ndf)
     return par, par_e, pcov, chi2ndf, ndf
 
 
@@ -994,7 +998,7 @@ def stats3(data):
     return N, mean, meanE
 
 # Define function for string formatting of scientific notation
-def sci_notation(num, decimal_digits=1, precision=None, exponent=None):
+def sci_notation(num, decimal_digits=1, precision=None, exponent=None, mat=False):
     """
     Author: sodd 
     https://stackoverflow.com/questions/18311909/how-do-i-annotate-with-power-of-ten-formatting
@@ -1012,7 +1016,9 @@ def sci_notation(num, decimal_digits=1, precision=None, exponent=None):
     if precision is None:
         precision = decimal_digits
 
-    return r"${0:.{2}f}\cdot10^{{{1:d}}}$".format(coeff, exponent, precision)
+    
+    if(mat==False): return r"${0:.{2}f}\cdot10^{{{1:d}}}$".format(coeff, exponent, precision)
+    if(mat==True):  return "${0:.{2}f}\cdot10^{{{1:d}}}$".format(coeff, exponent, precision)
 
 
 
