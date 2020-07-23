@@ -56,4 +56,3 @@ The official blinding guide is here: https://cdcvs.fnal.gov/redmine/projects/gm2
 
 **Example of EDM Tracking art (C++) code is here https://cdcvs.fnal.gov/redmine/projects/gm2analyses/wiki/Tracker_EDM_analysis**
 
-
