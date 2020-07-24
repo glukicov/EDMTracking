@@ -3,7 +3,7 @@
 [![release](https://img.shields.io/github/v/release/glukicov/EDMTracking)](https://img.shields.io/github/v/release/glukicov/EDMTracking)
 [![Build Status](https://travis-ci.org/glukicov/EDMTracking.svg?branch=master)](https://travis-ci.org/glukicov/EDMTracking)
 [![DOI](https://zenodo.org/badge/214927605.svg)](https://zenodo.org/badge/latestdoi/214927605)
-[![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 <!--- [![Build status](https://ci.appveyor.com/api/projects/status/9g56so2i3v75cblj?svg=true)](https://ci.appveyor.com/project/glukicov/edmtracking) --->
 <!-- [![Coverage Status](https://coveralls.io/repos/github/glukicov/EDMTracking/badge.svg?branch=master)](https://coveralls.io/github/glukicov/EDMTracking?branch=master) -->
 
