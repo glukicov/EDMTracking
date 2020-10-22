@@ -150,10 +150,10 @@ if(args.mom):
     else:   
         # p_min = np.linspace(1200,  1900, 6, dtype=float)
         # p_max = np.linspace(1300,  2000, 6, dtype=float)
-        #p_min = np.linspace(1100,  2200, 12, dtype=float)
-        #p_max = np.linspace(1200,  2300, 12, dtype=float)
-        p_min = np.linspace(800,  2500, 18, dtype=float)
-        p_max = np.linspace(900,  2600, 18, dtype=float)
+        p_min = np.linspace(1100,  2200, 12, dtype=float)
+        p_max = np.linspace(1200,  2300, 12, dtype=float)
+        #p_min = np.linspace(800,  2500, 18, dtype=float)
+        #p_max = np.linspace(900,  2600, 18, dtype=float)
 
 
     print("P min:", p_min)
@@ -164,8 +164,8 @@ if(args.p_minp_max):
     # p_min = np.linspace(0, 1400, 15, dtype=float)
     # p_max = np.linspace(3100, 1700, 15, dtype=float)
 
-    p_min = np.linspace(500,  1400, 10, dtype=float)
-    p_max = np.linspace(2500, 1600, 10, dtype=float)
+    # p_min = np.linspace(500,  1400, 10, dtype=float)
+    # p_max = np.linspace(2500, 1600, 10, dtype=float)
 
     # p_min = np.linspace(1000, 2400, 8, dtype=float)
     # p_max = np.linspace(1200, 2600, 8, dtype=float)
@@ -770,9 +770,9 @@ def plot_mom(df=args.file, scan=False):
         # fig.savefig("../fig/sum_mom_A_edm"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
         # # plot c
-        fig, ax = cu.plot_mom(p_min, data_s12['c']*1e3, data_s12['c_e']*1e3, cuts, N, p_mean=p_mean, label2=r"$\langle c \rangle =$", label1=label1+" S12"+n_label, s18=True, s18_y=data_s18['c']*1e3, s18_y_e=data_s18['c_e']*1e3, weighted=False)
-        ax.set_ylabel(r"$c \ [\rm{\mu}$rad]")
-        fig.savefig("../fig/sum_mom_c"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
+        # fig, ax = cu.plot_mom(p_min, data_s12['c']*1e3, data_s12['c_e']*1e3, cuts, N, p_mean=p_mean, label2=r"$\langle c \rangle =$", label1=label1+" S12"+n_label, s18=True, s18_y=data_s18['c']*1e3, s18_y_e=data_s18['c_e']*1e3, weighted=False)
+        # ax.set_ylabel(r"$c \ [\rm{\mu}$rad]")
+        # fig.savefig("../fig/sum_mom_c"+"_S"+str(station)+".png", dpi=300, bbox_inches='tight');
 
         # # plot sigma 
         # fig, ax = cu.plot_mom(p_min, data_s12['sigma_y'], None, cuts, N, p_mean=p_mean, weighted=False, label1=label1+" S12"+n_label, s18=True, s18_y=data_s12['sigma_y'], s18_y_e=None)

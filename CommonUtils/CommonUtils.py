@@ -480,11 +480,12 @@ def plot_mom(x, y, y_e, scan=False, ds_name=None, cuts=None, N_s1218=None, p_mea
 
     plt.xticks(fontsize=14)
     plt.tight_layout()
-    ax.set_ylim(-1000, 100)
-    ax.set_xlim(750, 2650)
+    ax.set_ylim(-5200, 5200)
+    ax.set_xlim(1000, 2200)
+    print("CU::Limit is set manually for mom plots!!!")
     ax.tick_params(axis='x', which='minor', bottom=False, top=False)
 
-    # ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.1)
+    ax.set_ylim(ax.get_ylim()[0], ax.get_ylim()[1]*1.1)
     plt.legend(fontsize=12, loc="upper center")
     return fig, ax
 
